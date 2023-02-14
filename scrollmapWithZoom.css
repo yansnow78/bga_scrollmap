@@ -1,0 +1,146 @@
+/*
+	Scrollable area
+*/
+.scrollmap_container {
+    touch-action:none;
+}
+.scrollmap_overflow_clipped {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+.scrollmap_anim {
+	/* isolation: isolate; */
+	z-index: var(--z_index_anim);
+}
+.scrollmap_scrollable, .scrollmap_onsurface, .scrollmap_anim {
+    position: absolute;
+    /* top: 205px;
+    left:  315px; */
+	/* transform-origin: top left; */
+}
+.scrollmap_surface {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    cursor: move;
+}
+/*
+	Move arrows & zoom
+*/
+.scrollmap_centericon {
+	text-align: center;
+	width: 100%;
+	vertical-align: middle;
+}
+.scrollmap_movetop,
+.scrollmap_moveleft,
+.scrollmap_moveright,
+.scrollmap_movedown {
+    display: none;
+    position: absolute;
+	background-color: rgba(255,255,255,0.5);
+	font-size: 30px;
+    /*overflow: hidden;*/
+}
+.scrollmap_movetop,
+.scrollmap_movedown {
+    width: 32px;
+    height: 24px;
+	line-height: 22px;
+    left: 50%;
+	margin-left: -16px;
+}
+.scrollmap_moveleft,
+.scrollmap_moveright {
+    width: 24px;
+    height: 32px;
+	line-height: 34px;
+    top: 50%;
+	margin-top: -16px;
+}
+.scrollmap_movetop {
+    top: 0px;
+	border-radius: 0 0 16px 16px;
+}
+.scrollmap_moveleft {
+    left: 0px;
+	border-radius: 0 16px 16px 0;
+}
+.scrollmap_moveright {
+    right: 0px;
+	border-radius: 16px 0 0 16px;
+}
+.scrollmap_movedown {
+	bottom: 0px;
+	border-radius: 16px 16px 0 0;
+}
+.scrollmap_zoomplus, .scrollmap_zoomminus  {
+	display: none;
+    position: absolute;
+    top: 50%;
+    width: 32px;
+    height: 32px;
+	border-radius: 0 16px 16px 0;
+	background-color: rgba(255,255,255,0.5);
+	font-size: 28px;
+}
+@media (hover: none) and (pointer: coarse) {
+	.scrollmap_zoomplus  {
+		margin-top: 48px;
+	}
+	.scrollmap_zoomminus  {
+		margin-top: 102px;
+	}
+	:is(.scrollmap_zoomplus, .scrollmap_zoomminus, .scrollmap_movetop, .scrollmap_moveleft, .scrollmap_moveright, .scrollmap_movedown, .scrollmap_reset)::after {
+		content:'';
+		position:absolute;
+		top:-16px; bottom:-16px; 
+		left:-16px; right:-16px; 
+	}
+}
+@media (hover: hover) and (pointer: fine) {
+	.scrollmap_zoomplus  {
+		margin-top: 20px;
+	}
+	.scrollmap_zoomminus  {
+		margin-top: 52px;
+	}
+}
+.scrollmap_reset {
+    display: none;
+    position: absolute;
+	background-color: rgba(255,255,255,0.5);
+	font-size: 30px;
+    overflow: hidden;
+    width: 32px;
+    height: 32px;
+	line-height: 32px;
+    right: 32px;
+    top: 32px;
+	border-radius: 16px;
+}
+
+.scrollmap_footer {
+    text-align: center;
+}
+
+.scrollmap_enlargedisplay,
+.scrollmap_reducedisplay {
+    display: none;
+    position: absolute;
+	background-color: rgba(255,255,255,0.5);
+}
+
+.scrollmap_container .scrollmap_enlargedisplay {
+	left : calc(50% + 32px);
+	top: 0px;
+}
+
+.scrollmap_container .scrollmap_reducedisplay {
+	right : calc(50% + 32px);
+	top: 0px;
+}
