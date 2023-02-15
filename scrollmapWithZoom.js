@@ -30,7 +30,17 @@ define([
                 this.zoomPinchDelta = 0.005;
                 this.zoomWheelDelta = 0.001;
                 this.bEnablePinchZooming = false;
-                this.bEnableWheelZooming = false;
+                this.wheelZoomingKeys = {
+                    Disabled: 0,
+                    Any: 1,
+                    None: 2,
+                    Ctrl: 3,
+                    Alt: 4,
+                    Meta: 5,
+                    //Shift: 6
+                  };
+                this.bEnableWheelZooming = this.wheelZoomingKeys.None;
+
                 this.zoomChangeHandler = null;
                 this.bScrollDeltaAlignWithZoom = true;
                 this.scrollDelta = 0;
@@ -272,8 +282,43 @@ define([
             },
 
             onWheel: function (evt) {
-                if ((!this.bEnableWheelZooming) || (evt.ctrlKey))
-                    return;
+                // if ((this.bEnableWheelZooming == this.wheelZoomingKeys.Disabled) ||
+                //    ((!this.bEnableWheelZooming == this.wheelZoomingKeys.Disabled) || (evt.ctrlKey)) ||
+                //     return;
+                switch (this.bEnableWheelZooming) {
+                    // Zoom with scroll wheel
+                    case this.wheelZoomingKeys.Disabled:
+                        return;
+
+                    case this.wheelZoomingKeys.None:
+                        if (evt.ctrlKey || evt.altKey || evt.metaKey || evt.shiftKey)
+                            return;
+                        break;
+
+                    case this.wheelZoomingKeys.Any:
+                        break;
+
+                    case this.wheelZoomingKeys.Ctrl:
+                        if (evt.ctrlKey)
+                            break;
+                        return;
+
+                    case this.wheelZoomingKeys.Shift:
+                        if (evt.shiftKey)
+                            break;
+                        return;
+
+                    case this.wheelZoomingKeys.Alt:
+                        if (evt.altKey)
+                            break;
+                        return;
+
+                    // case this.wheelZoomingKeys.Meta:
+                    //     if (evt.metaKey)
+                    //         break;
+                    //     return;
+            
+                    }
                 evt.preventDefault();
                 const [x, y] = this._getXYCoord(evt);
                 this.changeMapZoom(evt.deltaY * -this.zoomWheelDelta, x, y);

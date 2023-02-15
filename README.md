@@ -10,7 +10,8 @@ Improved version of scrollmap used in multiple bga game
 - zooming with buttons doesn't drift the board anymore
 - improve animation between game board and player bards tanks to an animation_div
 - add support to long click on buttons (continuous scroll or zoom or enlarge/reduce until button released)
-- 
+- add possibility to select which key need to be pressed when zooming with wheel
+
 # usage
 ```javascript
 return declare("mygame", [ebg.core.gamegui, ebg.core.core_patch], {
