@@ -31,21 +31,19 @@
 /*
 	Move arrows & zoom
 */
-.scrollmap_centericon {
+.scrollmap_icon {
 	text-align: center;
-	width: 100%;
 	vertical-align: middle;
-}
-.scrollmap_movetop,
-.scrollmap_moveleft,
-.scrollmap_moveright,
-.scrollmap_movedown {
     display: none;
     position: absolute;
 	background-color: rgba(255,255,255,0.5);
 	font-size: 30px;
-    /*overflow: hidden;*/
+    width: 32px;
+    height: 32px;
+	line-height: 34px;
+	border-radius: 16px;
 }
+
 .scrollmap_movetop,
 .scrollmap_movedown {
     width: 32px;
@@ -79,30 +77,26 @@
 	border-radius: 16px 16px 0 0;
 }
 .scrollmap_zoomplus, .scrollmap_zoomminus  {
-	display: none;
-    position: absolute;
     top: 50%;
-    width: 32px;
-    height: 32px;
 	border-radius: 0 16px 16px 0;
 	background-color: rgba(255,255,255,0.5);
 	font-size: 28px;
 }
-@media (hover: none) and (pointer: coarse) {
+@media (pointer: coarse) {
 	.scrollmap_zoomplus  {
 		margin-top: 48px;
 	}
 	.scrollmap_zoomminus  {
 		margin-top: 102px;
 	}
-	:is(.scrollmap_zoomplus, .scrollmap_zoomminus, .scrollmap_movetop, .scrollmap_moveleft, .scrollmap_moveright, .scrollmap_movedown, .scrollmap_reset)::after {
+	:is(.scrollmap_icon)::after {
 		content:'';
 		position:absolute;
 		top:-16px; bottom:-16px; 
 		left:-16px; right:-16px; 
 	}
 }
-@media (hover: hover) and (pointer: fine) {
+@media (pointer: fine) {
 	.scrollmap_zoomplus  {
 		margin-top: 20px;
 	}
@@ -110,18 +104,15 @@
 		margin-top: 52px;
 	}
 }
+
 .scrollmap_reset {
-    display: none;
-    position: absolute;
-	background-color: rgba(255,255,255,0.5);
-	font-size: 30px;
-    overflow: hidden;
-    width: 32px;
-    height: 32px;
-	line-height: 32px;
+    right: 96px;
+    top: 32px;
+}
+
+.scrollmap_info {
     right: 32px;
     top: 32px;
-	border-radius: 16px;
 }
 
 .scrollmap_footer {

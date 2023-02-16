@@ -16,6 +16,7 @@ define([
                 this.onsurface_div = null;
                 this.clipped_div = null;
                 this.animation_div = null;
+                this.btnInfo = null;
                 this.page = null;
                 this.board_x = 0;
                 this.board_y = 0;
@@ -97,6 +98,7 @@ define([
                     <a class="scrollmap_enlargedisplay">↓  ${LABEL_ENLARGE_DISPLAY}  ↓</a>
                     <a class="scrollmap_reducedisplay">↑ ${LABEL_REDUCE_DISPLAY} ↑</a>
                 `;
+                var info_id=container_div.id +"_info";
 
                 var tmpl = String.raw`
                     <div class="scrollmap_overflow_clipped">
@@ -104,18 +106,20 @@ define([
                         <div class="scrollmap_surface" ></div>
                         <div class="scrollmap_onsurface"></div>
                     </div>
-                    <i class="scrollmap_movetop fa fa-chevron-up scrollmap_centericon"></i>
-                    <i class="scrollmap_moveleft fa fa-chevron-left scrollmap_centericon"></i>
-                    <i class="scrollmap_moveright fa fa-chevron-right scrollmap_centericon"></i>
-                    <i class="scrollmap_movedown fa fa-chevron-down scrollmap_centericon"></i>
-                    <i class="scrollmap_zoomplus fa fa-search-plus scrollmap_centericon"></i>
-                    <i class="scrollmap_zoomminus fa fa-search-minus scrollmap_centericon"></i>
-                    <i class="scrollmap_reset fa fa-refresh scrollmap_centericon"></i>
+                    <i class="scrollmap_movetop fa fa-chevron-up scrollmap_icon"></i>
+                    <i class="scrollmap_moveleft fa fa-chevron-left scrollmap_icon"></i>
+                    <i class="scrollmap_moveright fa fa-chevron-right scrollmap_icon"></i>
+                    <i class="scrollmap_movedown fa fa-chevron-down scrollmap_icon"></i>
+                    <i class="scrollmap_zoomplus fa fa-search-plus scrollmap_icon"></i>
+                    <i class="scrollmap_zoomminus fa fa-search-minus scrollmap_icon"></i>
+                    <i class="scrollmap_reset fa fa-refresh scrollmap_icon"></i>
+                    <i id=${info_id} class="scrollmap_info fa fa-info scrollmap_icon"></i>
                     ${bEnlargeReduceButtonsInsideMap?tmplDisplayButtons:``}
                     <div class="scrollmap_anim"></div>
                 `;
                 this._classNameSuffix = 'scrollmap_';
                 dojo.place(tmpl, container_div);
+                this.btnInfo = $(info_id);
                 var scrollable_div = container_div.querySelector('.scrollmap_scrollable');
                 var surface_div = container_div.querySelector('.scrollmap_surface');
                 var onsurface_div = container_div.querySelector('.scrollmap_onsurface');
@@ -689,11 +693,25 @@ define([
             },
 
             changeDisplayHeight: function(delta) {
-                var current_height = toint(dojo.style($('map_container'), 'height'));
+                var current_height = toint(dojo.style(this.container_div, 'height'));
                 var new_height = Math.max((current_height + delta), this.minHeight);
                 if (this.incrHeightKeepInPos)
                     this.board_y += (current_height-new_height)/2;
-                dojo.style($('map_container'), 'height', new_height + 'px');
-            },        
+                dojo.style(this.container_div, 'height', new_height + 'px');
+            },
+            //////////////////////////////////////////////////
+            //// Info button
+            setupInfoButton: function (bConfigurableInUserPreference = true) {
+                this.btnInfo.style.cursor= 'pointer';
+                this.btnInfo.style.display= 'block';
+                var info =
+                    _('To scroll/pan or zoom, you can use the buttons or the mouse or a gesture')+'<BR><BR>'+
+                    _('To scroll/pan: maintain the mouse button or the finger pressed and move it.')+'<BR><BR>'+
+                    _('To zoom: use the scroll wheel (with a specific or no key) or pinch fingers.')+'<BR><BR>';
+                if (bConfigurableInUserPreference)
+                    info += _('This is configurable in user preference.');
+                this.page.addTooltip( this.btnInfo.id, info, '' );
+            },
+
         });
     });
