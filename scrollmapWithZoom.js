@@ -183,7 +183,7 @@ define([
 
             _getPageZoom: function () {
                 var pageZoom = 1;
-                if  (this.page === null)  {
+                if  ((this.page === null) || (typeof this.page.gameinterface_zoomFactor === 'undefined' ))  {
                     var pageZoomStr = $("page-content").style.getPropertyValue("zoom");
                     pageZoom = 1;
                     if (pageZoomStr !== "")
