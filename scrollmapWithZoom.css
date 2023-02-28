@@ -3,6 +3,7 @@
 */
 .scrollmap_container {
     touch-action:none;
+	z-index: var(--z_index_anim);
 }
 .scrollmap_overflow_clipped {
     position: relative;
@@ -10,10 +11,9 @@
     height: 100%;
     overflow: hidden;
 }
-.scrollmap_anim {
-	/* isolation: isolate; */
+/* .scrollmap_anim {
 	z-index: var(--z_index_anim);
-}
+} */
 .scrollmap_scrollable, .scrollmap_onsurface, .scrollmap_anim {
     position: absolute;
     /* top: 205px;

@@ -194,26 +194,27 @@ define([
             },
 
             _getXYCoord: function (ev, ev2) {
-                const width = dojo.style(this.container_div, "width");
-                const height = dojo.style(this.container_div, "height");
-                const containerRect = this.container_div.getBoundingClientRect();
                 var clientX = ev.clientX;
                 var clientY = ev.clientY;
                 if (typeof ev2 !== 'undefined') {
                     clientX = (clientX + ev2.clientX) / 2;
                     clientY = (clientY + ev2.clientY) / 2;
                 }
-
-                var pageZoom = this._getPageZoom();
-                const x = clientX/pageZoom - containerRect.x - width / 2;
-                const y = clientY/pageZoom - containerRect.y - height / 2;
+                const pageZoom = this._getPageZoom();
+                var x, y;
+                if ((this.page !== null) && (typeof this.page.calcNewLocation === "function")) {
+                    [,,x, y]= this.page.calcNewLocation(this.surface_div, null, clientX/pageZoom, clientY/pageZoom, false, true);
+                } else {
+                    const containerRect = this.container_div.getBoundingClientRect();
+                    x = (clientX/pageZoom - containerRect.x - containerRect.width / 2);
+                    y = (clientY/pageZoom - containerRect.y - containerRect.height / 2);
+                }
                 return [x, y];
             },
 
             onPointerDown: function (ev) {
                 if (!(this.bEnableScrolling && this.bEnablePointerScrolling) && !this.bEnablePinchZooming)
                     return;
-                console.log(ev.button);
                 if ((ev.pointerType ="mouse") && (ev.button != 0)) //for mouse only accept left button
                     return;
                 if (this._pointers.length == 0) {
@@ -253,6 +254,7 @@ define([
                         Math.pow(Math.abs(ev2.clientY - ev1.clientY), 2)
                     );
                     const [x, y] = this._getXYCoord(ev1, ev2);
+                    // console.log(x, y);
                     if (this._prevDist > 0.0) {
                         // const diff = curDist - this._prevDist;
                         // newZoom = this.zoom * (1 + this.zoomPinchDelta * diff);
@@ -324,6 +326,7 @@ define([
                     }
                 evt.preventDefault();
                 const [x, y] = this._getXYCoord(evt);
+                // console.log("onwheel", evt.clientX, evt.clientY, x, y);
                 this.changeMapZoom(evt.deltaY * -this.zoomWheelDelta, x, y);
             },
 
@@ -710,7 +713,10 @@ define([
                     _('To zoom: use the scroll wheel (with a specific or no key) or pinch fingers.')+'<BR><BR>';
                 if (bConfigurableInUserPreference)
                     info += _('This is configurable in user preference.');
-                this.page.addTooltip( this.btnInfo.id, info, '' );
+                if (this.page!=null)
+                    this.page.addTooltip( this.btnInfo.id, info, '' );
+                else
+                    return info;
             },
 
         });
