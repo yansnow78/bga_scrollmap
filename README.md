@@ -11,6 +11,8 @@ Improved version of scrollmap used in multiple bga game
 - improve animation between game board and player bards tanks to an animation_div
 - add support to long click on buttons (continuous scroll or zoom or enlarge/reduce until button released)
 - add possibility to select which key need to be pressed when zooming with wheel
+- only allow 2 fingers scrolling by default, one finger is for page scrolling
+- only allow scroll with wheel if alt or ctrl or shift are pressed by default.
 
 # usage
 ```javascript
@@ -37,8 +39,7 @@ setup: function (gamedatas) {
   /*
     Make map draggable, scrollable and zoomable
   */
-  this.scrollmap.bEnablePinchZooming = true;
-  this.scrollmap.bEnableWheelZooming = true;
+  this.scrollmap.bEnableZooming = true;
   this.scrollmap.bEnableLongPress = true;
   this.scrollmap.setupOnScreenArrows(this.tile_size, true);
   this.scrollmap.minZoom = 0.2;
