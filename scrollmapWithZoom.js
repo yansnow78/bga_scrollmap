@@ -251,7 +251,7 @@ define([
                     <div class="scrollmap_anim"></div>
                 `;
                 this._classNameSuffix = 'scrollmap_';
-                dojo.place(tmpl, container_div);
+                container_div.innerHTML = tmpl;
                 this.btnInfo = $(info_id);
                 var scrollable_div = container_div.querySelector('.scrollmap_scrollable');
                 var surface_div = container_div.querySelector('.scrollmap_surface');
@@ -264,8 +264,12 @@ define([
                     <div id="${container_div.id}_footer" class="whiteblock scrollmap_footer">
                         ${tmplDisplayButtons}
                     </div>`;
-
-                    dojo.place(tmpl, container_div, "before");
+                    var parent = container_div.parentNode;
+                    var tmplNode = document.createElement("div");
+                    if(parent){
+                        parent.insertBefore(tmplNode, container_div);
+                    }
+                    tmplNode.outerHTML = tmpl;
                 }
 
                 this.create(container_div, scrollable_div, surface_div, onsurface_div, clipped_div, animation_div, page, create_extra);
@@ -425,7 +429,7 @@ define([
                             var zooming = /* touchesDistDiff > 5 &&  */((scrollX + scrollY)<touchesDistDiff);
                             // var scrolling = /* (scrollX + scrollY) > 5 &&  */(5*(scrollX + scrollY)>touchesDistDiff);
                             var scrolling = /* (scrollX + scrollY) > 5 &&  */(Math.hypot(scrollX + scrollY)>touchesDistDiff);
-                             console.log("touchmove", scrollX+scrollY, scrolling, "   ", touchesDistDiff, zooming);
+                            //  console.log("touchmove", scrollX+scrollY, scrolling, "   ", touchesDistDiff, zooming);
                         //     if ((scrolling && this.bEnableScrolling) || 
                         //         (zooming && this.bEnableZooming && this.zoomingOptions.pinchZooming)) {
                         //         this.container_div.classList.remove("scrollmap_warning_touch");
@@ -599,12 +603,13 @@ define([
             },
 
             scroll: function (dx, dy, duration, delay) {
-                console.log("scroll", this.board_x, dx, this.board_y, dy);
+                // console.log("scroll", this.board_x, dx, this.board_y, dy);
                 this.scrollto(this.board_x + dx, this.board_y + dy, duration, delay);
             },
             
             // Scroll the board to make it centered on given position
             scrollto: function (x, y, duration, delay) {
+                // console.log("scrollto", this.board_x, this.board_y);
                 if (typeof duration == 'undefined') {
                     duration = 350; // Default duration
                 }
@@ -612,8 +617,9 @@ define([
                     delay = 0; // Default delay
                 }
 
-                const width = dojo.style(this.container_div, "width");
-                const height = dojo.style(this.container_div, "height");
+                const s = window.getComputedStyle(this.container_div);
+                const width = parseInt(s.width);
+                const height = parseInt(s.height);
 
                 const board_x = toint(x + width / 2);
                 const board_y = toint(y + height / 2);
@@ -623,14 +629,14 @@ define([
 
                 if ((duration == 0) && (delay == 0)) {
                     if (this.animation_div!==null){
-                        dojo.style(this.animation_div, "left", board_x + "px");
-                        dojo.style(this.animation_div, "top", board_y + "px");
+                        this.animation_div.style.left =  board_x + "px";
+                        this.animation_div.style.top =  board_y + "px";
                     }
-                    dojo.style(this.scrollable_div, "left", board_x + "px");
-                    dojo.style(this.onsurface_div, "left", board_x + "px");
-                    dojo.style(this.scrollable_div, "top", board_y + "px");
-                    dojo.style(this.onsurface_div, "top", board_y + "px");
-                    // dojo.style( dojo.body(), "backgroundPosition", board_x+"px "+board_y+"px" );
+                    this.scrollable_div.style.left =  board_x + "px";
+                    this.onsurface_div.style.left =  board_x + "px";
+                    this.scrollable_div.style.top =  board_y + "px";
+                    this.onsurface_div.style.top =  board_y + "px";
+                    // dojo.body().style.backgroundPosition =  board_x+"px "+board_y+"px" ;
                     return;
                 }
                 var anim1 = dojo.fx.slideTo({
@@ -685,28 +691,37 @@ define([
                 var min_x = 0;
                 var min_y = 0;
 
-                var css_query = "> *";
+                var css_query = "*";
                 var css_query_div = this.scrollable_div;
                 if (typeof custom_css_query != 'undefined') {
                     css_query = custom_css_query;
-                    css_query_div = null;
+                    css_query_div = document;
                 }
 
-                dojo.query(css_query, css_query_div).forEach(dojo.hitch(this, function (node) {
-                    max_x = Math.max(max_x, dojo.style(node, 'left') + dojo.style(node, 'width'));
-                    min_x = Math.min(min_x, dojo.style(node, 'left'));
+                // console.log("getMapCenter", css_query, css_query_div);
+                css_query_div.querySelectorAll(css_query).forEach((node) => {
+                    let s = window.getComputedStyle(node);
+                    let left = parseInt(s.left);  let width = parseInt(s.width);
+                    max_x = Math.max(max_x, left + width);
+                    min_x = Math.min(min_x, left);
 
-                    max_y = Math.max(max_y, dojo.style(node, 'top') + dojo.style(node, 'height'));
-                    min_y = Math.min(min_y, dojo.style(node, 'top'));
+                    let top = parseInt(s.top);  let height = parseInt(s.height);
+                    max_y = Math.max(max_y, top + height);
+                    min_y = Math.min(min_y, top);
+                    // console.log("getMapCenter node rect",  s.left,  s.left, s.top, s.height);
+                    // console.log("getMapCenter min lax",  min_x,  max_x, min_y, max_y);
 
                     //                alert( node.id );
                     //                alert( min_x+','+min_y+' => '+max_x+','+max_y );
-                }));
-
-                return {
-                    x: (min_x + max_x) / 2,
-                    y: (min_y + max_y) / 2
+                });
+                var center =  {
+                    x: (min_x + max_x) * this.zoom / 2,
+                    y: (min_y + max_y) * this.zoom / 2
                 };
+                console.log("getMapCenter",  min_x,  max_x, min_y, max_y);
+                console.log("getMapCenter",  center);
+
+                return center;
             },
 
             changeMapZoom: function (diff, x = 0, y = 0) {
@@ -735,7 +750,7 @@ define([
             },
 
             setScale: function (elemId, scale) {
-                dojo.style($(elemId), 'transform', 'scale(' + scale + ')');
+                $(elemId).style.transform =  'scale(' + scale + ')';
             },
 
             _getButton: function (btnName, idSuffix=""){
@@ -747,13 +762,25 @@ define([
                 return $btn;
             },
 
+            _hideButton: function (btnName, idSuffix=""){
+                var $btn = this._getButton(btnName, idSuffix);
+                if ($btn === null)
+                    $btn.style.display = 'none';
+            },
+
+            _showButton: function (btnName, idSuffix="", display='block'){
+                var $btn = this._getButton(btnName, idSuffix);
+                if ($btn === null)
+                    $btn.style.display = display;
+            },
+
             _initButton: function (btnName, onClick, onLongPressedAnim = null, idSuffix="", display='block'){
                 var $btn = this._getButton(btnName, idSuffix);
                 if ($btn === null)
                     return;
                 $btn.addEventListener( 'click', onClick.bind(this));
-                dojo.style($btn, 'cursor', 'pointer');
-                dojo.style($btn, 'display', display);
+                $btn.style.cursor =  'pointer';
+                $btn.style.display =  display;
                 if (this.bEnableLongPress && onLongPressedAnim != null){
                     $btn.setAttribute("data-long-press-delay", 500);
                     $btn.addEventListener('long-press', this._onButtonLongPress.bind(this,onLongPressedAnim));
@@ -801,17 +828,17 @@ define([
             },
 
             showOnScreenArrows: function () {
-                dojo.style(this._getButton('movetop'),'display', 'block');
-                dojo.style(this._getButton('moveleft'),'display', 'block');
-                dojo.style(this._getButton('moveright'),'display', 'block');
-                dojo.style(this._getButton('movedown'),'display', 'block');
+               this._showButton('movetop');
+               this._showButton('moveleft');
+               this._showButton('moveright');
+               this._showButton('movedown');
             },
 
             hideOnScreenArrows: function () {
-                dojo.style(this._getButton('movetop'),'display', 'none');
-                dojo.style(this._getButton('moveleft'),'display', 'none');
-                dojo.style(this._getButton('moveright'),'display', 'none');
-                dojo.style(this._getButton('movedown'),'display', 'none');
+               this._hideButton('movetop');
+               this._hideButton('moveleft');
+               this._hideButton('moveright');
+               this._hideButton('movedown');
             },
 
             onMoveTop: function (evt) {
@@ -838,8 +865,9 @@ define([
             },
 
             isVisible: function (x, y) {
-                const width = dojo.style(this.container_div, "width");
-                const height = dojo.style(this.container_div, "height");
+                const s = window.getComputedStyle(this.container_div);
+                const width = parseInt(s.width);
+                const height = parseInt(s.height);
 
                 if (x >= (-this.board_x - width / 2) && x <= (-this.board_x + width / 2)) {
                     if (y >= (-this.board_y - height / 2) && y < (-this.board_y + height / 2)) {
@@ -880,13 +908,13 @@ define([
             },
 
             showOnScreenZoomButtons: function () {
-                dojo.query('#' + this.container_div.id + ' .'+this._classNameSuffix+'zoomplus').style('display', 'block');
-                dojo.query('#' + this.container_div.id + ' .'+this._classNameSuffix+'zoomminus').style('display', 'block');
+               this._showButton("zoomplus");
+               this._showButton("zoomminus");
             },
 
             hideOnScreenZoomButtons: function () {
-                dojo.query('#' + this.container_div.id + ' .'+this._classNameSuffix+'zoomplus').style('display', 'none');
-                dojo.query('#' + this.container_div.id + ' .'+this._classNameSuffix+'zoomminus').style('display', 'none');
+                this._hideButton("zoomplus");
+                this._hideButton("zoomminus");
             },
 
             onZoomIn: function (evt) {
@@ -908,13 +936,13 @@ define([
             },
 
             showOnScreenResetButtons: function () {
-                dojo.query('#' + this.container_div.id + ' .'+this._classNameSuffix+'reset').style('display', 'block');
-                dojo.query('#' + this.container_div.id + ' .'+this._classNameSuffix+'back_to_center').style('display', 'block');
+                this._showButton("reset");
+                this._showButton("back_to_center");
             },
 
             hideOnScreenResetButtons: function () {
-                dojo.query('#' + this.container_div.id + ' .'+this._classNameSuffix+'reset').style('display', 'none');
-                dojo.query('#' + this.container_div.id + ' .'+this._classNameSuffix+'back_to_center').style('display', 'block');
+                this._hideButton("reset");
+                this._hideButton("back_to_center");
             },
 
             onReset: function (evt) {
@@ -934,17 +962,34 @@ define([
 
             //////////////////////////////////////////////////
             //// Increase/decrease display height with buttons
-            setupEnlargeReduceButtons: function (incrHeightDelta, incrHeightKeepInPos, minHeight) {
+            _getpEnlargeReduceButtonsProps: function() {
                 var idSuffix="", display='block';
                 if (!this._bEnlargeReduceButtonsInsideMap){
                     idSuffix="_footer", display='contents';
                 }
-                this._initButton('enlargedisplay', this.onIncreaseDisplayHeight, ()=> {this.changeDisplayHeight(5);}, idSuffix, display);
-                this._initButton('reducedisplay', this.onDecreaseDisplayHeight, ()=> {this.changeDisplayHeight(-5);}, idSuffix, display);
+                return {idSuffix, display};
+            },
+
+            setupEnlargeReduceButtons: function (incrHeightDelta, incrHeightKeepInPos, minHeight) {
+                var btnsProps = this._getpEnlargeReduceButtonsProps();
+                this._initButton('enlargedisplay', this.onIncreaseDisplayHeight, ()=> {this.changeDisplayHeight(5);}, btnsProps.idSuffix, btnsProps.display);
+                this._initButton('reducedisplay', this.onDecreaseDisplayHeight, ()=> {this.changeDisplayHeight(-5);}, btnsProps.idSuffix, btnsProps.display);
 
                 this.incrHeightDelta = incrHeightDelta;
                 this.incrHeightKeepInPos = incrHeightKeepInPos;
                 this.minHeight = minHeight;
+            },
+
+            showEnlargeReduceButtons: function () {
+                var btnsProps = this._getpEnlargeReduceButtonsProps();
+                this._showButton("enlargedisplay", btnsProps.idSuffix, btnsProps.display);
+                this._showButton("reducedisplay", btnsProps.idSuffix, btnsProps.display);
+            },
+
+            hideEnlargeReduceButtons: function () {
+                var btnsProps = this._getpEnlargeReduceButtonsProps();
+                this._hideButton("enlargedisplay", btnsProps.idSuffix);
+                this._hideButton("reducedisplay", btnsProps.idSuffix);
             },
 
             onIncreaseDisplayHeight: function(evt) {
@@ -958,11 +1003,11 @@ define([
             },
 
             changeDisplayHeight: function(delta) {
-                var current_height = toint(dojo.style(this.container_div, 'height'));
+                var current_height = parseInt(window.getComputedStyle(this.container_div).height);
                 var new_height = Math.max((current_height + delta), this.minHeight);
                 if (this.incrHeightKeepInPos)
                     this.board_y += (current_height-new_height)/2;
-                dojo.style(this.container_div, 'height', new_height + 'px');
+                this.container_div.style.height =  new_height + 'px';
             },
             //////////////////////////////////////////////////
             //// Info button
