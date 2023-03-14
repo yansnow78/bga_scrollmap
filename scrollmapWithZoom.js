@@ -691,7 +691,7 @@ define([
                 var min_x = 0;
                 var min_y = 0;
 
-                var css_query = "*";
+                var css_query = ":scope > *";
                 var css_query_div = this.scrollable_div;
                 if (typeof custom_css_query != 'undefined') {
                     css_query = custom_css_query;
