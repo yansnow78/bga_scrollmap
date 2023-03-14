@@ -677,7 +677,7 @@ define([
             //  you can also specify (optional) a custom CSS query to get all concerned DOM elements
             scrollToCenter: function (custom_css_query) {
                 const center = this.getMapCenter(custom_css_query);
-                this.scrollto(-center.x, -center.y);
+                this.scrollto(-center.x * this.zoom, -center.y * this.zoom);
                 return {
                     x: -center.x,
                     y: -center.y
@@ -715,11 +715,11 @@ define([
                     //                alert( min_x+','+min_y+' => '+max_x+','+max_y );
                 });
                 var center =  {
-                    x: (min_x + max_x) * this.zoom / 2,
-                    y: (min_y + max_y) * this.zoom / 2
+                    x: (min_x + max_x) / 2,
+                    y: (min_y + max_y) / 2
                 };
-                console.log("getMapCenter",  min_x,  max_x, min_y, max_y);
-                console.log("getMapCenter",  center);
+                // console.log("getMapCenter",  min_x,  max_x, min_y, max_y);
+                // console.log("getMapCenter",  center);
 
                 return center;
             },
@@ -948,14 +948,14 @@ define([
             onReset: function (evt) {
                 this.setMapZoom(this.defaultZoom);
                 if (this.defaultPosition)
-                    this.scrollto(this.defaultPosition.x, this.defaultPosition.y);
+                    this.scrollto(this.defaultPosition.x * this.zoom, this.defaultPosition.y * this.zoom);
                 else
                     this.scrollToCenter();
             },
 
             onBackToCenter: function(evt) {
                 if (this.defaultPosition)
-                    this.scrollto(this.defaultPosition.x, this.defaultPosition.y);
+                    this.scrollto(this.defaultPosition.x * this.zoom, this.defaultPosition.y * this.zoom);
                 else
                     this.scrollToCenter();
             },
