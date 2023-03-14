@@ -61,20 +61,21 @@ define([
                 /* Feature detection */
 
                 // Test via a getter in the options object to see if the passive property is accessed
-                let passiveIfSupported = false;
-                let notPassiveIfSupported = false;
+                let passiveEventListener = false;
+                let notPassiveEventListener = false;
                 try {
                     var opts = Object.defineProperty({}, 'passive', {
                         get: function() {
-                            passiveIfSupported = { passive: true };
-                            notPassiveIfSupported = { passive: false };
+                            passiveEventListener = { passive: true };
+                            notPassiveEventListener = { passive: false };
+                            return true;
                         }
                     });
                     window.addEventListener("testPassive", null, opts);
                     window.removeEventListener("testPassive", null, opts);
-                    this.passiveIfSupported = passiveIfSupported;
-                    this.notPassiveIfSupported = notPassiveIfSupported;
-                } catch (e) {}
+                    this.passiveEventListener = passiveEventListener;
+                    this.notPassiveEventListener = notPassiveEventListener;
+                } catch (e) {/**/}
             },
 
             create: function (container_div, scrollable_div, surface_div, onsurface_div, clipped_div=null, animation_div=null, page=null, create_extra=null) {
@@ -194,19 +195,20 @@ define([
                 if (create_extra !== null)
                     create_extra(this);
 
+                var onPointerDown =this.onPointerDown.bind(this);
                 if (window.PointerEvent)
-                    dojo.connect(this.surface_div, 'onpointerdown', this, 'onPointerDown');
+                    this.surface_div.addEventListener('pointerdown', onPointerDown, this.passiveEventListener);
                 else {
-                    dojo.connect(this.surface_div, 'onmousedown', this, 'onPointerDown');
-                    dojo.connect(this.surface_div, 'ontouchstart', this, 'onPointerDown');
+                    this.surface_div.addEventListener('mousedown', onPointerDown, this.passiveEventListener);
+                    this.surface_div.addEventListener('touchstart', onPointerDown, this.passiveEventListener);
                 }
 
-                this.container_div.addEventListener('wheel', this.onWheel.bind(this), this.notPassiveIfSupported);
+                this.container_div.addEventListener('wheel', this.onWheel.bind(this), this.notPassiveEventListener);
                 var _handleTouch=this._handleTouch.bind(this);
-                this.container_div.addEventListener("touchstart", _handleTouch, this.passiveIfSupported );
-                this.container_div.addEventListener("touchmove", _handleTouch, this.notPassiveIfSupported);
-                document.addEventListener("touchend", _handleTouch, this.passiveIfSupported );
-                document.addEventListener("touchcancel", _handleTouch, this.passiveIfSupported );
+                this.container_div.addEventListener("touchstart", _handleTouch, this.passiveEventListener );
+                this.container_div.addEventListener("touchmove", _handleTouch, this.notPassiveEventListener);
+                document.addEventListener("touchend", _handleTouch, this.passiveEventListener );
+                document.addEventListener("touchcancel", _handleTouch, this.passiveEventListener );
 
                 this.container_div.setAttribute("warning_touch", _("Use two fingers to move or zoom the board"));
                 this.container_div.setAttribute("warning_scroll", _("Use ctrl or alt or shift + scroll to zoom the board"));
@@ -456,15 +458,15 @@ define([
                 if (this._onpointerup_handled == false) {
                     this._onpointerup_handled = true;
                     if (window.PointerEvent) {
-                        document.addEventListener( "pointermove", this._onpointermove_handler);
-                        document.addEventListener( "pointerup", this._onpointerup_handler);
-                        document.addEventListener( "pointercancel", this._onpointerup_handler);
+                        document.addEventListener( "pointermove", this._onpointermove_handler, this.passiveEventListener);
+                        document.addEventListener( "pointerup", this._onpointerup_handler, this.passiveEventListener);
+                        document.addEventListener( "pointercancel", this._onpointerup_handler, this.passiveEventListener);
                     } else {
-                        document.addEventListener( "mousemove", this._onpointermove_handler);
-                        document.addEventListener( "touchmove", this._onpointermove_handler);
-                        document.addEventListener( "mouseup", this._onpointerup_handler);
-                        document.addEventListener( "touchend", this._onpointerup_handler);
-                        document.addEventListener( "touchcancel", this._onpointerup_handler);
+                        document.addEventListener( "mousemove", this._onpointermove_handler, this.passiveEventListener);
+                        document.addEventListener( "touchmove", this._onpointermove_handler, this.passiveEventListener);
+                        document.addEventListener( "mouseup", this._onpointerup_handler, this.passiveEventListener);
+                        document.addEventListener( "touchend", this._onpointerup_handler, this.passiveEventListener);
+                        document.addEventListener( "touchcancel", this._onpointerup_handler, this.passiveEventListener);
                     }
                 }
                 this._updatePointers(ev);
@@ -521,15 +523,15 @@ define([
                 if (this._pointers.size === 0) {
                     this._onpointerup_handled = false;
                     if (window.PointerEvent) {
-                        document.removeEventListener( "pointermove", this._onpointermove_handler);
-                        document.removeEventListener( "pointerup", this._onpointerup_handler);
-                        document.removeEventListener( "pointercancel", this._onpointerup_handler);
+                        document.removeEventListener( "pointermove", this._onpointermove_handler, this.passiveEventListener);
+                        document.removeEventListener( "pointerup", this._onpointerup_handler, this.passiveEventListener);
+                        document.removeEventListener( "pointercancel", this._onpointerup_handler, this.passiveEventListener);
                     } else {
-                        document.removeEventListener( "mousemove", this._onpointermove_handler);
-                        document.removeEventListener( "touchmove", this._onpointermove_handler);
-                        document.removeEventListener( "mouseup", this._onpointerup_handler);
-                        document.removeEventListener( "touchend", this._onpointerup_handler);
-                        document.removeEventListener( "touchcancel", this._onpointerup_handler);
+                        document.removeEventListener( "mousemove", this._onpointermove_handler, this.passiveEventListener);
+                        document.removeEventListener( "touchmove", this._onpointermove_handler, this.passiveEventListener);
+                        document.removeEventListener( "mouseup", this._onpointerup_handler, this.passiveEventListener);
+                        document.removeEventListener( "touchend", this._onpointerup_handler, this.passiveEventListener);
+                        document.removeEventListener( "touchcancel", this._onpointerup_handler, this.passiveEventListener);
                     }
                 }
 
