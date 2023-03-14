@@ -618,8 +618,8 @@ define([
                 }
 
                 const s = window.getComputedStyle(this.container_div);
-                const width = parseInt(s.width);
-                const height = parseInt(s.height);
+                const width = parseFloat(s.width);
+                const height = parseFloat(s.height);
 
                 const board_x = toint(x + width / 2);
                 const board_y = toint(y + height / 2);
@@ -701,14 +701,14 @@ define([
                 // console.log("getMapCenter", css_query, css_query_div);
                 css_query_div.querySelectorAll(css_query).forEach((node) => {
                     let s = window.getComputedStyle(node);
-                    let left = parseInt(s.left);  let width = parseInt(s.width);
+                    let left = parseFloat(s.left) || 0; let width = parseFloat(s.width) || node.offsetWidth;
                     max_x = Math.max(max_x, left + width);
                     min_x = Math.min(min_x, left);
 
-                    let top = parseInt(s.top);  let height = parseInt(s.height);
+                    let top = parseFloat(s.top) || 0;  let height = parseFloat(s.height) || node.offsetHeight;
                     max_y = Math.max(max_y, top + height);
                     min_y = Math.min(min_y, top);
-                    // console.log("getMapCenter node rect",  s.left,  s.left, s.top, s.height);
+                    // console.log("getMapCenter node rect",  s.left,  s.width, s.top, s.height);
                     // console.log("getMapCenter min lax",  min_x,  max_x, min_y, max_y);
 
                     //                alert( node.id );
@@ -866,8 +866,8 @@ define([
 
             isVisible: function (x, y) {
                 const s = window.getComputedStyle(this.container_div);
-                const width = parseInt(s.width);
-                const height = parseInt(s.height);
+                const width = parseFloat(s.width);
+                const height = parseFloat(s.height);
 
                 if (x >= (-this.board_x - width / 2) && x <= (-this.board_x + width / 2)) {
                     if (y >= (-this.board_y - height / 2) && y < (-this.board_y + height / 2)) {
@@ -1003,7 +1003,7 @@ define([
             },
 
             changeDisplayHeight: function(delta) {
-                var current_height = parseInt(window.getComputedStyle(this.container_div).height);
+                var current_height = parseFloat(window.getComputedStyle(this.container_div).height);
                 var new_height = Math.max((current_height + delta), this.minHeight);
                 if (this.incrHeightKeepInPos)
                     this.board_y += (current_height-new_height)/2;
