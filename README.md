@@ -12,7 +12,7 @@ Improved version of scrollmap used in multiple bga game
 - add support to long click on buttons (continuous scroll or zoom or enlarge/reduce until button released)
 - add possibility to select which key need to be pressed when zooming with wheel
 - only allow 2 fingers scrolling by default, one finger is for page scrolling
-- only allow scroll with wheel if alt or ctrl or shift are pressed by default.
+- only allow zoom with wheel if alt or ctrl or shift are pressed by default, wheel+no key pressed scroll the page as usual.
 
 # usage
 ```javascript
