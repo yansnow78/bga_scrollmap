@@ -1011,13 +1011,13 @@ define([
             },
             //////////////////////////////////////////////////
             //// Info button
-            setupInfoButton: function (bConfigurableInUserPreference = true) {
+            setupInfoButton: function (bConfigurableInUserPreference = false) {
                 this.btnInfo.style.cursor= 'pointer';
                 this.btnInfo.style.display= 'block';
                 var info =
                     _('To scroll/pan or zoom, you can use the buttons or the mouse or a gesture')+'<BR><BR>'+
                     _('To scroll/pan: maintain the mouse button or 2 fingers pressed and move.')+'<BR><BR>'+
-                    _('To zoom: use the scroll wheel (with a specific or no key) or pinch fingers.')+'<BR><BR>';
+                    _('To zoom: use the scroll wheel (with alt or ctrl or shift key) or pinch fingers.')+'<BR><BR>';
                 if (bConfigurableInUserPreference)
                     info += _('This is configurable in user preference.');
                 if (this.page!=null)
