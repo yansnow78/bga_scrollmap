@@ -421,14 +421,14 @@ define([
                             this._gestureStart = false;
                             this._interacting = true;
                             //this._firstTouchMove = false;
-                            var touchesMiddle = this._getTouchesMiddle(e);
-                            var scrollX = Math.abs(touchesMiddle.x-this._prevTouchesMiddle.x);
-                            var scrollY = Math.abs(touchesMiddle.y-this._prevTouchesMiddle.y);
-                            var touchesDist = this._getTouchesDist(e);
-                            var touchesDistDiff = Math.abs(touchesDist-this._prevTouchesDist);
-                            var zooming = /* touchesDistDiff > 5 &&  */((scrollX + scrollY)<touchesDistDiff);
-                            // var scrolling = /* (scrollX + scrollY) > 5 &&  */(5*(scrollX + scrollY)>touchesDistDiff);
-                            var scrolling = /* (scrollX + scrollY) > 5 &&  */(Math.hypot(scrollX + scrollY)>touchesDistDiff);
+                            // var touchesMiddle = this._getTouchesMiddle(e);
+                            // var scrollX = Math.abs(touchesMiddle.x-this._prevTouchesMiddle.x);
+                            // var scrollY = Math.abs(touchesMiddle.y-this._prevTouchesMiddle.y);
+                            // var touchesDist = this._getTouchesDist(e);
+                            // var touchesDistDiff = Math.abs(touchesDist-this._prevTouchesDist);
+                            // var zooming = /* touchesDistDiff > 5 &&  */((scrollX + scrollY)<touchesDistDiff);
+                            // // var scrolling = /* (scrollX + scrollY) > 5 &&  */(5*(scrollX + scrollY)>touchesDistDiff);
+                            // var scrolling = /* (scrollX + scrollY) > 5 &&  */(Math.hypot(scrollX + scrollY)>touchesDistDiff);
                             //  console.log("touchmove", scrollX+scrollY, scrolling, "   ", touchesDistDiff, zooming);
                         //     if ((scrolling && this.bEnableScrolling) || 
                         //         (zooming && this.bEnableZooming && this.zoomingOptions.pinchZooming)) {

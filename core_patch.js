@@ -32,7 +32,7 @@ function (dojo, declare) {
         //     return matrix ? Math.hypot(matrix.m11, matrix.m12) : 1;
         // },
 
-        calcTransform: function( element ){
+        calcTransform: function( element, clearTranslation = true ){
             var transform = window.getComputedStyle(element).transform;
             var matrix = null;
             if (transform !== "none"){
@@ -40,11 +40,14 @@ function (dojo, declare) {
             }
             var parent = element.parentElement;
             if (parent !== null){
-                var matrixParent = this.calcTransform(parent);
+                var matrixParent = this.calcTransform(parent, false);
                 if (matrix === null)
                     matrix = matrixParent;
                 else if (matrixParent !== null)
                     matrix.preMultiplySelf(matrixParent);
+            }
+            if (matrix !== null && clearTranslation) {
+                matrix.m41 = 0; matrix.m42 = 0; matrix.m43 = 0;
             }
             return matrix;
         },
