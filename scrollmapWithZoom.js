@@ -57,6 +57,7 @@ define([
                 this._onpointerup_handler = this.onPointerUp.bind(this);
                 this._onpointerup_handled=false;
                 this._interacting = false;
+                this._setupDone = false;
 
                 /* Feature detection */
 
@@ -216,7 +217,7 @@ define([
                 if (this.defaultZoom === null)
                     this.defaultZoom=this.zoom;
                 this.setMapZoom(this.defaultZoom);
-                this.scrollto(0, 0);
+                this.scrollto(0, 0, 0, 0);
                 if  (this._resizeObserver)
                     this._resizeObserver.observe(this.container_div);
             },
@@ -279,8 +280,9 @@ define([
             },
 
             onResize: function () {
-                // console.log("onResize");
+                console.log("onResize");
                 this.scrollto(this.board_x, this.board_y, 0, 0);
+                this._setupDone = true;
             },
 
             _updatePointers: function (event) {
@@ -675,9 +677,12 @@ define([
             // Scroll map in order to center everything
             // By default, take all elements in movable_scrollmap
             //  you can also specify (optional) a custom CSS query to get all concerned DOM elements
-            scrollToCenter: function (custom_css_query) {
+            scrollToCenter: function (custom_css_query,  duration, delay) {
                 const center = this.getMapCenter(custom_css_query);
-                this.scrollto(-center.x * this.zoom, -center.y * this.zoom);
+                if (!this._setupDone) {
+                    duration =0; delay=0;
+                }
+                this.scrollto(-center.x * this.zoom, -center.y * this.zoom, duration, delay);
                 return {
                     x: -center.x,
                     y: -center.y
@@ -693,7 +698,7 @@ define([
 
                 var css_query = ":scope > *";
                 var css_query_div = this.scrollable_div;
-                if (typeof custom_css_query != 'undefined') {
+                if ((typeof custom_css_query != 'undefined') && (custom_css_query !== null)) {
                     css_query = custom_css_query;
                     css_query_div = document;
                 }
