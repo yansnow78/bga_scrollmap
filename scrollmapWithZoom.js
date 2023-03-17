@@ -9,6 +9,11 @@ define([
     function (dojo, declare) {
         return declare("ebg.scrollmapWithZoom", null, {
             constructor: function () {
+                this.board_x = 0;
+                this.board_y = 0;
+                this.defaultPosition = null; //{x: 0,y: 0};
+                
+                // set via create
                 this.container_div = null;
                 this.scrollable_div = null;
                 this.surface_div = null;
@@ -17,19 +22,15 @@ define([
                 this.animation_div = null;
                 this.btnInfo = null;
                 this.page = null;
-                this.board_x = 0;
-                this.board_y = 0;
+
+                // zoom properties
                 this.zoom = 1;
                 this.maxZoom = 2;
                 this.minZoom = 0.1;
                 this.defaultZoom = null;
-                this.defaultPosition = null; //{x: 0,y: 0};
                 this._prevZoom = 1;
-                this.bEnableScrolling = true;
-                this.scrollingOptions = {oneFingerScrolling: false};
                 this.zoomPinchDelta = 0.005;
                 this.zoomWheelDelta = 0.001;
-                this.bEnableZooming = false;
                 this.wheelZoomingKeys = {
                     Disabled: 0,
                     Any: 1, 
@@ -40,14 +41,40 @@ define([
                     AnyOrNone: 32
                   };
                 this.zoomingOptions = {wheelZoming: this.wheelZoomingKeys.Any, pinchZooming:true};
-
                 this.zoomChangeHandler = null;
+                this._bEnableZooming = false;
+                Object.defineProperty(this, 'bEnableZooming', {
+                    get() {
+                      return this._bEnableZooming;
+                    },
+                    set(value) {
+                        this._bEnableZooming = value;
+                        if (!this.container_div)
+                            return;
+                        var warning_touch =  _("Use two fingers to begin moving the board. ");
+                        if (this._bEnableZooming)
+                            warning_touch += _("Pinch fingers to zoom");
+                        this.container_div.setAttribute("warning_touch", warning_touch);
+                        this.container_div.setAttribute("warning_scroll", _("Use ctrl or alt or shift + scroll to zoom the board"));
+                        if (this.btnInfo && (this.btnInfo.style.display== 'block')){
+                            this.setInfoButtonTooltip();
+                        }
+                    }
+                });
+
+                // scroll properties
+                this.bEnableScrolling = true;
+                this.scrollingOptions = {oneFingerScrolling: false};
                 this.bScrollDeltaAlignWithZoom = true;
                 this.scrollDelta = 0;
                 this._scrollDeltaAlignWithZoom = 0;
+
+                // buttons properties
+                this.bEnableLongPress = true;
+
+                // internal private properties
                 this._pointers = new Map();
                 this._classNameSuffix = '';
-                this.bEnableLongPress = true;
                 this._longPress =  null;
                 this._bEnlargeReduceButtonsInsideMap=false;
                 this._resizeObserver = null;
@@ -58,7 +85,7 @@ define([
                 this._onpointerup_handled=false;
                 this._interacting = false;
                 this._setupDone = false;
-
+                this._bConfigurableInUserPreference = false;
                 /* Feature detection */
 
                 // Test via a getter in the options object to see if the passive property is accessed
@@ -211,9 +238,7 @@ define([
                 document.addEventListener("touchend", _handleTouch, this.passiveEventListener );
                 document.addEventListener("touchcancel", _handleTouch, this.passiveEventListener );
 
-                this.container_div.setAttribute("warning_touch", _("Use two fingers to move or zoom the board"));
-                this.container_div.setAttribute("warning_scroll", _("Use ctrl or alt or shift + scroll to zoom the board"));
-
+                this.bEnableZooming = this._bEnableZooming;
                 if (this.defaultZoom === null)
                     this.defaultZoom=this.zoom;
                 this.setMapZoom(this.defaultZoom);
@@ -346,7 +371,7 @@ define([
             },
 
             _enableInteractions: function() {
-                if (this.bEnableZooming && this.zoomingOptions.pinchZooming)
+                if (this._bEnableZooming && this.zoomingOptions.pinchZooming)
                     this.container_div.classList.add("enable_zoom_interaction");
                 if (this.bEnableScrolling)
                     this.container_div.classList.add("enable_pan_interaction");
@@ -395,7 +420,7 @@ define([
                     //console.log(e.touches.length);
                 }
                 if ((e.type !== "touchmove" && e.type !== "touchstart") || 
-                   !((this.bEnableScrolling) || (this.bEnableZooming   && this.zoomingOptions.pinchZooming)))
+                   !((this.bEnableScrolling) || (this._bEnableZooming   && this.zoomingOptions.pinchZooming)))
                 {
                     this._disableInteractions();
                     this.container_div.classList.remove("scrollmap_warning_touch");
@@ -415,7 +440,11 @@ define([
                     // } while (currentDate - date < 40);
                 }
                 if (e.type === "touchmove")  {
-                    if (e.touches.length === 1 && !(this.bEnableScrolling && this.scrollingOptions.oneFingerScrolling)) {
+                    if (this._interacting) {
+                        // this._enableInteractions();
+                        // e.stopImmediatePropagation();
+                        e.preventDefault();
+                    } else if (e.touches.length === 1 && !(this.bEnableScrolling && this.scrollingOptions.oneFingerScrolling)) {
                         this._disableInteractions();
                         this.container_div.classList.add("scrollmap_warning_touch");
                     } else {
@@ -433,7 +462,7 @@ define([
                             // var scrolling = /* (scrollX + scrollY) > 5 &&  */(Math.hypot(scrollX + scrollY)>touchesDistDiff);
                             //  console.log("touchmove", scrollX+scrollY, scrolling, "   ", touchesDistDiff, zooming);
                         //     if ((scrolling && this.bEnableScrolling) || 
-                        //         (zooming && this.bEnableZooming && this.zoomingOptions.pinchZooming)) {
+                        //         (zooming && this._bEnableZooming && this.zoomingOptions.pinchZooming)) {
                         //         this.container_div.classList.remove("scrollmap_warning_touch");
                         //         this._interacting = true;
                         //         console.log('start interacting');
@@ -443,11 +472,6 @@ define([
                             // e.preventDefault();
                         }
                         // console.log(this._interacting);
-                        if (this._interacting) {
-                            // this._enableInteractions();
-                            // e.stopImmediatePropagation();
-                            e.preventDefault();
-                        }
                         //this._prevTouchesDist = touchesDist;
                         //this._prevTouchesMiddle = touchesMiddle;
                     }
@@ -456,7 +480,7 @@ define([
 
             onPointerDown: function (ev) {
                 // ev.preventDefault();
-                if (!this.bEnableScrolling && !(this.bEnableZooming   && this.zoomingOptions.pinchZooming))
+                if (!this.bEnableScrolling && !(this._bEnableZooming   && this.zoomingOptions.pinchZooming))
                     return;
                 if ((ev.pointerType =="mouse") && (ev.button != 0)) //for mouse only accept left button
                     return;
@@ -484,7 +508,8 @@ define([
 
                 // If one pointer is move, drag the map
                 if (this._pointers.size === 1) {
-                    if (!this.bEnableScrolling || ((ev.pointerType =='touch' || ev.changedTouches) && !this.scrollingOptions.oneFingerScrolling))
+                    if (!this.bEnableScrolling || 
+                        ((ev.pointerType =='touch' || ev.changedTouches) && !this._interacting))
                         return;
 
                     if ((typeof prevEv !== 'undefined')) {
@@ -510,7 +535,7 @@ define([
                         // const diff = curDist - this._prevDist;
                         // newZoom = this.zoom * (1 + this.zoomPinchDelta * diff);
                         const newZoom = this.zoom * (curDist / this._prevDist);
-                        if (this.bEnableZooming && this.zoomingOptions.pinchZooming)
+                        if (this._bEnableZooming && this.zoomingOptions.pinchZooming)
                             this.setMapZoom(newZoom, x, y);
                         if (this.bEnableScrolling)
                             this.scroll(x - this._xPrev, y - this._yPrev, 0, 0);
@@ -549,7 +574,7 @@ define([
             },
 
             onWheel: function (evt) {
-                if (!this.bEnableZooming)
+                if (!this._bEnableZooming)
                     return;
                 var wheelZoom = true;
                 switch (this.zoomingOptions.wheelZoming) {
@@ -1019,11 +1044,15 @@ define([
             setupInfoButton: function (bConfigurableInUserPreference = false) {
                 this.btnInfo.style.cursor= 'pointer';
                 this.btnInfo.style.display= 'block';
-                var info =
-                    _('To scroll/pan or zoom, you can use the buttons or the mouse or a gesture')+'<BR><BR>'+
-                    _('To scroll/pan: maintain the mouse button or 2 fingers pressed and move.')+'<BR><BR>'+
-                    _('To zoom: use the scroll wheel (with alt or ctrl or shift key) or pinch fingers.')+'<BR><BR>';
-                if (bConfigurableInUserPreference)
+                this._bConfigurableInUserPreference = bConfigurableInUserPreference;
+                return this.setInfoButtonTooltip();
+            },
+
+            setInfoButtonTooltip: function () {
+                var info = _('To scroll/pan: maintain the mouse button or 2 fingers pressed and move.');
+                if (this._bEnableZooming)
+                    info += '<BR><BR>'+_('To zoom: use the scroll wheel (with alt or ctrl or shift key) or pinch fingers.');
+                if (this._bConfigurableInUserPreference)
                     info += _('This is configurable in user preference.');
                 if (this.page!=null)
                     this.page.addTooltip( this.btnInfo.id, info, '' );
