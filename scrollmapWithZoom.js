@@ -280,7 +280,7 @@ define([
             },
 
             onResize: function () {
-                console.log("onResize");
+                // console.log("onResize");
                 this.scrollto(this.board_x, this.board_y, 0, 0);
                 this._setupDone = true;
             },
