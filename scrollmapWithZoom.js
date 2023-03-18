@@ -771,7 +771,7 @@ define([
                 if (this.animation_div!==null)
                     this.setScale(this.animation_div, this.zoom);
                 this.container_div.style.setProperty("--scrollmap_zoomed_transform", `scale(${this.zoom})`);
-                if (this.zoomChangeHandler);
+                if (this.zoomChangeHandler)
                     this.zoomChangeHandler(this.zoom);
                 const zoomDelta = this.zoom / this._prevZoom;
                 //console.log(x+' '+ y+' '+ zoomDelta+' '+ this.zoom);
