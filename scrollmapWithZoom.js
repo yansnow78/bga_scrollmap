@@ -241,7 +241,7 @@ define([
                 this.bEnableZooming = this._bEnableZooming;
                 if (this.defaultZoom === null)
                     this.defaultZoom=this.zoom;
-                this.setMapZoom(this.defaultZoom);
+                this.setMapZoom(this.zoom);
                 this.scrollto(0, 0, 0, 0);
                 if  (this._resizeObserver)
                     this._resizeObserver.observe(this.container_div);
