@@ -86,6 +86,18 @@ define([
                 this._interacting = false;
                 this._setupDone = false;
                 this._bConfigurableInUserPreference = false;
+                this._btnMoveRight = null;
+                this._btnMoveLeft = null;
+                this._btnMoveTop = null;
+                this._btnMoveDown = null;
+                this._btnZoomPlus = null;
+                this._btnZoomMinus = null;
+                this._btnZoomPlusNames = 'zoomplus,zoom_plus,zoomin,zoom_in';
+                this._btnZoomMinusNames = 'zoomminus,zoom_minus,zoomout,zoom_out';
+                this._btnReset = null;
+                this._btnBackToCenter = null;
+                this._btnIncreaseHeight = null;
+                this._btnDecreaseHeight = null;
                 /* Feature detection */
 
                 // Test via a getter in the options object to see if the passive property is accessed
@@ -214,6 +226,12 @@ define([
                         	/* Fallback for FF which doesn't support pinch-zoom */
                         	touch-action: none !important;
                             touch-action: pinch-zoom !important;
+                        }
+                        .scrollmap_btn_disabled {
+                            filter: brightness(70%);
+                            opacity: 0.3;
+                            cursor: not-allowed !important;
+                            pointer-events: none;
                         }`;
                     // styleElt.type = "text/css";
                     styleElt.id = 'css-scrollmap';
@@ -245,6 +263,12 @@ define([
                 this.scrollto(0, 0, 0, 0);
                 if  (this._resizeObserver)
                     this._resizeObserver.observe(this.container_div);
+
+                this.setupOnScreenArrows(100, true);
+                this.setupOnScreenZoomButtons(0.2);
+                this.setupOnScreenResetButtons();
+                this.setupEnlargeReduceButtons(100, true, 300);
+                this.setupInfoButton();
             },
 
             createCompletely: function (container_div, page=null, create_extra=null, bEnlargeReduceButtonsInsideMap=true) {
@@ -432,7 +456,13 @@ define([
                     //this._firstTouchMove = true;
                     if (e.touches.length === 1)
                         this._interacting = false;
-                    this._gestureStart = (e.touches.length === e.targetTouches.length);
+                    this._gestureStart = true;
+                    Array.from(e.touches).forEach( touch => {
+                        if (!this.container_div.contains(touch.target))
+                            this._gestureStart = false;
+                    });                    
+                    if (!this._gestureStart)
+                        console.log( this._gestureStart, e.touches.length, e.targetTouches.length);
                     // const date = Date.now();
                     // let currentDate = null;
                     // do {
@@ -451,6 +481,7 @@ define([
                         if (this._gestureStart) {
                             this._gestureStart = false;
                             this._interacting = true;
+                            e.preventDefault();
                             //this._firstTouchMove = false;
                             // var touchesMiddle = this._getTouchesMiddle(e);
                             // var scrollX = Math.abs(touchesMiddle.x-this._prevTouchesMiddle.x);
@@ -760,7 +791,23 @@ define([
             },
 
             setMapZoom: function (zoom, x = 0, y = 0) {
-                this.zoom = Math.min(Math.max(zoom, this.minZoom), this.maxZoom);
+                if (zoom  >= this.maxZoom){
+                    zoom = this.maxZoom;
+                    if (this._btnZoomPlus)
+                        this._btnZoomPlus.classList.add("scrollmap_btn_disabled");
+                } else if (zoom  <= this.minZoom){
+                    zoom = this.minZoom;
+                    if (this._btnZoomMinus)
+                        this._btnZoomMinus.classList.add("scrollmap_btn_disabled");
+                } else {
+                    if (this._btnZoomMinus && (this._prevZoom <= this.minZoom))
+                        this._btnZoomMinus.classList.remove("scrollmap_btn_disabled");
+                    if (this._btnZoomPlus && (this._prevZoom >= this.maxZoom))
+                        this._btnZoomPlus.classList.remove("scrollmap_btn_disabled");
+                }
+                this.zoom = zoom;
+                if (this._prevZoom == this.zoom)
+                    return;
 
                 if (this.bScrollDeltaAlignWithZoom)
                     this._scrollDeltaAlignWithZoom = this.scrollDelta * zoom;
@@ -783,13 +830,21 @@ define([
                 $(elemId).style.transform =  'scale(' + scale + ')';
             },
 
-            _getButton: function (btnName, idSuffix=""){
-                var $btn = document.querySelector('#' + this.container_div.id+idSuffix + ' .'+this._classNameSuffix+btnName);
-                //console.log($btn);
-                //console.log('#' + this.container_div.id+idSuffix + ' .'+this._classNameSuffix+btnName);
-                if ($btn === null)
-                    $btn = $(btnName);
-                return $btn;
+            _getButton: function (btnNames, idSuffix=""){
+                btnNames = btnNames.split(",");
+                for(let i in btnNames){
+                    let btnName = btnNames[i];
+                    var $btn = document.querySelector('#' + this.container_div.id+idSuffix + ' .'+this._classNameSuffix+btnName);
+                    //console.log($btn);
+                    //console.log('#' + this.container_div.id+idSuffix + ' .'+this._classNameSuffix+btnName);
+                    if ($btn === null)
+                        $btn = $(btnName);
+                    if ($btn) {
+                        console.log(btnName+" found");
+                        return $btn;
+                    }
+                }
+                console.log(btnNames+" not found");
             },
 
             _hideButton: function (btnName, idSuffix=""){
@@ -806,9 +861,10 @@ define([
 
             _initButton: function (btnName, onClick, onLongPressedAnim = null, idSuffix="", display='block'){
                 var $btn = this._getButton(btnName, idSuffix);
-                if ($btn === null)
-                    return;
-                $btn.addEventListener( 'click', onClick.bind(this));
+                if (!$btn)
+                    return null;
+                onClick = onClick.bind(this);
+                $btn.addEventListener( 'click', (e) => {onClick(e); e.stopImmediatePropagation();}, true);
                 $btn.style.cursor =  'pointer';
                 $btn.style.display =  display;
                 if (this.bEnableLongPress && onLongPressedAnim != null){
@@ -816,6 +872,7 @@ define([
                     $btn.addEventListener('long-press', this._onButtonLongPress.bind(this,onLongPressedAnim));
                     $btn.addEventListener('long-press-end', this._onButtonLongPressEnd.bind(this));
                 }
+                return $btn;
             },
 
             //////////////////////////////////////////////////
@@ -844,17 +901,21 @@ define([
 
             // Optional: setup on screen arrows to scroll the board
             setupOnScreenArrows: function (scrollDelta, bScrollDeltaAlignWithZoom = true) {
+                console.log("setupOnScreenArrows");
                 this.scrollDelta = scrollDelta;
                 this.bScrollDeltaAlignWithZoom = bScrollDeltaAlignWithZoom;
                 if (this.bScrollDeltaAlignWithZoom)
                     this._scrollDeltaAlignWithZoom = scrollDelta * this.zoom;
                 else
                     this._scrollDeltaAlignWithZoom = scrollDelta;
-
-                this._initButton('movetop', this.onMoveTop, ()=> {this.scroll(0, 3, 0, 0);});
-                this._initButton('movedown', this.onMoveDown, ()=> {this.scroll(0, -3, 0, 0);});
-                this._initButton('moveleft', this.onMoveLeft, ()=> {this.scroll(3, 0, 0, 0 );});
-                this._initButton('moveright', this.onMoveRight,()=> {this.scroll(-3, 0, 0, 0 );});
+                if (!this._btnMoveTop)
+                    this._btnMoveTop = this._initButton('movetop', this.onMoveTop, ()=> {this.scroll(0, 3, 0, 0);});
+                if (!this._btnMoveDown)
+                    this._btnMoveDown = this._initButton('movedown', this.onMoveDown, ()=> {this.scroll(0, -3, 0, 0);});
+                if (!this._btnMoveLeft)
+                    this._btnMoveLeft = this._initButton('moveleft', this.onMoveLeft, ()=> {this.scroll(3, 0, 0, 0 );});
+                if (!this._btnMoveRight)
+                    this._btnMoveRight = this._initButton('moveright', this.onMoveRight,()=> {this.scroll(-3, 0, 0, 0 );});
             },
 
             showOnScreenArrows: function () {
@@ -927,11 +988,14 @@ define([
 
             //////////////////////////////////////////////////
             //// Zoom with buttons
-            setupOnScreenZoomButtons: function (zoomDelta) {
+            setupOnScreenZoomButtons: function (zoomDelta = 0.2) {
+                console.log("setupOnScreenZoomButtons");
                 this.zoomDelta = zoomDelta;
 
-                this._initButton('zoomplus', this.onZoomIn, ()=> {this.changeMapZoom(0.02);});
-                this._initButton('zoomminus', this.onZoomOut, ()=> {this.changeMapZoom(-0.02);});
+                if (!this._btnZoomPlus)
+                    this._btnZoomPlus = this._initButton(this._btnZoomPlusNames, this.onZoomIn, ()=> {this.changeMapZoom(0.02);});
+                if (!this._btnZoomMinus)
+                    this._btnZoomMinus = this._initButton(this._btnZoomMinusNames, this.onZoomOut, ()=> {this.changeMapZoom(-0.02);});
 
                 //this.showOnScreenZoomButtons();
 
@@ -960,8 +1024,11 @@ define([
             //////////////////////////////////////////////////
             //// Reset with buttons
             setupOnScreenResetButtons: function () {
-                this._initButton('reset', this.onReset);
-                this._initButton('back_to_center', this.onBackToCenter);
+                console.log("setupOnScreenResetButtons");
+                if (!this._btnReset)
+                    this._btnReset = this._initButton('reset', this.onReset);
+                if (!this._btnBackToCenter)
+                    this._btnBackToCenter = this._initButton('back_to_center', this.onBackToCenter);
                 // this.showOnScreenResetButtons();
             },
 
@@ -1001,9 +1068,13 @@ define([
             },
 
             setupEnlargeReduceButtons: function (incrHeightDelta, incrHeightKeepInPos, minHeight) {
+                console.log("setupEnlargeReduceButtons");
                 var btnsProps = this._getpEnlargeReduceButtonsProps();
-                this._initButton('enlargedisplay', this.onIncreaseDisplayHeight, ()=> {this.changeDisplayHeight(5);}, btnsProps.idSuffix, btnsProps.display);
-                this._initButton('reducedisplay', this.onDecreaseDisplayHeight, ()=> {this.changeDisplayHeight(-5);}, btnsProps.idSuffix, btnsProps.display);
+                if (!this._btnIncreaseHeight)
+                    this._btnIncreaseHeight = this._initButton('enlargedisplay', this.onIncreaseDisplayHeight, ()=> {this.changeDisplayHeight(5);}, btnsProps.idSuffix, btnsProps.display);
+
+                if (!this._btnDecreaseHeight)
+                    this._btnDecreaseHeight =  this._initButton('reducedisplay', this.onDecreaseDisplayHeight, ()=> {this.changeDisplayHeight(-5);}, btnsProps.idSuffix, btnsProps.display);
 
                 this.incrHeightDelta = incrHeightDelta;
                 this.incrHeightKeepInPos = incrHeightKeepInPos;
@@ -1042,6 +1113,9 @@ define([
             //////////////////////////////////////////////////
             //// Info button
             setupInfoButton: function (bConfigurableInUserPreference = false) {
+                if (!this.btnInfo)
+                    return;
+                console.log("setupEnlargeReduceButtons");
                 this.btnInfo.style.cursor= 'pointer';
                 this.btnInfo.style.display= 'block';
                 this._bConfigurableInUserPreference = bConfigurableInUserPreference;
