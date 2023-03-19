@@ -95,6 +95,7 @@ define([
                 this._btnZoomPlusNames = 'zoomplus,zoom_plus,zoomin,zoom_in';
                 this._btnZoomMinusNames = 'zoomminus,zoom_minus,zoomout,zoom_out';
                 this._btnReset = null;
+                this._btnResetNames = 'reset,back_to_center,reset_map,map_reset';
                 this._btnBackToCenter = null;
                 this._btnIncreaseHeight = null;
                 this._btnDecreaseHeight = null;
@@ -329,8 +330,11 @@ define([
             },
 
             onResize: function () {
-                // console.log("onResize");
-                this.scrollto(this.board_x, this.board_y, 0, 0);
+                if (!this._setupDone) {
+                    console.log("1st onResize after setup");
+                    this.scrollToCenter();
+                } else 
+                    this.scrollto(this.board_x, this.board_y, 0, 0);
                 this._setupDone = true;
             },
 
@@ -461,8 +465,8 @@ define([
                         if (!this.container_div.contains(touch.target))
                             this._gestureStart = false;
                     });                    
-                    if (!this._gestureStart)
-                        console.log( this._gestureStart, e.touches.length, e.targetTouches.length);
+                    // if (!this._gestureStart)
+                    //     console.log( this._gestureStart, e.touches.length, e.targetTouches.length);
                     // const date = Date.now();
                     // let currentDate = null;
                     // do {
@@ -674,7 +678,9 @@ define([
                 if (typeof delay == 'undefined') {
                     delay = 0; // Default delay
                 }
-
+                if (!this._setupDone) {
+                    duration =0; delay=0;
+                }
                 const s = window.getComputedStyle(this.container_div);
                 const width = parseFloat(s.width);
                 const height = parseFloat(s.height);
@@ -735,10 +741,8 @@ define([
             //  you can also specify (optional) a custom CSS query to get all concerned DOM elements
             scrollToCenter: function (custom_css_query,  duration, delay) {
                 const center = this.getMapCenter(custom_css_query);
-                if (!this._setupDone) {
-                    duration =0; delay=0;
-                }
                 this.scrollto(-center.x * this.zoom, -center.y * this.zoom, duration, delay);
+                console.log("scrollToCenter",center.x, center.y);
                 return {
                     x: -center.x,
                     y: -center.y
@@ -746,6 +750,8 @@ define([
             },
 
             getMapCenter: function (custom_css_query) {
+                if (custom_css_query)
+                    this._custom_css_query = custom_css_query;
                 // Get all elements inside and get their max x/y/w/h
                 var max_x = 0;
                 var max_y = 0;
@@ -754,19 +760,37 @@ define([
 
                 var css_query = ":scope > *";
                 var css_query_div = this.scrollable_div;
-                if ((typeof custom_css_query != 'undefined') && (custom_css_query !== null)) {
-                    css_query = custom_css_query;
+                if ((typeof this._custom_css_query != 'undefined') && (this._custom_css_query !== null)) {
+                    css_query = this._custom_css_query;
                     css_query_div = document;
                 }
-
+                var scales = new Map();
                 // console.log("getMapCenter", css_query, css_query_div);
                 css_query_div.querySelectorAll(css_query).forEach((node) => {
+                    let directParent = node.parentNode;
+                    let parent = directParent;
+                    let scaleTotal = scales.get(parent);
+                    if (!scaleTotal){
+                        scaleTotal = 1;
+                        while (!parent.isEqualNode(this.scrollable_div)){
+                            let transform = window.getComputedStyle(parent).transform;
+                            let scale = 1;
+                            if (transform !== "none"){
+                                let matrix = new DOMMatrix(transform);
+                                scale = Math.hypot(matrix.m11, matrix.m21, matrix.m31);
+                            }
+                            scaleTotal *= scale;
+                            parent = parent.parentNode;
+                        }
+                        scales.set(directParent, scaleTotal);
+                        // console.log("scaleTotal",scaleTotal);
+                    }
                     let s = window.getComputedStyle(node);
-                    let left = parseFloat(s.left) || 0; let width = parseFloat(s.width) || node.offsetWidth;
+                    let left = (parseFloat(s.left)  * scaleTotal) || 0; let width = (parseFloat(s.width) * scaleTotal) || (node.offsetWidth * scaleTotal);
                     max_x = Math.max(max_x, left + width);
                     min_x = Math.min(min_x, left);
 
-                    let top = parseFloat(s.top) || 0;  let height = parseFloat(s.height) || node.offsetHeight;
+                    let top = (parseFloat(s.top) * scaleTotal) || 0;  let height = (parseFloat(s.height) * scaleTotal) || (node.offsetHeight * scaleTotal);
                     max_y = Math.max(max_y, top + height);
                     min_y = Math.min(min_y, top);
                     // console.log("getMapCenter node rect",  s.left,  s.width, s.top, s.height);
@@ -868,6 +892,7 @@ define([
                 $btn.style.cursor =  'pointer';
                 $btn.style.display =  display;
                 if (this.bEnableLongPress && onLongPressedAnim != null){
+                    $btn.removeAttribute("href");
                     $btn.setAttribute("data-long-press-delay", 500);
                     $btn.addEventListener('long-press', this._onButtonLongPress.bind(this,onLongPressedAnim));
                     $btn.addEventListener('long-press-end', this._onButtonLongPressEnd.bind(this));
@@ -1002,13 +1027,13 @@ define([
             },
 
             showOnScreenZoomButtons: function () {
-               this._showButton("zoomplus");
-               this._showButton("zoomminus");
+               this._showButton(this._btnZoomPlusNames);
+               this._showButton(this._btnZoomMinusNames);
             },
 
             hideOnScreenZoomButtons: function () {
-                this._hideButton("zoomplus");
-                this._hideButton("zoomminus");
+                this._hideButton(this._btnZoomPlusNames);
+                this._hideButton(this._btnZoomMinusNames);
             },
 
             onZoomIn: function (evt) {
@@ -1023,34 +1048,25 @@ define([
 
             //////////////////////////////////////////////////
             //// Reset with buttons
-            setupOnScreenResetButtons: function () {
+            setupOnScreenResetButtons: function (resetZoom = false) {
+                this._resetZoom = resetZoom;
                 console.log("setupOnScreenResetButtons");
                 if (!this._btnReset)
-                    this._btnReset = this._initButton('reset', this.onReset);
-                if (!this._btnBackToCenter)
-                    this._btnBackToCenter = this._initButton('back_to_center', this.onBackToCenter);
+                    this._btnReset = this._initButton(this._btnResetNames, this.onReset);
                 // this.showOnScreenResetButtons();
             },
 
             showOnScreenResetButtons: function () {
-                this._showButton("reset");
-                this._showButton("back_to_center");
+                this._showButton(this._btnResetNames);
             },
 
             hideOnScreenResetButtons: function () {
-                this._hideButton("reset");
-                this._hideButton("back_to_center");
+                this._hideButton(this._btnResetNames);
             },
 
             onReset: function (evt) {
-                this.setMapZoom(this.defaultZoom);
-                if (this.defaultPosition)
-                    this.scrollto(this.defaultPosition.x * this.zoom, this.defaultPosition.y * this.zoom);
-                else
-                    this.scrollToCenter();
-            },
-
-            onBackToCenter: function(evt) {
+                if (this._resetZoom)
+                    this.setMapZoom(this.defaultZoom);
                 if (this.defaultPosition)
                     this.scrollto(this.defaultPosition.x * this.zoom, this.defaultPosition.y * this.zoom);
                 else
