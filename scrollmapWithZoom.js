@@ -184,6 +184,14 @@ define([
                             cursor: move;
                         }
 
+                        .scrollable_oversurface {
+                            pointer-events: none;
+                        }
+
+                        .scrollable_oversurface > *{
+                            pointer-events: initial;
+                        }
+
                         .scrollmap_zoomed{
                             transform: var(--scrollmap_zoomed_transform);
                         }
@@ -523,7 +531,7 @@ define([
                 if (this._onpointerup_handled == false) {
                     this._onpointerup_handled = true;
                     if (window.PointerEvent) {
-                        document.addEventListener( "pointermove", this._onpointermove_handler, this.passiveEventListener);
+                        document.addEventListener( "pointermove", this._onpointermove_handler/* , this.passiveEventListener */);
                         document.addEventListener( "pointerup", this._onpointerup_handler, this.passiveEventListener);
                         document.addEventListener( "pointercancel", this._onpointerup_handler, this.passiveEventListener);
                     } else {
@@ -538,7 +546,7 @@ define([
             },
 
             onPointerMove: function (ev) {
-                // console.log("pointer move");
+                console.log("pointer move");
                 const prevEv = this._updatePointers(ev);
 
                 // If one pointer is move, drag the map
@@ -552,6 +560,7 @@ define([
                         const [xPrev, yPrev] = this._getXYCoord(prevEv);
                         this.scroll(x - xPrev, y - yPrev, 0, 0);
                     }
+                    ev.preventDefault();
                 }
                 // If two _pointers are move, check for pinch gestures
                 else if (this._pointers.size === 2) {
@@ -580,6 +589,7 @@ define([
                     this._prevDist = curDist;
                     this._xPrev = x;
                     this._yPrev = y;
+                    ev.preventDefault();
                 }
             },
 
@@ -589,7 +599,7 @@ define([
                 if (this._pointers.size === 0) {
                     this._onpointerup_handled = false;
                     if (window.PointerEvent) {
-                        document.removeEventListener( "pointermove", this._onpointermove_handler, this.passiveEventListener);
+                        document.removeEventListener( "pointermove", this._onpointermove_handler/* , this.passiveEventListener */);
                         document.removeEventListener( "pointerup", this._onpointerup_handler, this.passiveEventListener);
                         document.removeEventListener( "pointercancel", this._onpointerup_handler, this.passiveEventListener);
                     } else {
