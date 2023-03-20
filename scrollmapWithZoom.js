@@ -774,15 +774,23 @@ define([
                     css_query = this._custom_css_query;
                     css_query_div = document;
                 }
-                var scales = new Map();
                 // console.log("getMapCenter", css_query, css_query_div);
-                css_query_div.querySelectorAll(css_query).forEach((node) => {
+                var scales = new Map();
+
+                let scrollable_div = this.scrollable_div;
+                function calcMaxMin(node){
+                    // console.log(node);
+                    let s = window.getComputedStyle(node);
+                    if (s.left=="auto") {
+                        Array.from(node.children).forEach((node) => {calcMaxMin(node);}); 
+                        return;
+                    }
                     let directParent = node.parentNode;
                     let parent = directParent;
                     let scaleTotal = scales.get(parent);
                     if (!scaleTotal){
                         scaleTotal = 1;
-                        while (!parent.isEqualNode(this.scrollable_div)){
+                        while (!parent.isEqualNode(scrollable_div)){
                             let transform = window.getComputedStyle(parent).transform;
                             let scale = 1;
                             if (transform !== "none"){
@@ -795,7 +803,6 @@ define([
                         scales.set(directParent, scaleTotal);
                         // console.log("scaleTotal",scaleTotal);
                     }
-                    let s = window.getComputedStyle(node);
                     let left = (parseFloat(s.left)  * scaleTotal) || 0; let width = (parseFloat(s.width) * scaleTotal) || (node.offsetWidth * scaleTotal);
                     max_x = Math.max(max_x, left + width);
                     min_x = Math.min(min_x, left);
@@ -803,6 +810,9 @@ define([
                     let top = (parseFloat(s.top) * scaleTotal) || 0;  let height = (parseFloat(s.height) * scaleTotal) || (node.offsetHeight * scaleTotal);
                     max_y = Math.max(max_y, top + height);
                     min_y = Math.min(min_y, top);
+                }
+                css_query_div.querySelectorAll(css_query).forEach((node) => {
+                    calcMaxMin(node);
                     // console.log("getMapCenter node rect",  s.left,  s.width, s.top, s.height);
                     // console.log("getMapCenter min lax",  min_x,  max_x, min_y, max_y);
 
