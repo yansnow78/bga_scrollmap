@@ -546,7 +546,7 @@ define([
             },
 
             onPointerMove: function (ev) {
-                console.log("pointer move");
+                // console.log("pointer move");
                 const prevEv = this._updatePointers(ev);
 
                 // If one pointer is move, drag the map
@@ -1165,7 +1165,7 @@ define([
                 if (this._bConfigurableInUserPreference)
                     info += _('This is configurable in user preference.');
                 if (this.page!=null)
-                    this.page.addTooltip( this.btnInfo.id, info, '' );
+                    this.page.addTooltip( this.btnInfo.id, info, '');
                 else
                     return info;
             },
