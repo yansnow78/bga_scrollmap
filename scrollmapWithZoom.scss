@@ -1,107 +1,130 @@
-/*
-	Move arrows & zoom
-*/
-.scrollmap_icon {
-	text-align: center;
-	vertical-align: middle;
-    display: none;
-    position: absolute;
-	background-color: rgba(255,255,255,0.5);
-	font-size: 30px;
-    width: 32px;
-    height: 32px;
-	line-height: 34px;
-	border-radius: 16px;
+
+.scrollmap_container {
+	--icon_size:32px;
+	--icon_font_size:32px;
 }
 
-.scrollmap_movetop,
-.scrollmap_movedown {
-    width: 32px;
-    height: 24px;
-	line-height: 22px;
-    left: 50%;
-	margin-left: -16px;
-}
-.scrollmap_moveleft,
-.scrollmap_moveright {
-    width: 24px;
-    height: 32px;
-	line-height: 34px;
-    top: 50%;
-	margin-top: -16px;
-}
-.scrollmap_movetop {
-    top: 0px;
-	border-radius: 0 0 16px 16px;
-}
-.scrollmap_moveleft {
-    left: 0px;
-	border-radius: 0 16px 16px 0;
-}
-.scrollmap_moveright {
-    right: 0px;
-	border-radius: 16px 0 0 16px;
-}
-.scrollmap_movedown {
-	bottom: 0px;
-	border-radius: 16px 16px 0 0;
-}
-.scrollmap_zoomplus, .scrollmap_zoomminus  {
-    top: 50%;
-	border-radius: 0 16px 16px 0;
-	background-color: rgba(255,255,255,0.5);
-	font-size: 28px;
-}
+
 @media (pointer: coarse) {
-	.scrollmap_zoomplus  {
-		margin-top: 48px;
-	}
-	.scrollmap_zoomminus  {
-		margin-top: 102px;
-	}
-	:is(.scrollmap_icon)::after {
-		content:'';
-		position:absolute;
-		top:-16px; bottom:-16px; 
-		left:-16px; right:-16px; 
-	}
-}
-@media (pointer: fine) {
-	.scrollmap_zoomplus  {
-		margin-top: 20px;
-	}
-	.scrollmap_zoomminus  {
-		margin-top: 52px;
+	.scrollmap_container{
+		--icon_size:48px;
+		/* padding: 8px; */
 	}
 }
 
-.scrollmap_reset {
-    right: 96px;
-    top: 32px;
+.scrollmap_icon {
+	display: none;
+	position: absolute;
+	vertical-align: middle;
+	text-align: center;
+	overflow: hidden;
+	font-size: var(--icon_font_size);
+	line-height: var(--icon_size);
+	width: var(--icon_size);
+	height: var(--icon_size);
+	margin : 0;
 }
 
-.scrollmap_info {
-    right: 32px;
-    top: 32px;
+/**************************
+* positioning of buttons  *
+***************************/
+.scrollmap_container > .movetop {
+	top: 0px;
+	left: 50%;
+	transform: translateX(-50%)
+}
+
+.scrollmap_container > .movedown {
+	bottom: 0px;
+	left: 50%;
+	transform: translateX(-50%)
+}
+
+.scrollmap_container > .moveleft {
+	left: 0px;
+	top: 50%;
+	transform: translateY(-50%)
+}
+
+.scrollmap_container > .moveright {
+	right: 0px;
+	top: 50%;
+	transform: translateY(-50%)
+}
+
+.scrollmap_container > .zoomplus, .scrollmap_container > .zoomminus  {
+	top: 50%;
+}
+
+@mixin btn_pos_top_right($index_x:1, $index_y:1) {
+	top: calc((var(--icon_size) + 8px) * $index_y + 32px);
+	right: calc((var(--icon_size) + 8px) * $index_x + 8px);
+}
+
+.scrollmap_container > .zoomminus  {
+	@include btn_pos_top_right(0,2);
+}
+
+.scrollmap_container > .zoomplus  {
+	@include btn_pos_top_right(0,1);
+}
+
+.scrollmap_container > .info {
+	@include btn_pos_top_right(1,0);
+}
+
+.scrollmap_container > .reset {
+	@include btn_pos_top_right(0,0);
 }
 
 .scrollmap_footer {
-    text-align: center;
+	text-align: center;
 }
 
-.scrollmap_enlargedisplay,
-.scrollmap_reducedisplay {
-    display: none;
-    position: absolute;
+.scrollmap_container .enlargedisplay,
+.scrollmap_container .reducedisplay {
+	display: none;
+	position: absolute;
 	background-color: rgba(255,255,255,0.5);
+	font-size: 24px;
+	line-height: 24px;
 }
 
-.scrollmap_container .scrollmap_enlargedisplay {
-	left : calc(50% + 32px);
+$xpos : calc(50% + var(--icon_size)/2 + 16px);
+.scrollmap_container .enlargedisplay {
+	left : $xpos;
 	top: 0px;
 }
 
-.scrollmap_container .scrollmap_reducedisplay {
-	right : calc(50% + 32px);
+.scrollmap_container .reducedisplay {
+	right : $xpos;
 	top: 0px;
 }
+
+/**********************************
+* positioning of fontAwesome icon *
+***********************************/
+.scrollmap_icon.fa {
+	background-color: rgba(255,255,255,0.5);
+	border-radius: 100%;
+}
+
+.scrollmap_container > .movetop.fa {
+	border-radius: 0 0 100% 100%;
+}
+
+.scrollmap_container > .moveleft.fa {
+	border-radius: 0 100% 100% 0;
+}
+
+.scrollmap_container > .moveright.fa {
+	border-radius: 100% 0 0 100%;
+}
+
+.scrollmap_container > .movedown.fa {
+	border-radius: 100% 100% 0 0;
+}
+
+/* .scrollmap_container > .zoomplus.fa, .scrollmap_container > .zoomminus.fa  {
+	border-radius: 0 100% 100% 0;
+} */

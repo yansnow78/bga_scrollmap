@@ -12,6 +12,20 @@ define([
                 this.board_x = 0;
                 this.board_y = 0;
                 this.defaultPosition = null; //{x: 0,y: 0};
+                this.ControlPosition = {
+                    TOP_CENTER : 0,
+                    TOP_LEFT : 1, 
+                    TOP_RIGHT : 2, 
+                    BOTTOM_CENTER : 3,
+                    BOTTOM_LEFT : 4,
+                    BOTTOM_RIGHT : 5,
+                    LEFT_CENTER : 6,
+                    LEFT_TOP : 7,
+                    LEFT_BOTTOM: 8,
+                    RIGHT_CENTER : 9,
+                    RIGHT_TOP : 10,
+                    RIGHT_BOTTOM: 11,
+                  };
                 
                 // set via create
                 this.container_div = null;
@@ -41,6 +55,7 @@ define([
                     AnyOrNone: 32
                   };
                 this.zoomingOptions = {wheelZoming: this.wheelZoomingKeys.Any, pinchZooming:true};
+                this.zoomControlOptions =  {position: this.ControlPosition.LEFT_CENTER};
                 this.zoomChangeHandler = null;
                 this._bEnableZooming = false;
                 Object.defineProperty(this, 'bEnableZooming', {
@@ -241,7 +256,8 @@ define([
                             opacity: 0.3;
                             cursor: not-allowed !important;
                             pointer-events: none;
-                        }`;
+                        }
+                        `;
                     // styleElt.type = "text/css";
                     styleElt.id = 'css-scrollmap';
                     styleElt.appendChild(document.createTextNode(styleSheetContent));
@@ -287,8 +303,8 @@ define([
                 this._bEnlargeReduceButtonsInsideMap = bEnlargeReduceButtonsInsideMap;
 
                 var tmplDisplayButtons = String.raw`
-                    <a class="scrollmap_enlargedisplay">↓  ${LABEL_ENLARGE_DISPLAY}  ↓</a>
-                    <a class="scrollmap_reducedisplay">↑ ${LABEL_REDUCE_DISPLAY} ↑</a>
+                    <a class="enlargedisplay">↓  ${LABEL_ENLARGE_DISPLAY}  ↓</a>
+                    <a class="reducedisplay">↑ ${LABEL_REDUCE_DISPLAY} ↑</a>
                 `;
                 var info_id=container_div.id +"_info";
 
@@ -298,18 +314,18 @@ define([
                         <div class="scrollmap_surface" ></div>
                         <div class="scrollmap_onsurface"></div>
                     </div>
-                    <i class="scrollmap_movetop fa fa-chevron-up scrollmap_icon"></i>
-                    <i class="scrollmap_moveleft fa fa-chevron-left scrollmap_icon"></i>
-                    <i class="scrollmap_moveright fa fa-chevron-right scrollmap_icon"></i>
-                    <i class="scrollmap_movedown fa fa-chevron-down scrollmap_icon"></i>
-                    <i class="scrollmap_zoomplus fa fa-search-plus scrollmap_icon"></i>
-                    <i class="scrollmap_zoomminus fa fa-search-minus scrollmap_icon"></i>
-                    <i class="scrollmap_reset fa fa-refresh scrollmap_icon"></i>
-                    <i id=${info_id} class="scrollmap_info fa fa-info scrollmap_icon"></i>
+                    <i class="movetop fa fa-chevron-up scrollmap_icon"></i>
+                    <i class="moveleft fa fa-chevron-left scrollmap_icon"></i>
+                    <i class="moveright fa fa-chevron-right scrollmap_icon"></i>
+                    <i class="movedown fa fa-chevron-down scrollmap_icon"></i>
+                    <i class="zoomplus fa fa-search-plus scrollmap_icon"></i>
+                    <i class="zoomminus fa fa-search-minus scrollmap_icon"></i>
+                    <i class="reset fa fa-refresh scrollmap_icon"></i>
+                    <i id=${info_id} class="info fa fa-info scrollmap_icon"></i>
                     ${bEnlargeReduceButtonsInsideMap?tmplDisplayButtons:``}
                     <div class="scrollmap_anim"></div>
                 `;
-                this._classNameSuffix = 'scrollmap_';
+                this._classNameSuffix = '';
                 container_div.innerHTML = tmpl;
                 this.btnInfo = $(info_id);
                 var scrollable_div = container_div.querySelector('.scrollmap_scrollable');
