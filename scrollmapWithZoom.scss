@@ -28,34 +28,6 @@
 /**************************
 * positioning of buttons  *
 ***************************/
-.scrollmap_container > .movetop {
-	top: 0px;
-	left: 50%;
-	transform: translateX(-50%)
-}
-
-.scrollmap_container > .movedown {
-	bottom: 0px;
-	left: 50%;
-	transform: translateX(-50%)
-}
-
-.scrollmap_container > .moveleft {
-	left: 0px;
-	top: 50%;
-	transform: translateY(-50%)
-}
-
-.scrollmap_container > .moveright {
-	right: 0px;
-	top: 50%;
-	transform: translateY(-50%)
-}
-
-.scrollmap_container > .zoomplus, .scrollmap_container > .zoomminus  {
-	top: 50%;
-}
-
 @mixin btn_pos_top_right($index_x:1, $index_y:1) {
 	top: calc((var(--icon_size) + 8px) * $index_y + 32px);
 	right: calc((var(--icon_size) + 8px) * $index_x + 8px);
@@ -77,7 +49,7 @@
 	@include btn_pos_top_right(0,0);
 }
 
-.scrollmap_footer {
+.scrollmap_footer, .scrollmap_header {
 	text-align: center;
 }
 

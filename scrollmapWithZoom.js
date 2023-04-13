@@ -57,7 +57,7 @@ define([
                 this.zoomingOptions = {wheelZoming: this.wheelZoomingKeys.Any, pinchZooming:true};
                 this.zoomControlOptions =  {position: this.ControlPosition.LEFT_CENTER};
                 this.zoomChangeHandler = null;
-                this._bEnableZooming = false;
+                this._bEnableZooming = null;
                 Object.defineProperty(this, 'bEnableZooming', {
                     get() {
                       return this._bEnableZooming;
@@ -66,6 +66,10 @@ define([
                         this._bEnableZooming = value;
                         if (!this.container_div)
                             return;
+                        if (!this._bEnableZooming) {
+                            this.hideOnScreenZoomButtons();
+                            console.log("bEnableZooming is false, hide zoom buttons");
+                        }
                         var warning_touch =  _("Use two fingers to begin moving the board. ");
                         if (this._bEnableZooming)
                             warning_touch += _("Pinch fingers to zoom");
@@ -134,18 +138,21 @@ define([
                 } catch (e) {/**/}
             },
 
-            create: function (container_div, scrollable_div, surface_div, onsurface_div, clipped_div=null, animation_div=null, page=null, create_extra=null) {
-                console.log("ebg.scrollmapWithZoom create");
+            create: function (container_div, scrollable_div, surface_div, onsurface_div, clipped_div=null, animation_div=null, page=null, create_extra=null, bEnlargeReduceButtonsInsideMap=false) {
+                console.log("ebg.scrollmapWithZoom create ", bEnlargeReduceButtonsInsideMap);
 
+                this._bEnlargeReduceButtonsInsideMap = bEnlargeReduceButtonsInsideMap;
                 container_div.classList.add("scrollmap_container");
-                if (this.scrollable_div)
+                if (scrollable_div)
                     scrollable_div.classList.add("scrollmap_scrollable");
-                if (this.surface_div)
+                if (surface_div)
                     surface_div.classList.add("scrollmap_surface");
-                if (this.onsurface_div)
+                if (onsurface_div)
                     onsurface_div.classList.add("scrollmap_onsurface");
-                if (this.clipped_div)
+                if (clipped_div)
                     clipped_div.classList.add("scrollmap_overflow_clipped");
+                else
+                    container_div.classList.add("scrollmap_overflow_clipped");
                 this.page = page;
                 this.container_div = container_div;
                 this.scrollable_div = scrollable_div;
@@ -180,10 +187,13 @@ define([
                         }
 
                         .scrollmap_overflow_clipped {
+                            overflow: hidden;
+                        }
+
+                        .scrollmap_container .scrollmap_overflow_clipped {
                             position: relative;
                             width: 100%;
                             height: 100%;
-                            overflow: hidden;
                         }
 
                         .scrollmap_scrollable, .scrollmap_onsurface, .scrollmap_anim {
@@ -257,6 +267,32 @@ define([
                             cursor: not-allowed !important;
                             pointer-events: none;
                         }
+                        .scrollmap_container > .movetop {
+                            top: 0px;
+                            margin-left: 0px;
+                            transform: translateX(-50%)
+                        }
+
+                        .scrollmap_container > .movedown {
+                            bottom: 0px;
+                            left: 50%;
+                            margin-left: 0px;
+                            transform: translateX(-50%)
+                        }
+
+                        .scrollmap_container > .moveleft {
+                            left: 0px;
+                            top: 50%;
+                            margin-top: 0px;
+                            transform: translateY(-50%)
+                        }
+
+                        .scrollmap_container > .moveright {
+                            right: 0px;
+                            top: 50%;
+                            margin-top: 0px;
+                            transform: translateY(-50%)
+                        }
                         `;
                     // styleElt.type = "text/css";
                     styleElt.id = 'css-scrollmap';
@@ -281,6 +317,14 @@ define([
                 document.addEventListener("touchend", _handleTouch, this.passiveEventListener );
                 document.addEventListener("touchcancel", _handleTouch, this.passiveEventListener );
 
+                this.setupOnScreenArrows(100, true);
+                this.setupOnScreenZoomButtons(0.2);
+                this.setupOnScreenResetButtons();
+                this.setupEnlargeReduceButtons(100, true, 300);
+                if (this._btnZoomPlus && this._btnZoomPlus.style.display!="none" && this.bEnableZooming === null)
+                    this.bEnableZooming = true;
+                this.setupInfoButton();
+
                 this.bEnableZooming = this._bEnableZooming;
                 if (this.defaultZoom === null)
                     this.defaultZoom=this.zoom;
@@ -288,12 +332,6 @@ define([
                 this.scrollto(0, 0, 0, 0);
                 if  (this._resizeObserver)
                     this._resizeObserver.observe(this.container_div);
-
-                this.setupOnScreenArrows(100, true);
-                this.setupOnScreenZoomButtons(0.2);
-                this.setupOnScreenResetButtons();
-                this.setupEnlargeReduceButtons(100, true, 300);
-                this.setupInfoButton();
             },
 
             createCompletely: function (container_div, page=null, create_extra=null, bEnlargeReduceButtonsInsideMap=true) {
@@ -336,7 +374,7 @@ define([
 
                 if (!bEnlargeReduceButtonsInsideMap){
                     tmpl = String.raw`
-                    <div id="${container_div.id}_footer" class="whiteblock scrollmap_footer">
+                    <div id="${container_div.id}_header" class="whiteblock scrollmap_header">
                         ${tmplDisplayButtons}
                     </div>`;
                     var parent = container_div.parentNode;
@@ -356,6 +394,7 @@ define([
             onResize: function () {
                 if (!this._setupDone) {
                     console.log("1st onResize after setup");
+                    //alert("1st onResize after setup");
                     this.scrollToCenter();
                 } else 
                     this.scrollto(this.board_x, this.board_y, 0, 0);
@@ -713,6 +752,7 @@ define([
 
                 const board_x = toint(x + width / 2);
                 const board_y = toint(y + height / 2);
+                // console.log("scrollto board_x, board_y=",board_x, board_y);
 
                 this.board_x = x;
                 this.board_y = y;
@@ -826,6 +866,7 @@ define([
                     let top = (parseFloat(s.top) * scaleTotal) || 0;  let height = (parseFloat(s.height) * scaleTotal) || (node.offsetHeight * scaleTotal);
                     max_y = Math.max(max_y, top + height);
                     min_y = Math.min(min_y, top);
+                    // console.log(node, left, left + width, top, top + height);
                 }
                 css_query_div.querySelectorAll(css_query).forEach((node) => {
                     calcMaxMin(node);
@@ -909,13 +950,13 @@ define([
 
             _hideButton: function (btnName, idSuffix=""){
                 var $btn = this._getButton(btnName, idSuffix);
-                if ($btn === null)
+                if ($btn !== null)
                     $btn.style.display = 'none';
             },
 
             _showButton: function (btnName, idSuffix="", display='block'){
                 var $btn = this._getButton(btnName, idSuffix);
-                if ($btn === null)
+                if ($btn !== null)
                     $btn.style.display = display;
             },
 
@@ -1114,7 +1155,7 @@ define([
             _getpEnlargeReduceButtonsProps: function() {
                 var idSuffix="", display='block';
                 if (!this._bEnlargeReduceButtonsInsideMap){
-                    idSuffix="_footer", display='contents';
+                    idSuffix="_header", display='initial';
                 }
                 return {idSuffix, display};
             },
