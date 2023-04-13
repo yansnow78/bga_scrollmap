@@ -269,6 +269,7 @@ define([
                         }
                         .scrollmap_container > .movetop {
                             top: 0px;
+                            left: 50%;
                             margin-left: 0px;
                             transform: translateX(-50%)
                         }
@@ -338,7 +339,6 @@ define([
                 console.log("createCompletely");
                 const LABEL_ENLARGE_DISPLAY = _("Enlarge display");
                 const LABEL_REDUCE_DISPLAY = _("Reduce display");
-                this._bEnlargeReduceButtonsInsideMap = bEnlargeReduceButtonsInsideMap;
 
                 var tmplDisplayButtons = String.raw`
                     <a class="enlargedisplay">↓  ${LABEL_ENLARGE_DISPLAY}  ↓</a>
@@ -385,7 +385,7 @@ define([
                     tmplNode.outerHTML = tmpl;
                 }
 
-                this.create(container_div, scrollable_div, surface_div, onsurface_div, clipped_div, animation_div, page, create_extra);
+                this.create(container_div, scrollable_div, surface_div, onsurface_div, clipped_div, animation_div, page, create_extra, bEnlargeReduceButtonsInsideMap);
             },
 
             _init: function () {
@@ -1208,7 +1208,7 @@ define([
             setupInfoButton: function (bConfigurableInUserPreference = false) {
                 if (!this.btnInfo)
                     return;
-                console.log("setupEnlargeReduceButtons");
+                console.log("setupInfoButton");
                 this.btnInfo.style.cursor= 'pointer';
                 this.btnInfo.style.display= 'block';
                 this._bConfigurableInUserPreference = bConfigurableInUserPreference;
