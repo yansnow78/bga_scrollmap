@@ -216,7 +216,13 @@ function (dojo, declare) {
             {    duration = 500;    }
             if( typeof delay == 'undefined' )
             {    delay = 0;    }
-
+            
+            if( this.instantaneousMode )
+            {   
+                delay=Math.min( 1, delay );
+                duration=Math.min( 1, duration );
+            }
+            
             if (typeof target == "string")
                 target = $(target);
             if ((target instanceof Element))
