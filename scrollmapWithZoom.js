@@ -141,7 +141,6 @@ define([
             create: function (container_div, scrollable_div, surface_div, onsurface_div, clipped_div=null, animation_div=null, page=null, create_extra=null, bEnlargeReduceButtonsInsideMap=false) {
                 console.log("ebg.scrollmapWithZoom create ", bEnlargeReduceButtonsInsideMap);
                 if (typeof gameui.calcScale == "undefined"){
-                    debugger;
                     dojo.mixin(gameui, new ebg.core.core_patch_slideto());
                 }
 
