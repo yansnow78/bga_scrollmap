@@ -6,7 +6,7 @@ define([
 ],
 function (dojo, declare) {
 
-    return declare("ebg.core.core_patch", null, {
+    return declare("ebg.core.core_patch_slideto", null, {
         constructor: function(){
             console.log('ebg.core.core_patch constructor');
         },

@@ -4,7 +4,7 @@
  * */
 
 define([
-    "dojo", "dojo/_base/declare" , "./long-press-event"
+    "dojo", "dojo/_base/declare" , "./long-press-event", "./core_patch_slideto"
 ],
     function (dojo, declare) {
         return declare("ebg.scrollmapWithZoom", null, {
@@ -140,6 +140,10 @@ define([
 
             create: function (container_div, scrollable_div, surface_div, onsurface_div, clipped_div=null, animation_div=null, page=null, create_extra=null, bEnlargeReduceButtonsInsideMap=false) {
                 console.log("ebg.scrollmapWithZoom create ", bEnlargeReduceButtonsInsideMap);
+                if (typeof gameui.calcScale == "undefined"){
+                    debugger;
+                    dojo.mixin(gameui, new ebg.core.core_patch_slideto());
+                }
 
                 this._bEnlargeReduceButtonsInsideMap = bEnlargeReduceButtonsInsideMap;
                 container_div.classList.add("scrollmap_container");
