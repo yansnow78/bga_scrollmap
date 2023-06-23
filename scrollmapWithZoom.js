@@ -12,23 +12,26 @@ define([
     function (dojo, declare) {
         return declare("ebg.scrollmapWithZoom", null, {
             constructor: function () {
+                this.adaptHeightAuto = false;
+                this.adaptHeightCorr = 0;
+                
                 this.board_x = 0;
                 this.board_y = 0;
                 this.defaultPosition = null; //{x: 0,y: 0};
-                this.ControlPosition = {
-                    TOP_CENTER : 0,
-                    TOP_LEFT : 1, 
-                    TOP_RIGHT : 2, 
-                    BOTTOM_CENTER : 3,
-                    BOTTOM_LEFT : 4,
-                    BOTTOM_RIGHT : 5,
-                    LEFT_CENTER : 6,
-                    LEFT_TOP : 7,
-                    LEFT_BOTTOM: 8,
-                    RIGHT_CENTER : 9,
-                    RIGHT_TOP : 10,
-                    RIGHT_BOTTOM: 11,
-                  };
+                // this.ControlPosition = {
+                //     TOP_CENTER : 0,
+                //     TOP_LEFT : 1, 
+                //     TOP_RIGHT : 2, 
+                //     BOTTOM_CENTER : 3,
+                //     BOTTOM_LEFT : 4,
+                //     BOTTOM_RIGHT : 5,
+                //     LEFT_CENTER : 6,
+                //     LEFT_TOP : 7,
+                //     LEFT_BOTTOM: 8,
+                //     RIGHT_CENTER : 9,
+                //     RIGHT_TOP : 10,
+                //     RIGHT_BOTTOM: 11,
+                //   };
                 
                 // set via create
                 this.container_div = null;
@@ -37,8 +40,8 @@ define([
                 this.onsurface_div = null;
                 this.clipped_div = null;
                 this.animation_div = null;
-                this.btnInfo = null;
-                this.page = null;
+                this._btnInfo = null;
+                // this._onClickBtnInfo = null;
 
                 // zoom properties
                 this.zoom = 1;
@@ -58,7 +61,7 @@ define([
                     AnyOrNone: 32
                   };
                 this.zoomingOptions = {wheelZoming: this.wheelZoomingKeys.Any, pinchZooming:true};
-                this.zoomControlOptions =  {position: this.ControlPosition.LEFT_CENTER};
+                //this.zoomControlOptions =  {position: this.ControlPosition.LEFT_CENTER};
                 this.zoomChangeHandler = null;
                 this._bEnableZooming = null;
                 Object.defineProperty(this, 'bEnableZooming', {
@@ -78,7 +81,7 @@ define([
                             warning_touch += _("Pinch fingers to zoom");
                         this.container_div.setAttribute("warning_touch", warning_touch);
                         this.container_div.setAttribute("warning_scroll", _("Use ctrl or alt or shift + scroll to zoom the board"));
-                        if (this.btnInfo && (this.btnInfo.style.display== 'block')){
+                        if (this._btnInfo && (this._btnInfo.style.display== 'block')){
                             this.setInfoButtonTooltip();
                         }
                     }
@@ -102,8 +105,8 @@ define([
                 this._resizeObserver = null;
                 if (typeof ResizeObserver !== 'undefined')
                     this._resizeObserver = new ResizeObserver(this.onResize.bind(this));
-                this._onpointermove_handler = this.onPointerMove.bind(this);
-                this._onpointerup_handler = this.onPointerUp.bind(this);
+                this._onpointermove_handler = this._onPointerMove.bind(this);
+                this._onpointerup_handler = this._onPointerUp.bind(this);
                 this._onpointerup_handled=false;
                 this._interacting = false;
                 this._setupDone = false;
@@ -159,7 +162,6 @@ define([
                     clipped_div.classList.add("scrollmap_overflow_clipped");
                 else
                     container_div.classList.add("scrollmap_overflow_clipped");
-                this.page = page;
                 this.container_div = container_div;
                 this.scrollable_div = scrollable_div;
                 this.surface_div = surface_div;
@@ -309,7 +311,7 @@ define([
                 if (create_extra !== null)
                     create_extra(this);
 
-                var onPointerDown =this.onPointerDown.bind(this);
+                var onPointerDown =this._onPointerDown.bind(this);
                 if (window.PointerEvent)
                     this.surface_div.addEventListener('pointerdown', onPointerDown, this.passiveEventListener);
                 else {
@@ -317,7 +319,7 @@ define([
                     this.surface_div.addEventListener('touchstart', onPointerDown, this.passiveEventListener);
                 }
 
-                this.container_div.addEventListener('wheel', this.onWheel.bind(this), this.notPassiveEventListener);
+                this.container_div.addEventListener('wheel', this._onWheel.bind(this), this.notPassiveEventListener);
                 var _handleTouch=this._handleTouch.bind(this);
                 this.container_div.addEventListener("touchstart", _handleTouch, this.passiveEventListener );
                 this.container_div.addEventListener("touchmove", _handleTouch, this.notPassiveEventListener);
@@ -344,6 +346,7 @@ define([
                 window.addEventListener( 'pagehide', (e) => {this._onbeforeunload_handler(e);});
                 document.addEventListener( 'visibilitychange', this._onvisibilty_changehandler.bind(this));
                 window.addEventListener( 'load', (e) => {debug("document loaded");});
+                dojo.connect(gameui, "onGameUiWidthChange", this, dojo.hitch( this, '_adaptHeight' ));
             },
 
             createCompletely: function (container_div, page=null, create_extra=null, bEnlargeReduceButtonsInsideMap=true) {
@@ -376,7 +379,7 @@ define([
                 `;
                 this._classNameSuffix = '';
                 container_div.innerHTML = tmpl;
-                this.btnInfo = $(info_id);
+                this._btnInfo = $(info_id);
                 var scrollable_div = container_div.querySelector('.scrollmap_scrollable');
                 var surface_div = container_div.querySelector('.scrollmap_surface');
                 var onsurface_div = container_div.querySelector('.scrollmap_onsurface');
@@ -400,6 +403,35 @@ define([
             },
 
             _init: function () {
+            },
+
+            _adaptHeight: function()
+            {
+                debug("_adaptHeight");
+                if (!this.adaptHeightAuto)
+                    return;
+                var screen_height =window.innerHeight
+                    || document.documentElement.clientHeight
+                    || document.body.clientHeight;
+    
+                var container_pos = dojo.coords('map_container', true);
+    
+                screen_height /= gameui.gameinterface_zoomFactor;
+    
+                var other_elements_height = this.adaptHeightCorr + container_pos.y;
+                var $log_history_status = $('log_history_status'); 
+                if ($log_history_status)
+                    other_elements_height -= $log_history_status.getBoundingClientRect().height/gameui.gameinterface_zoomFactor;
+                var $connect_status = $('connect_status'); 
+                if ($connect_status)
+                    other_elements_height -= $connect_status.getBoundingClientRect().height/gameui.gameinterface_zoomFactor;
+                var $chatwindowavatar = document.querySelector(".chatwindowavatar");
+                if ($chatwindowavatar)
+                    other_elements_height += $chatwindowavatar.getBoundingClientRect().height/gameui.gameinterface_zoomFactor;
+                var map_height = Math.max( 500, screen_height - other_elements_height );
+                // var map_height = Math.max( 500, screen_height - other_elements_height );
+                
+                dojo.style( this.container_div, 'height', map_height+'px' );
             },
 
             onResize: function () {
@@ -481,13 +513,13 @@ define([
 
             _getPageZoom: function () {
                 var pageZoom = 1;
-                if  ((this.page === null) || (typeof this.page.gameinterface_zoomFactor === 'undefined' ))  {
+                if  ((gameui === null) || (typeof gameui.gameinterface_zoomFactor === 'undefined' ))  {
                     var pageZoomStr = $("page-content").style.getPropertyValue("zoom");
                     pageZoom = 1;
                     if (pageZoomStr !== "")
                         pageZoom=parseFloat($("page-content").style.getPropertyValue("zoom"));
                 } else
-                    pageZoom = this.page.gameinterface_zoomFactor;
+                    pageZoom = gameui.gameinterface_zoomFactor;
                 return pageZoom;
             },
 
@@ -500,8 +532,8 @@ define([
                 }
                 const pageZoom = this._getPageZoom();
                 var x, y;
-                if ((this.page !== null) && (typeof this.page.calcNewLocation === "function")) {
-                    [,,x, y]= this.page.calcNewLocation(this.surface_div, null, clientX/pageZoom, clientY/pageZoom, false, true);
+                if ((gameui !== null) && (typeof gameui.calcNewLocation === "function")) {
+                    [,,x, y]= gameui.calcNewLocation(this.surface_div, null, clientX/pageZoom, clientY/pageZoom, false, true);
                 } else {
                     const containerRect = this.container_div.getBoundingClientRect();
                     x = (clientX/pageZoom - containerRect.x - containerRect.width / 2);
@@ -625,7 +657,7 @@ define([
                 }
             },
 
-            onPointerDown: function (ev) {
+            _onPointerDown: function (ev) {
                 // ev.preventDefault();
                 if (!this.bEnableScrolling && !(this._bEnableZooming   && this.zoomingOptions.pinchZooming))
                     return;
@@ -649,7 +681,7 @@ define([
                 this._updatePointers(ev);
             },
 
-            onPointerMove: function (ev) {
+            _onPointerMove: function (ev) {
                 // debug("pointer move");
                 const prevEv = this._updatePointers(ev);
 
@@ -697,7 +729,7 @@ define([
                 }
             },
 
-            onPointerUp: function (ev) {
+            _onPointerUp: function (ev) {
                 this._removePointers(ev);
                 // If no pointer left, stop drag or zoom the map
                 if (this._pointers.size === 0) {
@@ -722,7 +754,7 @@ define([
 
             },
 
-            onWheel: function (evt) {
+            _onWheel: function (evt) {
                 if (!this._bEnableZooming)
                     return;
                 var wheelZoom = true;
@@ -963,10 +995,10 @@ define([
                     this._scrollDeltaAlignWithZoom = this.scrollDelta * zoom;
                 else
                     this._scrollDeltaAlignWithZoom = this.scrollDelta;
-                this.setScale(this.scrollable_div, this.zoom);
-                this.setScale(this.onsurface_div, this.zoom);
+                this._setScale(this.scrollable_div, this.zoom);
+                this._setScale(this.onsurface_div, this.zoom);
                 if (this.animation_div!==null)
-                    this.setScale(this.animation_div, this.zoom);
+                    this._setScale(this.animation_div, this.zoom);
                 this.container_div.style.setProperty("--scrollmap_zoomed_transform", `scale(${this.zoom})`);
                 if (this.zoomChangeHandler)
                     this.zoomChangeHandler(this.zoom);
@@ -976,7 +1008,7 @@ define([
                 this._prevZoom = this.zoom;
             },
 
-            setScale: function (elemId, scale) {
+            _setScale: function (elemId, scale) {
                 $(elemId).style.transform =  'scale(' + scale + ')';
             },
 
@@ -1060,13 +1092,13 @@ define([
                 else
                     this._scrollDeltaAlignWithZoom = scrollDelta;
                 if (!this._btnMoveTop)
-                    this._btnMoveTop = this._initButton('movetop', this.onMoveTop, ()=> {this.scroll(0, 3, 0, 0);});
+                    this._btnMoveTop = this._initButton('movetop', this._onMoveTop, ()=> {this.scroll(0, 3, 0, 0);});
                 if (!this._btnMoveDown)
-                    this._btnMoveDown = this._initButton('movedown', this.onMoveDown, ()=> {this.scroll(0, -3, 0, 0);});
+                    this._btnMoveDown = this._initButton('movedown', this._onMoveDown, ()=> {this.scroll(0, -3, 0, 0);});
                 if (!this._btnMoveLeft)
-                    this._btnMoveLeft = this._initButton('moveleft', this.onMoveLeft, ()=> {this.scroll(3, 0, 0, 0 );});
+                    this._btnMoveLeft = this._initButton('moveleft', this._onMoveLeft, ()=> {this.scroll(3, 0, 0, 0 );});
                 if (!this._btnMoveRight)
-                    this._btnMoveRight = this._initButton('moveright', this.onMoveRight,()=> {this.scroll(-3, 0, 0, 0 );});
+                    this._btnMoveRight = this._initButton('moveright', this._onMoveRight,()=> {this.scroll(-3, 0, 0, 0 );});
             },
 
             showOnScreenArrows: function () {
@@ -1083,24 +1115,24 @@ define([
                this._hideButton('movedown');
             },
 
-            onMoveTop: function (evt) {
+            _onMoveTop: function (evt) {
                 //debug("onMoveTop");
                 this.scroll(0, this._scrollDeltaAlignWithZoom);
             },
 
-            onMoveLeft: function (evt) {
+            _onMoveLeft: function (evt) {
                 // debug("onMoveLeft");
                 evt.preventDefault();
                 this.scroll(this._scrollDeltaAlignWithZoom, 0);
             },
 
-            onMoveRight: function (evt) {
+            _onMoveRight: function (evt) {
                 // debug("onMoveRight");
                 evt.preventDefault();
                 this.scroll(-this._scrollDeltaAlignWithZoom, 0);
             },
 
-            onMoveDown: function (evt) {
+            _onMoveDown: function (evt) {
                 // debug("onMoveDown");
                 evt.preventDefault();
                 this.scroll(0, -this._scrollDeltaAlignWithZoom);
@@ -1144,9 +1176,9 @@ define([
                 this.zoomDelta = zoomDelta;
 
                 if (!this._btnZoomPlus)
-                    this._btnZoomPlus = this._initButton(this._btnZoomPlusNames, this.onZoomIn, ()=> {this.changeMapZoom(0.02);});
+                    this._btnZoomPlus = this._initButton(this._btnZoomPlusNames, this._onZoomIn, ()=> {this.changeMapZoom(0.02);});
                 if (!this._btnZoomMinus)
-                    this._btnZoomMinus = this._initButton(this._btnZoomMinusNames, this.onZoomOut, ()=> {this.changeMapZoom(-0.02);});
+                    this._btnZoomMinus = this._initButton(this._btnZoomMinusNames, this._onZoomOut, ()=> {this.changeMapZoom(-0.02);});
 
                 //this.showOnScreenZoomButtons();
 
@@ -1162,12 +1194,12 @@ define([
                 this._hideButton(this._btnZoomMinusNames);
             },
 
-            onZoomIn: function (evt) {
+            _onZoomIn: function (evt) {
                 evt.preventDefault();
                 this.changeMapZoom(this.zoomDelta);
             },
 
-            onZoomOut: function (evt) {
+            _onZoomOut: function (evt) {
                 evt.preventDefault();
                 this.changeMapZoom(-this.zoomDelta);
             },
@@ -1178,7 +1210,7 @@ define([
                 this._resetZoom = resetZoom;
                 debug("setupOnScreenResetButtons");
                 if (!this._btnReset)
-                    this._btnReset = this._initButton(this._btnResetNames, this.onReset);
+                    this._btnReset = this._initButton(this._btnResetNames, this._onReset);
                 // this.showOnScreenResetButtons();
             },
 
@@ -1190,7 +1222,7 @@ define([
                 this._hideButton(this._btnResetNames);
             },
 
-            onReset: function (evt) {
+            _onReset: function (evt) {
                 if (this._resetZoom)
                     this.setMapZoom(this.defaultZoom);
                 if (this.defaultPosition)
@@ -1213,10 +1245,10 @@ define([
                 debug("setupEnlargeReduceButtons");
                 var btnsProps = this._getpEnlargeReduceButtonsProps();
                 if (!this._btnIncreaseHeight)
-                    this._btnIncreaseHeight = this._initButton('enlargedisplay', this.onIncreaseDisplayHeight, ()=> {this.changeDisplayHeight(5);}, btnsProps.idSuffix, btnsProps.display);
+                    this._btnIncreaseHeight = this._initButton('enlargedisplay', this._onIncreaseDisplayHeight, ()=> {this.changeDisplayHeight(5);}, btnsProps.idSuffix, btnsProps.display);
 
                 if (!this._btnDecreaseHeight)
-                    this._btnDecreaseHeight =  this._initButton('reducedisplay', this.onDecreaseDisplayHeight, ()=> {this.changeDisplayHeight(-5);}, btnsProps.idSuffix, btnsProps.display);
+                    this._btnDecreaseHeight =  this._initButton('reducedisplay', this._onDecreaseDisplayHeight, ()=> {this.changeDisplayHeight(-5);}, btnsProps.idSuffix, btnsProps.display);
 
                 this.incrHeightDelta = incrHeightDelta;
                 this.incrHeightKeepInPos = incrHeightKeepInPos;
@@ -1235,12 +1267,12 @@ define([
                 this._hideButton("reducedisplay", btnsProps.idSuffix);
             },
 
-            onIncreaseDisplayHeight: function(evt) {
+            _onIncreaseDisplayHeight: function(evt) {
                 evt.preventDefault();
                 this.changeDisplayHeight(this.incrHeightDelta);
             },
 
-            onDecreaseDisplayHeight: function(evt) {
+            _onDecreaseDisplayHeight: function(evt) {
                 evt.preventDefault();
                 this.changeDisplayHeight(- this.incrHeightDelta);
             },
@@ -1255,12 +1287,20 @@ define([
             //////////////////////////////////////////////////
             //// Info button
             setupInfoButton: function (bConfigurableInUserPreference = false) {
-                if (!this.btnInfo)
+                if (!this._btnInfo)
                     return;
                 debug("setupInfoButton");
-                this.btnInfo.style.cursor= 'pointer';
-                this.btnInfo.style.display= 'block';
+                this._btnInfo.style.cursor= 'pointer';
+                this._btnInfo.style.display= 'block';
                 this._bConfigurableInUserPreference = bConfigurableInUserPreference;
+                // if (!this._onClickBtnInfo){
+                //     this._onClickBtnInfo = (e) => {
+                //         debugger;
+                //         var tootip = gameui.tooltips[ this._btnInfo.id ];
+                //         if (tootip.open) tootip.open(this._btnInfo);
+                //     };
+                //     this._btnInfo.addEventListener('click', this._onClickBtnInfo);
+                // }
                 return this.setInfoButtonTooltip();
             },
 
@@ -1270,8 +1310,8 @@ define([
                     info += '<BR><BR>'+_('To zoom: use the scroll wheel (with alt or ctrl or shift key) or pinch fingers.');
                 if (this._bConfigurableInUserPreference)
                     info += _('This is configurable in user preference.');
-                if (this.page!=null)
-                    this.page.addTooltip( this.btnInfo.id, info, '');
+                if (gameui!=null)
+                    gameui.addTooltip( this._btnInfo.id, info, '');
                 else
                     return info;
             },
