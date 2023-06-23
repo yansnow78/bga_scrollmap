@@ -2,6 +2,9 @@
  *
  * Code by yannsnow
  * */
+var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
+var debug = isDebug ? console.info.bind(window.console) : function () {};
+var error = isDebug ? console.error.bind(window.console) : function () {};
 
 define([
     "dojo", "dojo/_base/declare" , "./long-press-event", "./core_patch_slideto"
@@ -68,7 +71,7 @@ define([
                             return;
                         if (!this._bEnableZooming) {
                             this.hideOnScreenZoomButtons();
-                            console.log("bEnableZooming is false, hide zoom buttons");
+                            debug("bEnableZooming is false, hide zoom buttons");
                         }
                         var warning_touch =  _("Use two fingers to begin moving the board. ");
                         if (this._bEnableZooming)
@@ -139,9 +142,9 @@ define([
             },
 
             create: function (container_div, scrollable_div, surface_div, onsurface_div, clipped_div=null, animation_div=null, page=null, create_extra=null, bEnlargeReduceButtonsInsideMap=false) {
-                console.log("ebg.scrollmapWithZoom create ", bEnlargeReduceButtonsInsideMap);
+                debug("ebg.scrollmapWithZoom create ", bEnlargeReduceButtonsInsideMap);
                 if (typeof gameui.calcScale == "undefined"){
-                    dojo.mixin(gameui, new ebg.core.core_patch_slideto());
+                    dojo.safeMixin(gameui, new ebg.core.core_patch_slideto());
                 }
 
                 this._bEnlargeReduceButtonsInsideMap = bEnlargeReduceButtonsInsideMap;
@@ -336,10 +339,15 @@ define([
                 this.scrollto(0, 0, 0, 0);
                 if  (this._resizeObserver)
                     this._resizeObserver.observe(this.container_div);
+
+                this._localStorageKey = 'scrollmap_'+gameui.table_id+'_'+this.container_div.id;    
+                window.addEventListener( 'pagehide', (e) => {this._onbeforeunload_handler(e);});
+                document.addEventListener( 'visibilitychange', this._onvisibilty_changehandler.bind(this));
+                window.addEventListener( 'load', (e) => {debug("document loaded");});
             },
 
             createCompletely: function (container_div, page=null, create_extra=null, bEnlargeReduceButtonsInsideMap=true) {
-                console.log("createCompletely");
+                debug("createCompletely");
                 const LABEL_ENLARGE_DISPLAY = _("Enlarge display");
                 const LABEL_REDUCE_DISPLAY = _("Reduce display");
 
@@ -396,12 +404,50 @@ define([
 
             onResize: function () {
                 if (!this._setupDone) {
-                    console.log("1st onResize after setup");
-                    //alert("1st onResize after setup");
-                    this.scrollToCenter();
+                    debug("1st onResize after setup");
+                    let settings = JSON.parse(localStorage.getItem(this._localStorageKey));
+                    if (settings != null){
+                        this.setMapZoom(settings.zoom);
+                        this.board_x = settings.board_x;
+                        this.board_y = settings.board_y;
+                        this.scrollto(this.board_x, this.board_y, 0, 0);
+                        let keys = Object.keys(localStorage);
+                        let oldKeysCnt = 0; 
+                        let oldest = null;
+                        let oldestKey = 0;
+                        for(let key of keys) {
+                            if (key.startsWith('scrollmap')){
+                                let oldSetting = JSON.parse(localStorage.getItem(key));
+                                if ((oldest == null) || oldSetting.time < oldest){
+                                    oldestKey = key;
+                                    oldest = oldSetting.time ;
+                                }
+                                oldKeysCnt++;
+                            }
+                        }
+                        // debugger;
+                        if (oldKeysCnt > 500){
+                            localStorage.removeItem(oldestKey);
+                        }
+                    } else {
+                        this.scrollToCenter();
+                    }
                 } else 
                     this.scrollto(this.board_x, this.board_y, 0, 0);
                 this._setupDone = true;
+            },
+
+            _saveSettings: function (e){
+                debug("_saveSettings", e);
+                let settings = {time:Date.now(), zoom:this.zoom, board_x:this.board_x, board_y:this.board_y};
+                localStorage.setItem(this._localStorageKey, JSON.stringify(settings));
+            },
+            _onvisibilty_changehandler: function (e) {
+                if (document.visibilityState === "hidden") {this._saveSettings(e);}
+            },
+
+            _onbeforeunload_handler: function (e) {
+                this._saveSettings(e);
             },
 
             _updatePointers: function (event) {
@@ -507,11 +553,11 @@ define([
                 if (e.type !== "touchmove" && e.type !== "touchstart"){
                     // if (e.touches.length === 1 && !(this.bEnableScrolling && this.scrollingOptions.oneFingerScrolling)) {
                     //     this._interacting = true;
-                    //     console.log(e.touches.length);
+                    //     debug(e.touches.length);
                     // }
                     if (e.touches.length === 0)
                         this._interacting = false;
-                    //console.log(e.touches.length);
+                    //debug(e.touches.length);
                 }
                 if ((e.type !== "touchmove" && e.type !== "touchstart") || 
                    !((this.bEnableScrolling) || (this._bEnableZooming   && this.zoomingOptions.pinchZooming)))
@@ -532,7 +578,7 @@ define([
                             this._gestureStart = false;
                     });                    
                     // if (!this._gestureStart)
-                    //     console.log( this._gestureStart, e.touches.length, e.targetTouches.length);
+                    //     debug( this._gestureStart, e.touches.length, e.targetTouches.length);
                     // const date = Date.now();
                     // let currentDate = null;
                     // do {
@@ -561,18 +607,18 @@ define([
                             // var zooming = /* touchesDistDiff > 5 &&  */((scrollX + scrollY)<touchesDistDiff);
                             // // var scrolling = /* (scrollX + scrollY) > 5 &&  */(5*(scrollX + scrollY)>touchesDistDiff);
                             // var scrolling = /* (scrollX + scrollY) > 5 &&  */(Math.hypot(scrollX + scrollY)>touchesDistDiff);
-                            //  console.log("touchmove", scrollX+scrollY, scrolling, "   ", touchesDistDiff, zooming);
+                            //  debug("touchmove", scrollX+scrollY, scrolling, "   ", touchesDistDiff, zooming);
                         //     if ((scrolling && this.bEnableScrolling) || 
                         //         (zooming && this._bEnableZooming && this.zoomingOptions.pinchZooming)) {
                         //         this.container_div.classList.remove("scrollmap_warning_touch");
                         //         this._interacting = true;
-                        //         console.log('start interacting');
+                        //         debug('start interacting');
                         //     }
                             this._enableInteractions();
                             // e.stopImmediatePropagation();
                             // e.preventDefault();
                         }
-                        // console.log(this._interacting);
+                        // debug(this._interacting);
                         //this._prevTouchesDist = touchesDist;
                         //this._prevTouchesMiddle = touchesMiddle;
                     }
@@ -604,7 +650,7 @@ define([
             },
 
             onPointerMove: function (ev) {
-                // console.log("pointer move");
+                // debug("pointer move");
                 const prevEv = this._updatePointers(ev);
 
                 // If one pointer is move, drag the map
@@ -632,7 +678,7 @@ define([
                         Math.pow(Math.abs(ev2.clientY - ev1.clientY), 2)
                     );
                     const [x, y] = this._getXYCoord(ev1, ev2);
-                    // console.log(x, y);
+                    // debug(x, y);
                     if (this._prevDist > 0.0) {
                         // const diff = curDist - this._prevDist;
                         // newZoom = this.zoom * (1 + this.zoomPinchDelta * diff);
@@ -728,18 +774,18 @@ define([
                 this.container_div.classList.remove("scrollmap_warning_scroll");
                 evt.preventDefault();
                 const [x, y] = this._getXYCoord(evt);
-                // console.log("onwheel", evt.clientX, evt.clientY, x, y);
+                // debug("onwheel", evt.clientX, evt.clientY, x, y);
                 this.changeMapZoom(evt.deltaY * -this.zoomWheelDelta, x, y);
             },
 
             scroll: function (dx, dy, duration, delay) {
-                // console.log("scroll", this.board_x, dx, this.board_y, dy);
+                // debug("scroll", this.board_x, dx, this.board_y, dy);
                 this.scrollto(this.board_x + dx, this.board_y + dy, duration, delay);
             },
             
             // Scroll the board to make it centered on given position
             scrollto: function (x, y, duration, delay) {
-                // console.log("scrollto", this.board_x, this.board_y);
+                // debug("scrollto", this.board_x, this.board_y);
                 if (typeof duration == 'undefined') {
                     duration = 350; // Default duration
                 }
@@ -755,7 +801,7 @@ define([
 
                 const board_x = toint(x + width / 2);
                 const board_y = toint(y + height / 2);
-                // console.log("scrollto board_x, board_y=",board_x, board_y);
+                // debug("scrollto board_x, board_y=",board_x, board_y);
 
                 this.board_x = x;
                 this.board_y = y;
@@ -811,7 +857,7 @@ define([
             scrollToCenter: function (custom_css_query,  duration, delay) {
                 const center = this.getMapCenter(custom_css_query);
                 this.scrollto(-center.x * this.zoom, -center.y * this.zoom, duration, delay);
-                console.log("scrollToCenter",center.x, center.y);
+                debug("scrollToCenter",center.x, center.y);
                 return {
                     x: -center.x,
                     y: -center.y
@@ -833,12 +879,12 @@ define([
                     css_query = this._custom_css_query;
                     css_query_div = document;
                 }
-                // console.log("getMapCenter", css_query, css_query_div);
+                // debug("getMapCenter", css_query, css_query_div);
                 var scales = new Map();
 
                 let scrollable_div = this.scrollable_div;
                 function calcMaxMin(node){
-                    // console.log(node);
+                    // debug(node);
                     let s = window.getComputedStyle(node);
                     if (s.left=="auto") {
                         Array.from(node.children).forEach((node) => {calcMaxMin(node);}); 
@@ -860,7 +906,7 @@ define([
                             parent = parent.parentNode;
                         }
                         scales.set(directParent, scaleTotal);
-                        // console.log("scaleTotal",scaleTotal);
+                        // debug("scaleTotal",scaleTotal);
                     }
                     let left = (parseFloat(s.left)  * scaleTotal) || 0; let width = (parseFloat(s.width) * scaleTotal) || (node.offsetWidth * scaleTotal);
                     max_x = Math.max(max_x, left + width);
@@ -869,12 +915,12 @@ define([
                     let top = (parseFloat(s.top) * scaleTotal) || 0;  let height = (parseFloat(s.height) * scaleTotal) || (node.offsetHeight * scaleTotal);
                     max_y = Math.max(max_y, top + height);
                     min_y = Math.min(min_y, top);
-                    // console.log(node, left, left + width, top, top + height);
+                    // debug(node, left, left + width, top, top + height);
                 }
                 css_query_div.querySelectorAll(css_query).forEach((node) => {
                     calcMaxMin(node);
-                    // console.log("getMapCenter node rect",  s.left,  s.width, s.top, s.height);
-                    // console.log("getMapCenter min lax",  min_x,  max_x, min_y, max_y);
+                    // debug("getMapCenter node rect",  s.left,  s.width, s.top, s.height);
+                    // debug("getMapCenter min lax",  min_x,  max_x, min_y, max_y);
 
                     //                alert( node.id );
                     //                alert( min_x+','+min_y+' => '+max_x+','+max_y );
@@ -883,8 +929,8 @@ define([
                     x: (min_x + max_x) / 2,
                     y: (min_y + max_y) / 2
                 };
-                // console.log("getMapCenter",  min_x,  max_x, min_y, max_y);
-                // console.log("getMapCenter",  center);
+                // debug("getMapCenter",  min_x,  max_x, min_y, max_y);
+                // debug("getMapCenter",  center);
 
                 return center;
             },
@@ -925,7 +971,7 @@ define([
                 if (this.zoomChangeHandler)
                     this.zoomChangeHandler(this.zoom);
                 const zoomDelta = this.zoom / this._prevZoom;
-                //console.log(x+' '+ y+' '+ zoomDelta+' '+ this.zoom);
+                //debug(x+' '+ y+' '+ zoomDelta+' '+ this.zoom);
                 this.scrollto((this.board_x * zoomDelta) + x * (1 - zoomDelta), (this.board_y * zoomDelta) + y * (1 - zoomDelta), 0, 0);
                 this._prevZoom = this.zoom;
             },
@@ -939,16 +985,16 @@ define([
                 for(let i in btnNames){
                     let btnName = btnNames[i];
                     var $btn = document.querySelector('#' + this.container_div.id+idSuffix + ' .'+this._classNameSuffix+btnName);
-                    //console.log($btn);
-                    //console.log('#' + this.container_div.id+idSuffix + ' .'+this._classNameSuffix+btnName);
+                    //debug($btn);
+                    //debug('#' + this.container_div.id+idSuffix + ' .'+this._classNameSuffix+btnName);
                     if ($btn === null)
                         $btn = $(btnName);
                     if ($btn) {
-                        console.log(btnName+" found");
+                        debug(btnName+" found");
                         return $btn;
                     }
                 }
-                console.log(btnNames+" not found");
+                debug(btnNames+" not found");
             },
 
             _hideButton: function (btnName, idSuffix=""){
@@ -984,7 +1030,7 @@ define([
             //// Long press handling on buttons
 
             _onButtonLongPress: function (onLongPressedAnim, evt) {
-                // console.log("onButtonLongPress");
+                // debug("onButtonLongPress");
                 this._longPressAnim = (time, anim=onLongPressedAnim) => {
                     anim();
                     if (this._longPress)
@@ -997,7 +1043,7 @@ define([
 
             _onButtonLongPressEnd: function (evt) {
                 //this.onMoveTop();
-                //console.log("onButtonLongPressEnd");
+                //debug("onButtonLongPressEnd");
                 this._longPress = false;
             },
 
@@ -1006,7 +1052,7 @@ define([
 
             // Optional: setup on screen arrows to scroll the board
             setupOnScreenArrows: function (scrollDelta, bScrollDeltaAlignWithZoom = true) {
-                console.log("setupOnScreenArrows");
+                debug("setupOnScreenArrows");
                 this.scrollDelta = scrollDelta;
                 this.bScrollDeltaAlignWithZoom = bScrollDeltaAlignWithZoom;
                 if (this.bScrollDeltaAlignWithZoom)
@@ -1038,24 +1084,24 @@ define([
             },
 
             onMoveTop: function (evt) {
-                //console.log("onMoveTop");
+                //debug("onMoveTop");
                 this.scroll(0, this._scrollDeltaAlignWithZoom);
             },
 
             onMoveLeft: function (evt) {
-                // console.log("onMoveLeft");
+                // debug("onMoveLeft");
                 evt.preventDefault();
                 this.scroll(this._scrollDeltaAlignWithZoom, 0);
             },
 
             onMoveRight: function (evt) {
-                // console.log("onMoveRight");
+                // debug("onMoveRight");
                 evt.preventDefault();
                 this.scroll(-this._scrollDeltaAlignWithZoom, 0);
             },
 
             onMoveDown: function (evt) {
-                // console.log("onMoveDown");
+                // debug("onMoveDown");
                 evt.preventDefault();
                 this.scroll(0, -this._scrollDeltaAlignWithZoom);
             },
@@ -1094,7 +1140,7 @@ define([
             //////////////////////////////////////////////////
             //// Zoom with buttons
             setupOnScreenZoomButtons: function (zoomDelta = 0.2) {
-                console.log("setupOnScreenZoomButtons");
+                debug("setupOnScreenZoomButtons");
                 this.zoomDelta = zoomDelta;
 
                 if (!this._btnZoomPlus)
@@ -1130,7 +1176,7 @@ define([
             //// Reset with buttons
             setupOnScreenResetButtons: function (resetZoom = false) {
                 this._resetZoom = resetZoom;
-                console.log("setupOnScreenResetButtons");
+                debug("setupOnScreenResetButtons");
                 if (!this._btnReset)
                     this._btnReset = this._initButton(this._btnResetNames, this.onReset);
                 // this.showOnScreenResetButtons();
@@ -1164,7 +1210,7 @@ define([
             },
 
             setupEnlargeReduceButtons: function (incrHeightDelta, incrHeightKeepInPos, minHeight) {
-                console.log("setupEnlargeReduceButtons");
+                debug("setupEnlargeReduceButtons");
                 var btnsProps = this._getpEnlargeReduceButtonsProps();
                 if (!this._btnIncreaseHeight)
                     this._btnIncreaseHeight = this._initButton('enlargedisplay', this.onIncreaseDisplayHeight, ()=> {this.changeDisplayHeight(5);}, btnsProps.idSuffix, btnsProps.display);
@@ -1211,7 +1257,7 @@ define([
             setupInfoButton: function (bConfigurableInUserPreference = false) {
                 if (!this.btnInfo)
                     return;
-                console.log("setupInfoButton");
+                debug("setupInfoButton");
                 this.btnInfo.style.cursor= 'pointer';
                 this.btnInfo.style.display= 'block';
                 this._bConfigurableInUserPreference = bConfigurableInUserPreference;
