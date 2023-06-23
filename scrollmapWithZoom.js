@@ -351,8 +351,8 @@ define([
 
             createCompletely: function (container_div, page=null, create_extra=null, bEnlargeReduceButtonsInsideMap=true) {
                 debug("createCompletely");
-                const LABEL_ENLARGE_DISPLAY = _("Enlarge display");
-                const LABEL_REDUCE_DISPLAY = _("Reduce display");
+                const LABEL_ENLARGE_DISPLAY = _("Enlarge");
+                const LABEL_REDUCE_DISPLAY = _("Reduce");
 
                 var tmplDisplayButtons = String.raw`
                     <a class="enlargedisplay">↓  ${LABEL_ENLARGE_DISPLAY}  ↓</a>
