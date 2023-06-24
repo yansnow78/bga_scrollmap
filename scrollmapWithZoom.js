@@ -5,16 +5,13 @@
 var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
 var debug = isDebug ? console.info.bind(window.console) : function () {};
 var error = isDebug ? console.error.bind(window.console) : function () {};
-
+/*global gameui*/
 define([
     "dojo", "dojo/_base/declare" , "./long-press-event", "./core_patch_slideto"
 ],
     function (dojo, declare) {
         return declare("ebg.scrollmapWithZoom", null, {
-            constructor: function () {
-                this.adaptHeightAuto = false;
-                this.adaptHeightCorr = 0;
-                
+            constructor: function () {              
                 this.board_x = 0;
                 this.board_y = 0;
                 this.defaultPosition = null; //{x: 0,y: 0};
@@ -93,6 +90,12 @@ define([
                 this.bScrollDeltaAlignWithZoom = true;
                 this.scrollDelta = 0;
                 this._scrollDeltaAlignWithZoom = 0;
+
+                // size properties
+                this.minHeight = 100;
+                this.incrHeightKeepInPos = true;
+                this.adaptHeightAuto = false;
+                this.adaptHeightCorr = 0;
 
                 // buttons properties
                 this.bEnableLongPress = true;
@@ -428,40 +431,17 @@ define([
                 var $chatwindowavatar = document.querySelector(".chatwindowavatar");
                 if ($chatwindowavatar)
                     other_elements_height += $chatwindowavatar.getBoundingClientRect().height/gameui.gameinterface_zoomFactor;
-                var map_height = Math.max( 500, screen_height - other_elements_height );
-                // var map_height = Math.max( 500, screen_height - other_elements_height );
-                
-                dojo.style( this.container_div, 'height', map_height+'px' );
+                var map_height = screen_height - other_elements_height;
+
+                this.setDisplayHeight(map_height);
             },
 
             onResize: function () {
                 if (!this._setupDone) {
                     debug("1st onResize after setup");
-                    let settings = JSON.parse(localStorage.getItem(this._localStorageKey));
-                    if (settings != null){
-                        this.setMapZoom(settings.zoom);
-                        this.board_x = settings.board_x;
-                        this.board_y = settings.board_y;
-                        this.scrollto(this.board_x, this.board_y, 0, 0);
-                        let keys = Object.keys(localStorage);
-                        let oldKeysCnt = 0; 
-                        let oldest = null;
-                        let oldestKey = 0;
-                        for(let key of keys) {
-                            if (key.startsWith('scrollmap')){
-                                let oldSetting = JSON.parse(localStorage.getItem(key));
-                                if ((oldest == null) || oldSetting.time < oldest){
-                                    oldestKey = key;
-                                    oldest = oldSetting.time ;
-                                }
-                                oldKeysCnt++;
-                            }
-                        }
-                        // debugger;
-                        if (oldKeysCnt > 500){
-                            localStorage.removeItem(oldestKey);
-                        }
-                    } else {
+                    this._clearOldSettings();
+                    var loaded = this._loadSettings();
+                    if (!loaded) {
                         this.scrollToCenter();
                     }
                 } else 
@@ -469,9 +449,42 @@ define([
                 this._setupDone = true;
             },
 
-            _saveSettings: function (e){
-                debug("_saveSettings", e);
-                let settings = {time:Date.now(), zoom:this.zoom, board_x:this.board_x, board_y:this.board_y};
+            _clearOldSettings: function (){
+                let keys = Object.keys(localStorage);
+                let oldKeysCnt = 0; 
+                let oldest = null;
+                let oldestKey = 0;
+                for(let key of keys) {
+                    if (key.startsWith('scrollmap')){
+                        let oldSetting = JSON.parse(localStorage.getItem(key));
+                        if ((oldest == null) || oldSetting.time < oldest){
+                            oldestKey = key;
+                            oldest = oldSetting.time ;
+                        }
+                        oldKeysCnt++;
+                    }
+                    if (oldKeysCnt > 500){
+                        localStorage.removeItem(oldestKey);
+                    }
+                }
+            },
+            _loadSettings: function (){
+                debug("_loadSettings");
+                let settings = JSON.parse(localStorage.getItem(this._localStorageKey));
+                if (settings != null){
+                    this.setMapZoom(settings.zoom);
+                    this.board_x = settings.board_x;
+                    this.board_y = settings.board_y;
+                    this.scrollto(this.board_x, this.board_y, 0, 0);
+                    if ((!this.adaptHeightAuto) && (settings.height!=null))
+                        this.setDisplayHeight(settings.height);
+                    return true;
+                }
+                return false;
+            },
+            _saveSettings: function (){
+                debug("_saveSettings");
+                let settings = {time:Date.now(), zoom:this.zoom, board_x:this.board_x, board_y:this.board_y, height:this.adaptHeightAuto?null:this.getDisplayHeight()};
                 localStorage.setItem(this._localStorageKey, JSON.stringify(settings));
             },
             _onvisibilty_changehandler: function (e) {
@@ -1278,11 +1291,18 @@ define([
             },
 
             changeDisplayHeight: function(delta) {
-                var current_height = parseFloat(window.getComputedStyle(this.container_div).height);
-                var new_height = Math.max((current_height + delta), this.minHeight);
+                var current_height = this.getDisplayHeight();
+                this.setDisplayHeight(current_height+delta);
+            },
+            setDisplayHeight: function(new_height) {
+                var current_height = this.getDisplayHeight();
+                new_height = Math.max(new_height, this.minHeight);
                 if (this.incrHeightKeepInPos)
                     this.board_y += (current_height-new_height)/2;
                 this.container_div.style.height =  new_height + 'px';
+            },
+            getDisplayHeight: function() {
+                return parseFloat(window.getComputedStyle(this.container_div).height);
             },
             //////////////////////////////////////////////////
             //// Info button
