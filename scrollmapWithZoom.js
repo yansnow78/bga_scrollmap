@@ -108,6 +108,9 @@ define([
                 this._resizeObserver = null;
                 if (typeof ResizeObserver !== 'undefined')
                     this._resizeObserver = new ResizeObserver(this.onResize.bind(this));
+                this._resizeHeadersObserver = null;
+                if (typeof ResizeObserver !== 'undefined')
+                    this._resizeHeadersObserver = new ResizeObserver(this._adaptHeight.bind(this));
                 this._onpointermove_handler = this._onPointerMove.bind(this);
                 this._onpointerup_handler = this._onPointerUp.bind(this);
                 this._onpointerup_handled=false;
@@ -344,11 +347,16 @@ define([
                 this.scrollto(0, 0, 0, 0);
                 if  (this._resizeObserver)
                     this._resizeObserver.observe(this.container_div);
+                if  (this._resizeHeadersObserver){
+                    this._resizeHeadersObserver.observe($('log_history_status'));
+                    this._resizeHeadersObserver.observe($('page-title'));
+                    this._resizeHeadersObserver.observe($('after-page-title'));
+                }
 
                 this._localStorageKey = 'scrollmap_'+gameui.table_id+'_'+this.container_div.id;    
                 window.addEventListener( 'pagehide', (e) => {this._onbeforeunload_handler(e);});
                 document.addEventListener( 'visibilitychange', this._onvisibilty_changehandler.bind(this));
-                window.addEventListener( 'load', (e) => {debug("document loaded");});
+                window.addEventListener( 'load', (e) => {debug("document loaded"); /*this._adaptHeight();*/});
                 dojo.connect(gameui, "onGameUiWidthChange", this, dojo.hitch( this, '_adaptHeight' ));
             },
 
@@ -422,9 +430,9 @@ define([
                 screen_height /= gameui.gameinterface_zoomFactor;
     
                 var other_elements_height = this.adaptHeightCorr + container_pos.y;
-                var $log_history_status = $('log_history_status'); 
-                if ($log_history_status)
-                    other_elements_height -= $log_history_status.getBoundingClientRect().height/gameui.gameinterface_zoomFactor;
+                // var $log_history_status = $('log_history_status'); 
+                // if ($log_history_status)
+                //     other_elements_height -= $log_history_status.getBoundingClientRect().height/gameui.gameinterface_zoomFactor;
                 var $connect_status = $('connect_status'); 
                 if ($connect_status)
                     other_elements_height -= $connect_status.getBoundingClientRect().height/gameui.gameinterface_zoomFactor;
