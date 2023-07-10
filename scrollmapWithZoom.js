@@ -281,28 +281,28 @@ define([
                             cursor: not-allowed !important;
                             pointer-events: none;
                         }
-                        .scrollmap_container > .movetop {
+                        .scrollmap_container .movetop {
                             top: 0px;
                             left: 50%;
                             margin-left: 0px;
                             transform: translateX(-50%)
                         }
 
-                        .scrollmap_container > .movedown {
+                        .scrollmap_container .movedown {
                             bottom: 0px;
                             left: 50%;
                             margin-left: 0px;
                             transform: translateX(-50%)
                         }
 
-                        .scrollmap_container > .moveleft {
+                        .scrollmap_container .moveleft {
                             left: 0px;
                             top: 50%;
                             margin-top: 0px;
                             transform: translateY(-50%)
                         }
 
-                        .scrollmap_container > .moveright {
+                        .scrollmap_container .moveright {
                             right: 0px;
                             top: 50%;
                             margin-top: 0px;
@@ -926,21 +926,14 @@ define([
                 var min_x = 0;
                 var min_y = 0;
 
-                var css_query = ":scope > *";
-                var css_query_div = this.scrollable_div;
-                if ((typeof this._custom_css_query != 'undefined') && (this._custom_css_query !== null)) {
-                    css_query = this._custom_css_query;
-                    css_query_div = document;
-                }
-                // debug("getMapCenter", css_query, css_query_div);
                 var scales = new Map();
 
                 let scrollable_div = this.scrollable_div;
-                function calcMaxMin(node){
+                function calcMaxMin(node, top_div){
                     // debug(node);
                     let s = window.getComputedStyle(node);
                     if (s.left=="auto") {
-                        Array.from(node.children).forEach((node) => {calcMaxMin(node);}); 
+                        Array.from(node.children).forEach((node) => {calcMaxMin(node, top_div);}); 
                         return;
                     }
                     let directParent = node.parentNode;
@@ -948,7 +941,7 @@ define([
                     let scaleTotal = scales.get(parent);
                     if (!scaleTotal){
                         scaleTotal = 1;
-                        while (!parent.isEqualNode(scrollable_div)){
+                        while (!parent.isEqualNode(top_div)){
                             let transform = window.getComputedStyle(parent).transform;
                             let scale = 1;
                             if (transform !== "none"){
@@ -968,16 +961,17 @@ define([
                     let top = (parseFloat(s.top) * scaleTotal) || 0;  let height = (parseFloat(s.height) * scaleTotal) || (node.offsetHeight * scaleTotal);
                     max_y = Math.max(max_y, top + height);
                     min_y = Math.min(min_y, top);
-                    // debug(node, left, left + width, top, top + height);
+                    debug(node.id, left, top, left + width, top + height);
                 }
-                css_query_div.querySelectorAll(css_query).forEach((node) => {
-                    calcMaxMin(node);
-                    // debug("getMapCenter node rect",  s.left,  s.width, s.top, s.height);
-                    // debug("getMapCenter min lax",  min_x,  max_x, min_y, max_y);
+                if ((typeof this._custom_css_query != 'undefined') && (this._custom_css_query !== null)) {
+                    document.querySelectorAll(this._custom_css_query).forEach((node) => {calcMaxMin(node, this.scrollable_div);});
+                } else {
+                    var css_query = ":scope > *";
+                    this.scrollable_div.querySelectorAll(css_query).forEach((node) => {calcMaxMin(node, this.scrollable_div);});
+                    this.onsurface_div.querySelectorAll(css_query).forEach((node) => {calcMaxMin(node, this.onsurface_div);});
+                }
+                // debug("getMapCenter", css_query, css_query_div);
 
-                    //                alert( node.id );
-                    //                alert( min_x+','+min_y+' => '+max_x+','+max_y );
-                });
                 var center =  {
                     x: (min_x + max_x) / 2,
                     y: (min_y + max_y) / 2
@@ -1037,7 +1031,13 @@ define([
                 btnNames = btnNames.split(",");
                 for(let i in btnNames){
                     let btnName = btnNames[i];
-                    var $btn = document.querySelector('#' + this.container_div.id+idSuffix + ' .'+this._classNameSuffix+btnName);
+                    var $btn = null;
+                    if (idSuffix == "")
+                        var $querydiv = this.container_div;
+                    else
+                        var $querydiv = document.getElementById(this.container_div.id+idSuffix);
+                    if ($querydiv !=null) 
+                        var $btn = $querydiv.querySelector('.'+this._classNameSuffix+btnName);
                     //debug($btn);
                     //debug('#' + this.container_div.id+idSuffix + ' .'+this._classNameSuffix+btnName);
                     if ($btn === null)
@@ -1048,6 +1048,7 @@ define([
                     }
                 }
                 debug(btnNames+" not found");
+                return null;
             },
 
             _hideButton: function (btnName, idSuffix=""){
