@@ -384,6 +384,7 @@ define([
                     <i class="zoomplus fa fa-search-plus scrollmap_icon"></i>
                     <i class="zoomminus fa fa-search-minus scrollmap_icon"></i>
                     <i class="reset fa fa-refresh scrollmap_icon"></i>
+                    <i class="reset fa6-solid fa6-arrows-to-circle scrollmap_icon"></i>
                     <i id=${info_id} class="info fa fa-info scrollmap_icon"></i>
                     ${bEnlargeReduceButtonsInsideMap?tmplDisplayButtons:``}
                     <div class="scrollmap_anim"></div>
