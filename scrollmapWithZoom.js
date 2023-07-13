@@ -137,8 +137,12 @@ define([
                 this._btnDecreaseHeight = null;
                 this._xPrev = null;
                 this._yPrev = null;
+                this._xPrevMid = null;
+                this._yPrevMid = null;
                 this._scrolling = false;
                 this.scrollingTresh =30;
+                this.scrolltoBusy = false;
+                this.startScrollDuration = 5;
                 /* Feature detection */
 
                 // Test via a getter in the options object to see if the passive property is accessed
@@ -774,10 +778,10 @@ define([
                         [this._xPrev, this._yPrev] = this._getXYCoord(ev);
                     else {
                         const [x, y] = this._getXYCoord(ev);
-                        if ((Math.hypot(x - this._xPrev, y - this._yPrev) > this.scrollingTresh) || this._scrolling){
+                        if (((Math.hypot(x - this._xPrev, y - this._yPrev) > this.scrollingTresh) || this._scrolling) && (!this.scrolltoBusy)){
+                            this.scroll(x - this._xPrev, y - this._yPrev, this._scrolling?0:this.startScrollDuration, 0);
                             this._scrolling = true;
-                            this.scroll(x - this._xPrev, y - this._yPrev, 0, 0);
-                            [this._xPrev, this._yPrev] = this._getXYCoord(ev);
+                            this._xPrev =x ; this._yPrev = y;
                             this._disableTooltipsAndClick();
                         }
                     }
@@ -803,15 +807,15 @@ define([
                         const newZoom = this.zoom * (curDist / this._prevDist);
                         if (this._bEnableZooming && this.zoomingOptions.pinchZooming)
                             this.setMapZoom(newZoom, x, y);
-                        if (this._xPrev === null){
-                            [this._xPrev, this._yPrev] = this._getXYCoord(ev1, ev2);
+                        if (this._xPrevMid === null){
+                            [this._xPrevMid, this._yPrevMid] = this._getXYCoord(ev1, ev2);
                         } else {
-                            const [xMid, yMid] = this._getXYCoord(ev1, ev2);
-                            const scrollingDist = Math.hypot(xMid - this._xPrev, yMid - this._yPrev);
-                            if ((scrollingDist > this.scrollingTresh) || this._scrolling) {
+                            const scrollingDist = Math.hypot(x - this._xPrevMid, y- this._yPrevMid);
+                            if ((scrollingDist > this.scrollingTresh) || this._scrolling) 
+                            if (((Math.hypot(x - this._xPrevMid, y - this._yPrevMid) > this.scrollingTresh) || this._scrolling) && !this.scrolltoBusy) {
                                 if (this.bEnableScrolling){
-                                    this.scroll(x - this._xPrev, y - this._yPrev, 0, 0);
-                                    [this._xPrev, this._yPrev] = this._getXYCoord(ev1, ev2);
+                                    this.scroll(x - this._xPrevMid, y - this._yPrevMid,  this._scrolling?0:this.startScrollDuration, 0, 0);
+                                    this._xPrevMid =x ; this._yPrevMid = y;
                                     this._scrolling = true;
                                 }
                             }
@@ -856,6 +860,8 @@ define([
                     this._prevDist = -1;
                     this._xPrev = null;
                     this._yPrev = null;
+                    this._xPrevMid = null;
+                    this._yPrevMid = null;
                 }
 
             },
@@ -988,6 +994,8 @@ define([
                     anims = [anim1,anim2];
                 var anim = dojo.fx.combine(anims);
                 anim.play();
+                this.scrolltoBusy = true;
+                setTimeout(()=>{ this.scrolltoBusy = false; }, duration + delay);
             },
 
             // Scroll map in order to center everything
