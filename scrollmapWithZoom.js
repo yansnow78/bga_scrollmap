@@ -106,6 +106,7 @@ define([
                 this._longPress =  null;
                 this._enableTooltipsAndClickTimerId = null;
                 this._enabledTooltips = true;
+                this._enabledClicks = true;
                 this._enableTooltipsAndClick_handler = this._enableTooltipsAndClick.bind(this);
                 this._bEnlargeReduceButtonsInsideMap=false;
                 this._resizeObserver = null;
@@ -600,6 +601,7 @@ define([
                     this._enabledTooltips = true;
                     this._enableTooltipsAndClickTimerId = null;
                 }
+                this._enabledClicks = true;
                 setTimeout(()=> {this.onsurface_div.removeEventListener('click', this._suppressCLickEvent_handler, true);}, 200);
             },
 
@@ -609,21 +611,17 @@ define([
                         clearInterval(this._enableTooltipsAndClickTimerId);
                     this._enableTooltipsAndClickTimerId = setInterval(this._enableTooltipsAndClick_handler, 500);
                 }
-                if (this._enabledTooltips){
+                if (this._enabledTooltips && !gameui.bHideTooltips){
                     gameui.switchDisplayTooltips(true);
                     for (var i in gameui.tooltips) {
                         gameui.tooltips[i]._setStateAttr("DORMANT");
                     }
-                    // var suppressClickEvent = function suppressCLickEvent(e) {
-                    //     debugger;
-                    //     this.onsurface_div.removeEventListener('click', suppressClickEvent, true);                       
-                    //     e.stopImmediatePropagation();
-                    //     e.preventDefault();
-                    //     e.stopPropagation();
-                    // }; 
+                    this._enabledTooltips = false;
+                }
+                if (this._enabledClicks){
+                    this._enabledClicks = false;
                     this.onsurface_div.removeEventListener('click', this._suppressCLickEvent_handler, true);                       
                     this.onsurface_div.addEventListener('click',this._suppressCLickEvent_handler, true);
-                    this._enabledTooltips = false;
                 }
             },
 
