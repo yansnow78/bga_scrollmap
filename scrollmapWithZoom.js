@@ -48,6 +48,7 @@ define([
                 this._prevZoom = 1;
                 this.zoomPinchDelta = 0.005;
                 this.zoomWheelDelta = 0.001;
+                this.zoomDelta = 0.2;
                 this.wheelZoomingKeys = {
                     Disabled: 0,
                     Any: 1, 
@@ -88,11 +89,12 @@ define([
                 this.bEnableScrolling = true;
                 this.scrollingOptions = {oneFingerScrolling: false};
                 this.bScrollDeltaAlignWithZoom = true;
-                this.scrollDelta = 0;
+                this.scrollDelta = 100;
                 this._scrollDeltaAlignWithZoom = 0;
 
                 // size properties
-                this.minHeight = 100;
+                this.minHeight = 300;
+                this.incrHeightDelta = 100;
                 this.incrHeightKeepInPos = true;
                 this.adaptHeightAuto = false;
                 this.adaptHeightCorr = 0;
@@ -485,10 +487,10 @@ define([
                 document.addEventListener("touchend", _handleTouch, this.passiveEventListener );
                 document.addEventListener("touchcancel", _handleTouch, this.passiveEventListener );
 
-                this.setupOnScreenArrows(100, true);
-                this.setupOnScreenZoomButtons(0.2);
+                this.setupOnScreenArrows(this.scrollDelta, this.bScrollDeltaAlignWithZoom);
+                this.setupOnScreenZoomButtons(this.zoomDelta);
                 this.setupOnScreenResetButtons();
-                this.setupEnlargeReduceButtons(100, true, 300);
+                this.setupEnlargeReduceButtons(this.incrHeightDelta, this.incrHeightKeepInPos, this.minHeight);
                 if (this._btnZoomPlus && this._btnZoomPlus.style.display!="none" && this.bEnableZooming === null)
                     this.bEnableZooming = true;
                 this.setupInfoButton();

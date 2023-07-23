@@ -34,19 +34,14 @@ setup: function (gamedatas) {
     dojo.place(dojo.eval("jstpl_map_clipped"), scrollmap.clipped_div);
     scrollmap.zoomChangeHandler = this.handleMapZoomChange.bind(this);
   };
+  /* settings you can change
+	zoom, maxZoom, minZoom, defaultZoom, zoomPinchDelta, zoomWheelDelta, zoomDelta, bEnableZooming, zoomingOptions, zoomChangeHandler
+	scrollDelta, bScrollDeltaAlignWithZoom, bEnableScrolling, crollingOptions
+	minHeight, incrHeightDelta, incrHeightKeepInPos, adaptHeightAuto, adaptHeightCorr
+	
+	example:
+	this.scrollmap.zoomDelta = 0.2;*/
   this.scrollmap.createCompletely($('map_container'), this, scrollmapCreateExtra);
-
-  /*
-    Make map draggable, scrollable and zoomable
-  */
-  this.scrollmap.bEnableZooming = true;
-  this.scrollmap.bEnableLongPress = true;
-  this.scrollmap.setupOnScreenArrows(this.tile_size, true);
-  this.scrollmap.minZoom = 0.2;
-  this.scrollmap.setupOnScreenZoomButtons(0.2);
-  this.scrollmap.setupOnScreenResetButtons();
-  this.scrollmap.setupEnlargeReduceButtons(300, true, 300);}
-  ...
 }
 ```
 
