@@ -7,9 +7,9 @@ var debug = isDebug ? console.info.bind(window.console) : function () {};
 var error = isDebug ? console.error.bind(window.console) : function () {};
 /*global gameui*/
 define([
-    "dojo", "dojo/_base/declare" , "./long-press-event", "./core_patch_slideto"
+    "dojo", "dojo/_base/declare", "dijit/Tooltip", "./long-press-event", "./core_patch_slideto"
 ],
-    function (dojo, declare) {
+    function (dojo, declare, Tooltip) {
         return declare("ebg.scrollmapWithZoom", null, {
             constructor: function () {              
                 this.board_x = 0;
@@ -129,9 +129,21 @@ define([
                 this._btnZoomPlus = null;
                 this._btnZoomMinus = null;
                 this._btnZoomPlusNames = 'zoomplus,zoom_plus,zoomin,zoom_in';
+                this.btnZoomPlusClasses = 'fa fa-search-plus';
+                Object.defineProperty(this, '_btnZoomPlusDefault', {
+                    get() {return  `<i class="zoomplus ${this.btnZoomPlusClasses} scrollmap_icon btn_pos_top_right"></i>`;}
+                });
                 this._btnZoomMinusNames = 'zoomminus,zoom_minus,zoomout,zoom_out';
+                this.btnZoomMinusClasses = 'fa fa-search-minus';
+                Object.defineProperty(this, '_btnZoomMinusDefault', {
+                    get() {return  `<i class="zoomminus  ${this.btnZoomMinusClasses} scrollmap_icon btn_pos_top_right"></i>`;}
+                });
                 this._btnReset = null;
                 this._btnResetNames = 'reset,back_to_center,reset_map,map_reset';
+                this.btnResetClasses = 'fa6-solid fa6-arrows-to-dot';
+                Object.defineProperty(this, '_btnResetDefault', {
+                    get() {return  `<i class="reset  ${this.btnResetClasses} scrollmap_icon btn_pos_top_right"></i>`;}
+                });
                 this._btnBackToCenter = null;
                 this._btnIncreaseHeight = null;
                 this._btnDecreaseHeight = null;
@@ -160,7 +172,17 @@ define([
                     window.removeEventListener("testPassive", null, opts);
                     this.passiveEventListener = passiveEventListener;
                     this.notPassiveEventListener = notPassiveEventListener;
+                    Tooltip.prototype.onShow = this.onShowTooltip;             
+                    Object.defineProperty(Tooltip.prototype, "onShow", {
+                        writable: false
+                    });
+            
                 } catch (e) {/**/}
+            },
+
+            onShowTooltip: function(){
+                if (gameui.bHideTooltips && !this.bForceOpening)
+                    setTimeout(()=>{this.set("state", "DORMANT");});
             },
 
             create: function (container_div, scrollable_div, surface_div, onsurface_div, clipped_div=null, animation_div=null, page=null, create_extra=null, bEnlargeReduceButtonsInsideMap=false) {
@@ -193,6 +215,8 @@ define([
                 this.animation_div = animation_div;
 
                 var styleElt = document.createElement("style");
+                var enl_xpos = "calc(50% + var(--icon_size)/2 + 16px)";
+
                 if (!$("css-scrollmap")){
                     const css = String.raw;
                     const styleSheetContent = css`
@@ -325,6 +349,116 @@ define([
                             margin-top: 0px;
                             transform: translateY(-50%)
                         }
+
+
+                        .scrollmap_container {
+                            --icon_size:32px;
+                            --icon_font_size:1.7em;
+                        }
+
+
+                        @media (pointer: coarse) {
+                            .scrollmap_container{
+                                --icon_size:32px;
+                                --icon_font_size:32px;
+                            }
+                        }
+
+                        .scrollmap_icon {
+                            display: none;
+                            position: absolute;
+                            vertical-align: middle;
+                            text-align: center;
+                            overflow: hidden;
+                            font-size: var(--icon_font_size);
+                            line-height: var(--icon_size);
+                            width: var(--icon_size);
+                            height: var(--icon_size);
+                            margin : 0;
+                        }
+
+                        .reset.fa6-arrows-to-circle {
+                            font-size: 25px;
+                        }
+                        /**************************
+                        * positioning of buttons  *
+                        ***************************/
+                        .scrollmap_icon.btn_pos_top_right{
+                            --index_x: 0;
+                            --offset_x: 8px;
+                            --offset_y: 8px;
+                            --margin_x: 8px;
+                            --margin_y: 8px;
+                            top: calc((var(--icon_size) + var(--margin_y)) * var(--index_y) + var(--offset_y));
+                            right: calc((var(--icon_size) + var(--margin_x)) * var(--index_x) + var(--offset_x));
+                        }
+
+                        .scrollmap_container > .zoomminus.btn_pos_top_right {
+                            --index_y: 2;
+                        }
+
+                        .scrollmap_container > .zoomplus.btn_pos_top_right  {
+                            --index_y: 1;
+                        }
+
+                        .scrollmap_container > .info.btn_pos_top_right {
+                            --index_x: 1;
+                            --index_y: 0;
+                        }
+
+                        .scrollmap_container > .reset.btn_pos_top_right {
+                            --index_y: 0;
+                        }
+
+                        .scrollmap_footer, .scrollmap_header {
+                            text-align: center;
+                        }
+
+                        .scrollmap_container .enlargedisplay,
+                        .scrollmap_container .reducedisplay {
+                            display: none;
+                            position: absolute;
+                            background-color: rgba(255,255,255,0.5);
+                            font-size: 110%;
+                            line-height: 24px;
+                        }
+
+                        .scrollmap_container .enlargedisplay {
+                            left : ${enl_xpos};
+                            top: 0px;
+                        }
+
+                        .scrollmap_container .reducedisplay {
+                            right : ${enl_xpos};
+                            top: 0px;
+                        }
+
+                        /**********************************
+                        * positioning of fontAwesome icon *
+                        ***********************************/
+                        .scrollmap_container > .movetop.fa,
+                        .scrollmap_container > .moveleft.fa,
+                        .scrollmap_container > .moveright.fa,
+                        .scrollmap_container > .movedown.fa{
+                            background-color: rgba(255,255,255,0.5);
+                            border-radius: 100%;
+                        }
+
+                        .scrollmap_container > .movetop.fa {
+                            border-radius: 0 0 100% 100%;
+                        }
+
+                        .scrollmap_container > .moveleft.fa {
+                            border-radius: 0 100% 100% 0;
+                        }
+
+                        .scrollmap_container > .moveright.fa {
+                            border-radius: 100% 0 0 100%;
+                        }
+
+                        .scrollmap_container > .movedown.fa {
+                            border-radius: 100% 100% 0 0;
+                        }
                         `;
                     // styleElt.type = "text/css";
                     styleElt.id = 'css-scrollmap';
@@ -400,10 +534,10 @@ define([
                     <i class="moveleft fa fa-chevron-left scrollmap_icon"></i>
                     <i class="moveright fa fa-chevron-right scrollmap_icon"></i>
                     <i class="movedown fa fa-chevron-down scrollmap_icon"></i>
-                    <i class="zoomplus fa fa-search-plus scrollmap_icon"></i>
-                    <i class="zoomminus fa fa-search-minus scrollmap_icon"></i>
-                    <i class="reset fa6-solid fa6-arrows-to-circle scrollmap_icon"></i>
-                    <i id=${info_id} class="info fa fa-info scrollmap_icon"></i>
+                    ${this._btnZoomPlusDefault}
+                    ${this._btnZoomMinusDefault}
+                    ${this._btnResetDefaultDefault}
+                    <i id=${info_id} class="info fa fa-info scrollmap_icon btn_pos_top_right"></i>
                     ${bEnlargeReduceButtonsInsideMap?tmplDisplayButtons:``}
                     <div class="scrollmap_anim"></div>
                 `;
@@ -496,21 +630,19 @@ define([
                 }
             },
             _loadSettings: function (){
-                debug("_loadSettings");
                 let settings = JSON.parse(localStorage.getItem(this._localStorageKey));
+                debug("_loadSettings", settings.board_x, settings.board_y);
                 if (settings != null){
-                    this.setMapZoom(settings.zoom);
-                    this.board_x = settings.board_x;
-                    this.board_y = settings.board_y;
-                    this.scrollto(this.board_x, this.board_y, 0, 0);
                     if ((!this.adaptHeightAuto) && (settings.height!=null))
                         this.setDisplayHeight(settings.height);
+                    this.setMapZoom(settings.zoom);
+                    this.scrollto(settings.board_x, settings.board_y, 0, 0);
                     return true;
                 }
                 return false;
             },
             _saveSettings: function (){
-                debug("_saveSettings");
+                debug("_saveSettings", this.board_x, this.board_y);
                 let settings = {time:Date.now(), zoom:this.zoom, board_x:this.board_x, board_y:this.board_y, height:this.adaptHeightAuto?null:this.getDisplayHeight()};
                 localStorage.setItem(this._localStorageKey, JSON.stringify(settings));
             },
@@ -1022,7 +1154,6 @@ define([
 
                 var scales = new Map();
 
-                let scrollable_div = this.scrollable_div;
                 function calcMaxMin(node, top_div){
                     // debug(node);
                     let s = window.getComputedStyle(node);
@@ -1126,12 +1257,13 @@ define([
                 for(let i in btnNames){
                     let btnName = btnNames[i];
                     var $btn = null;
+                    var $querydiv;
                     if (idSuffix == "")
-                        var $querydiv = this.container_div;
+                        $querydiv = this.container_div;
                     else
-                        var $querydiv = document.getElementById(this.container_div.id+idSuffix);
+                        $querydiv = document.getElementById(this.container_div.id+idSuffix);
                     if ($querydiv !=null) 
-                        var $btn = $querydiv.querySelector('.'+this._classNameSuffix+btnName);
+                        $btn = $querydiv.querySelector('.'+this._classNameSuffix+btnName);
                     //debug($btn);
                     //debug('#' + this.container_div.id+idSuffix + ' .'+this._classNameSuffix+btnName);
                     if ($btn === null)
@@ -1145,20 +1277,25 @@ define([
                 return null;
             },
 
-            _hideButton: function (btnName, idSuffix=""){
-                var $btn = this._getButton(btnName, idSuffix);
+            _hideButton: function (btnNames, idSuffix=""){
+                var $btn = this._getButton(btnNames, idSuffix);
                 if ($btn !== null)
                     $btn.style.display = 'none';
             },
 
-            _showButton: function (btnName, idSuffix="", display='block'){
-                var $btn = this._getButton(btnName, idSuffix);
+            _showButton: function (btnNames, idSuffix="", display='block'){
+                var $btn = this._getButton(btnNames, idSuffix);
                 if ($btn !== null)
                     $btn.style.display = display;
+                
             },
 
-            _initButton: function (btnName, onClick, onLongPressedAnim = null, idSuffix="", display='block'){
+            _initButton: function (btnName, defaultButton, onClick, onLongPressedAnim = null, idSuffix="", display='block'){
                 var $btn = this._getButton(btnName, idSuffix);
+                if ($btn === null && defaultButton!==null){
+                    this.container_div.insertAdjacentHTML("beforeend",defaultButton);
+                    $btn = this._getButton(btnName, idSuffix);
+                }
                 if (!$btn)
                     return null;
                 onClick = onClick.bind(this);
@@ -1208,13 +1345,13 @@ define([
                 else
                     this._scrollDeltaAlignWithZoom = scrollDelta;
                 if (!this._btnMoveTop)
-                    this._btnMoveTop = this._initButton('movetop', this._onMoveTop, ()=> {this.scroll(0, 3, 0, 0);});
+                    this._btnMoveTop = this._initButton('movetop', null, this._onMoveTop, ()=> {this.scroll(0, 3, 0, 0);});
                 if (!this._btnMoveDown)
-                    this._btnMoveDown = this._initButton('movedown', this._onMoveDown, ()=> {this.scroll(0, -3, 0, 0);});
+                    this._btnMoveDown = this._initButton('movedown', null, this._onMoveDown,  ()=> {this.scroll(0, -3, 0, 0);});
                 if (!this._btnMoveLeft)
-                    this._btnMoveLeft = this._initButton('moveleft', this._onMoveLeft, ()=> {this.scroll(3, 0, 0, 0 );});
+                    this._btnMoveLeft = this._initButton('moveleft', null, this._onMoveLeft,  ()=> {this.scroll(3, 0, 0, 0 );});
                 if (!this._btnMoveRight)
-                    this._btnMoveRight = this._initButton('moveright', this._onMoveRight,()=> {this.scroll(-3, 0, 0, 0 );});
+                    this._btnMoveRight = this._initButton('moveright', null, this._onMoveRight, ()=> {this.scroll(-3, 0, 0, 0 );});
             },
 
             showOnScreenArrows: function () {
@@ -1292,9 +1429,9 @@ define([
                 this.zoomDelta = zoomDelta;
 
                 if (!this._btnZoomPlus)
-                    this._btnZoomPlus = this._initButton(this._btnZoomPlusNames, this._onZoomIn, ()=> {this.changeMapZoom(0.02);});
+                    this._btnZoomPlus = this._initButton(this._btnZoomPlusNames, this._btnZoomPlusDefault, this._onZoomIn, ()=> {this.changeMapZoom(0.02);});
                 if (!this._btnZoomMinus)
-                    this._btnZoomMinus = this._initButton(this._btnZoomMinusNames, this._onZoomOut, ()=> {this.changeMapZoom(-0.02);});
+                    this._btnZoomMinus = this._initButton(this._btnZoomMinusNames, this._btnZoomMinusDefault, this._onZoomOut, ()=> {this.changeMapZoom(-0.02);});
 
                 //this.showOnScreenZoomButtons();
 
@@ -1326,7 +1463,7 @@ define([
                 this._resetZoom = resetZoom;
                 debug("setupOnScreenResetButtons");
                 if (!this._btnReset)
-                    this._btnReset = this._initButton(this._btnResetNames, this._onReset);
+                    this._btnReset = this._initButton(this._btnResetNames, this._btnResetDefault, this._onReset);
                 // this.showOnScreenResetButtons();
             },
 
@@ -1361,10 +1498,10 @@ define([
                 debug("setupEnlargeReduceButtons");
                 var btnsProps = this._getpEnlargeReduceButtonsProps();
                 if (!this._btnIncreaseHeight)
-                    this._btnIncreaseHeight = this._initButton('enlargedisplay', this._onIncreaseDisplayHeight, ()=> {this.changeDisplayHeight(5);}, btnsProps.idSuffix, btnsProps.display);
+                    this._btnIncreaseHeight = this._initButton('enlargedisplay', null, this._onIncreaseDisplayHeight, ()=> {this.changeDisplayHeight(5);}, btnsProps.idSuffix, btnsProps.display);
 
                 if (!this._btnDecreaseHeight)
-                    this._btnDecreaseHeight =  this._initButton('reducedisplay', this._onDecreaseDisplayHeight, ()=> {this.changeDisplayHeight(-5);}, btnsProps.idSuffix, btnsProps.display);
+                    this._btnDecreaseHeight =  this._initButton('reducedisplay', null, this._onDecreaseDisplayHeight, ()=> {this.changeDisplayHeight(-5);}, btnsProps.idSuffix, btnsProps.display);
 
                 this.incrHeightDelta = incrHeightDelta;
                 this.incrHeightKeepInPos = incrHeightKeepInPos;
@@ -1410,8 +1547,16 @@ define([
             //////////////////////////////////////////////////
             //// Info button
             setupInfoButton: function (bConfigurableInUserPreference = false) {
-                if (!this._btnInfo)
-                    return;
+                if (!this._btnInfo){
+                    var $btn = this._getButton("info");
+                    if ($btn === null){
+                        var info_id=this.container_div.id +"_info";
+                        var btnInfoDefault = `<i id=${info_id} class="info fa fa-info scrollmap_icon btn_pos_top_right"></i>`;
+                        this.container_div.insertAdjacentHTML("beforeend", btnInfoDefault);
+                        $btn = this._getButton("info");
+                    }
+                    this._btnInfo = $btn;
+                }                
                 debug("setupInfoButton");
                 this._btnInfo.style.cursor= 'pointer';
                 this._btnInfo.style.display= 'block';
@@ -1429,13 +1574,18 @@ define([
 
             setInfoButtonTooltip: function () {
                 var info = _('To scroll/pan: maintain the mouse button or 2 fingers pressed and move.');
+                info += '<BR><BR>'+_('another way is to press the scroll/pan buttons (long press : continious scroll/pan).');
                 if (this._bEnableZooming)
                     info += '<BR><BR>'+_('To zoom: use the scroll wheel (with alt or ctrl or shift key) or pinch fingers.');
+                if (this._bEnableZooming)
+                    info += '<BR><BR>'+_('another way is to press the zoom buttons (long press : continious zoom).');
                 if (this._bConfigurableInUserPreference)
                     info += _('This is configurable in user preference.');
-                if (gameui!=null)
-                    gameui.addTooltip( this._btnInfo.id, info, '');
-                else
+                if (gameui!=null){
+
+                    gameui.addTooltip( this._btnInfo.id, info, '', 10);
+                    gameui.tooltips[this._btnInfo.id].bForceOpening = true;
+                } else
                     return info;
             },
 
