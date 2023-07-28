@@ -1,4 +1,4 @@
-/* Z
+/* 
 Improved version of scrollmap used in multiple bga game
 
 # improvements
