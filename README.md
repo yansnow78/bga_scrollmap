@@ -13,6 +13,10 @@ Improved version of scrollmap used in multiple bga game
 - add possibility to select which key need to be pressed when zooming with wheel
 - only allow 2 fingers scrolling by default, one finger is for page scrolling
 - only allow zoom with wheel if alt or ctrl or shift are pressed by default, wheel+no key pressed scroll the page as usual.
+- keep in memory zoom, pos for each game table between sessions via localStore
+- adapt height automatically when adaptHeightAuto is set
+- allow tooltips on any scrollmap layer
+- ...
 
 # usage
 ```javascript

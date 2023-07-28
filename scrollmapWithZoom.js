@@ -1,6 +1,23 @@
-/* Scrollmap: a scrollable map
- *
- * Code by yannsnow
+/* Z
+Improved version of scrollmap used in multiple bga game
+
+# improvements
+- add zoom capabilities 
+- add possibility to adjust pan delta to tile size when clicking on arrows
+- allow zoom with scroll wheel
+- allow pan/scrool and pinch zoom on smartphone
+- make clickable area of buttons a bit bigger on smartphone
+- zooming with buttons doesn't drift the board anymore
+- improve animation between game board and player bards tanks to an animation_div
+- add support to long click on buttons (continuous scroll or zoom or enlarge/reduce until button released)
+- add possibility to select which key need to be pressed when zooming with wheel
+- only allow 2 fingers scrolling by default, one finger is for page scrolling
+- only allow zoom with wheel if alt or ctrl or shift are pressed by default, wheel+no key pressed scroll the page as usual.
+- keep in memory zoom, pos for each game table between sessions via localStore
+- adapt height automatically when adaptHeightAuto is set
+- allow tooltips on any scrollmap layer
+- ...
+ * Coded by yannsnow
  * */
 /*global gameui*/
 var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
