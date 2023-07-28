@@ -144,7 +144,7 @@ declare class scrollmapWithZoom {
     get _btnZoomMinusDefault(): string;
     get _btnResetDefault(): string;
     constructor();
-    onShowTooltip(this: typeof dijit.Tooltip): void;
+    static onShowTooltip(this: typeof dijit.Tooltip): void;
     create(container_div: HTMLElement, scrollable_div: HTMLElement, surface_div: HTMLElement, onsurface_div: HTMLElement, clipped_div?: HTMLElement, animation_div?: HTMLElement, page?: any, create_extra?: Function): void;
     createCompletely(container_div: any, page?: any, create_extra?: any, bEnlargeReduceButtonsInsideMap?: boolean): void;
     _init(): void;
