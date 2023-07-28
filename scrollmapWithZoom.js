@@ -1,8 +1,8 @@
-/* 
+/*
 Improved version of scrollmap used in multiple bga game
 
 # improvements
-- add zoom capabilities 
+- add zoom capabilities
 - add possibility to adjust pan delta to tile size when clicking on arrows
 - allow zoom with scroll wheel
 - allow pan/scrool and pinch zoom on smartphone
