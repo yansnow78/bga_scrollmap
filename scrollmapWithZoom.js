@@ -2,8 +2,6 @@
 scrollmapWithZoom: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
-Improved version of scrollmap used in multiple bga game
-
 # improvements
 - add zoom capabilities
 - add possibility to adjust pan delta to tile size when clicking on arrows
