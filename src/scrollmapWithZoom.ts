@@ -20,7 +20,7 @@ https://github.com/yansnow78/bga_scrollmap.git
 - ...
  * Coded by yannsnow
  * */
-/*global gameui*/
+/*global gameui, dojo, dijit*/
 var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
 var debug = isDebug ? console.info.bind(window.console) : function () {};
 // var error = isDebug ? console.error.bind(window.console) : function () {};
@@ -83,14 +83,14 @@ class scrollmapWithZoom
         }
     }
     bEnableScrolling: boolean = true;
-    scrollingOptions: { bOneFingerScrolling: boolean; } = { bOneFingerScrolling: false };;
+    scrollingOptions: { bOneFingerScrolling: boolean; } = { bOneFingerScrolling: false };
     bScrollDeltaAlignWithZoom: boolean = true;
     scrollDelta: number = 100;
     private _scrollDeltaAlignWithZoom: number = 0;
     scrollPosInitial: object = null;
     bHeightChanged: boolean = false;
     minHeight: number = 300;
-    incrHeightDelta: number = 100;;
+    incrHeightDelta: number = 100;
     bIncrHeightKeepInPos: boolean = true;
     private _bAdaptHeightAuto: boolean = false;
     public get bAdaptHeightAuto(): boolean {
@@ -150,11 +150,11 @@ class scrollmapWithZoom
     private _enableTooltipsAndClickTimerId: number = null;
     private _enabledTooltips: boolean  = true;
     private _enabledClicks: boolean  = true;
-    private _enableTooltipsAndClick_handler: (this: HTMLElement, ev: MouseEvent) => any = this._enableTooltipsAndClick.bind(this);;
+    private _enableTooltipsAndClick_handler: (this: HTMLElement, ev: MouseEvent) => any = this._enableTooltipsAndClick.bind(this);
     private _resizeObserver: ResizeObserver = (typeof ResizeObserver !== 'undefined')? new ResizeObserver(this.onResize.bind(this)) : null;
     private _resizeHeadersObserver: ResizeObserver  = (typeof ResizeObserver !== 'undefined')? new ResizeObserver(this._adaptHeight.bind(this)) : null;
     private _onpointermove_handler: (this: HTMLElement, ev: MouseEvent) => any = this._onPointerMove.bind(this);
-    private _onpointerup_handler: (this: HTMLElement, ev: MouseEvent) => any = this._onPointerUp.bind(this);;
+    private _onpointerup_handler: (this: HTMLElement, ev: MouseEvent) => any = this._onPointerUp.bind(this);
     private _onpointerup_handled: boolean = false;
     private _suppressCLickEvent_handler: (this: HTMLElement, ev: MouseEvent) => any = this._suppressCLickEvent.bind(this);
     private _touchInteracting: boolean = false;
@@ -213,7 +213,7 @@ class scrollmapWithZoom
         return `<a class="reducedisplay">↑  ${_("Reduce")}  ↑</a>`;
     }
     public get _btnMoveLeftDefault(): string {
-        return `<i class="moveleft ${this.btnMoveLeftClasses} scrollmap_icon"></i>`;;
+        return `<i class="moveleft ${this.btnMoveLeftClasses} scrollmap_icon"></i>`;
     }
     public get _btnMoveTopDefault(): string {
         return `<i class="movetop ${this.btnMoveTopClasses} scrollmap_icon"></i>`;
@@ -1672,7 +1672,6 @@ class scrollmapWithZoom
     }
     static updateHeight(new_height: any) {
     }
-;
     getDisplayHeight() {
         return parseFloat(window.getComputedStyle(this.container_div).height);
     }
@@ -1709,7 +1708,6 @@ class scrollmapWithZoom
     }
 
     hideInfoButton() {
-        var btnsProps = this._getEnlargeReduceButtonsProps(this._bEnlargeReduceButtonsInsideMap);
         this._hideButton("info");
     }
 

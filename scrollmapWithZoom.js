@@ -20,7 +20,7 @@ https://github.com/yansnow78/bga_scrollmap.git
 - ...
  * Coded by yannsnow
  * */
-/*global gameui*/
+/*global gameui, dojo, dijit*/
 var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
 var debug = isDebug ? console.info.bind(window.console) : function () { };
 class scrollmapWithZoom {
@@ -44,8 +44,6 @@ class scrollmapWithZoom {
             this.setInfoButtonTooltip();
         }
     }
-    ;
-    ;
     get bAdaptHeightAuto() {
         return this._bAdaptHeightAuto;
     }
@@ -92,8 +90,6 @@ class scrollmapWithZoom {
             this.hideInfoButton();
         }
     }
-    ;
-    ;
     get _btnIncreaseHeightDefault() {
         return `<a class="enlargedisplay">↓  ${_("Enlarge")}  ↓</a>`;
     }
@@ -102,7 +98,6 @@ class scrollmapWithZoom {
     }
     get _btnMoveLeftDefault() {
         return `<i class="moveleft ${this.btnMoveLeftClasses} scrollmap_icon"></i>`;
-        ;
     }
     get _btnMoveTopDefault() {
         return `<i class="movetop ${this.btnMoveTopClasses} scrollmap_icon"></i>`;
@@ -1552,7 +1547,6 @@ class scrollmapWithZoom {
     }
     static updateHeight(new_height) {
     }
-    ;
     getDisplayHeight() {
         return parseFloat(window.getComputedStyle(this.container_div).height);
     }
@@ -1587,7 +1581,6 @@ class scrollmapWithZoom {
         this._showButton("info");
     }
     hideInfoButton() {
-        var btnsProps = this._getEnlargeReduceButtonsProps(this._bEnlargeReduceButtonsInsideMap);
         this._hideButton("info");
     }
     setInfoButtonTooltip() {
