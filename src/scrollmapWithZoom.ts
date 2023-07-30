@@ -326,6 +326,8 @@ class scrollmapWithZoom
 
                 :root {
                     --scrollmap_zoomed_transform: ;
+                    --scrollmap_zoom: ;
+                    --scrollmap_unzoomed_transform: ;
                     --scrollmap_height: ;
                     --z_index_anim: 10;
                 }
@@ -372,6 +374,10 @@ class scrollmapWithZoom
 
                 .scrollmap_zoomed{
                     transform: var(--scrollmap_zoomed_transform);
+                }
+                
+                .scrollmap_unzoomed{
+                    transform: var(--scrollmap_unzoomed_transform);
                 }
 
                 .scrollmap_container:after {
@@ -731,7 +737,8 @@ class scrollmapWithZoom
         let settings = JSON.parse(localStorage.getItem(this._localStorageKey));
         if (settings != null){
             debug("_loadSettings", settings.board_x, settings.board_y);
-            if (!this.bAdaptHeightAuto && this.bIncrHeightBtnVisible && (settings.height != null)) {
+            var height = this.getDisplayHeight();
+            if (settings.height != null) {
                 this.bHeightChanged = true;
                 this.setDisplayHeight(settings.height);
             }
@@ -741,13 +748,15 @@ class scrollmapWithZoom
                 this.scrollto(settings.board_x, settings.board_y, 0, 0);
                 return true;
             }
+            if (this.bAdaptHeightAuto)
+                this.setDisplayHeight(height);
         }
         return false;
     }
     _saveSettings(){
         debug("_saveSettings", this.board_x, this.board_y);
-        let settings = {time:Date.now(), zoom:this.zoom, board_x:this._scrolled?this.board_x:null,
-            board_y: this._scrolled ? this.board_y : null, height: (this.bAdaptHeightAuto || !this.bHeightChanged || !this.bIncrHeightBtnVisible ) ? null : this.getDisplayHeight() };
+        let settings = {time:Date.now(), zoom:this.zoom, board_x : this._scrolled ? this.board_x:null,
+            board_y: this._scrolled ? this.board_y : null, height: this.getDisplayHeight() };
         localStorage.setItem(this._localStorageKey, JSON.stringify(settings));
     }
     _onvisibilty_changehandler(e) {
@@ -1348,8 +1357,10 @@ class scrollmapWithZoom
         this._setScale(this.onsurface_div, this.zoom);
         if (this.animation_div!==null)
             this._setScale(this.animation_div, this.zoom);
-        this.container_div.style.setProperty("--scrollmap_zoomed_transform", `scale(${this.zoom})`);
-        if (this.zoomChangeHandler)
+            this.container_div.style.setProperty("--scrollmap_zoomed_transform", `scale(${this.zoom})`);
+            this.container_div.style.setProperty("--scrollmap_unzoomed_transform", `scale(${1 / this.zoom})`);
+            this.container_div.style.setProperty("--scrollmap_zoom", `${this.zoom}`);
+            if (this.zoomChangeHandler)
             this.zoomChangeHandler(this.zoom);
         const zoomDelta = this.zoom / this._prevZoom;
         //debug(x+' '+ y+' '+ zoomDelta+' '+ this.zoom);
