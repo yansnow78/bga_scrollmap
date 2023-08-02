@@ -60,6 +60,7 @@ declare class scrollmapWithZoom {
     scrollPosInitial: object;
     bHeightChanged: boolean;
     minHeight: number;
+    incrHeightGlobalKey: string;
     incrHeightDelta: number;
     bIncrHeightKeepInPos: boolean;
     private _bAdaptHeightAuto;
@@ -222,7 +223,7 @@ declare class scrollmapWithZoom {
     _onDecreaseDisplayHeight(evt: any): void;
     changeDisplayHeight(delta: any): void;
     setDisplayHeight(new_height: any, dispatch?: boolean): void;
-    static updateHeight(new_height: any): void;
+    static updateHeight(new_height: number, incrHeightGlobalKey: string): void;
     getDisplayHeight(): number;
     setupInfoButton(bConfigurableInUserPreference?: boolean): any;
     showInfoButton(): void;

@@ -148,6 +148,7 @@ class scrollmapWithZoom {
         this.scrollPosInitial = null;
         this.bHeightChanged = false;
         this.minHeight = 300;
+        this.incrHeightGlobalKey = null;
         this.incrHeightDelta = 100;
         this.bIncrHeightKeepInPos = true;
         this._bAdaptHeightAuto = false;
@@ -591,8 +592,9 @@ class scrollmapWithZoom {
         window.addEventListener('load', (e) => { debug("document loaded"); /*this._adaptHeight();*/ });
         dojo.connect(gameui, "onGameUiWidthChange", this, dojo.hitch(this, '_adaptHeight'));
         dojo.require("dojo.aspect");
-        dojo.aspect.after(scrollmapWithZoom, "updateHeight", (new_height) => {
-            this.setDisplayHeight(new_height, false);
+        dojo.aspect.after(scrollmapWithZoom, "updateHeight", (new_height, incrHeightGlobalKey) => {
+            if (this.incrHeightGlobalKey == incrHeightGlobalKey)
+                this.setDisplayHeight(new_height, false);
         }, true);
     }
     createCompletely(container_div, page = null, create_extra = null, bEnlargeReduceButtonsInsideMap = true) {
@@ -1557,11 +1559,11 @@ class scrollmapWithZoom {
         this.container_div.style.height = 'var(--scrollmap_height)';
         if (this.bIncrHeightGlobally) {
             if (dispatch) {
-                scrollmapWithZoom.updateHeight(new_height);
+                scrollmapWithZoom.updateHeight(new_height, this.incrHeightGlobalKey);
             }
         }
     }
-    static updateHeight(new_height) {
+    static updateHeight(new_height, incrHeightGlobalKey) {
     }
     getDisplayHeight() {
         return parseFloat(window.getComputedStyle(this.container_div).height);
