@@ -481,6 +481,10 @@ class scrollmapWithZoom
                     margin : 0;
                 }
 
+                .scrollmap_icon.fa, .scrollmap_icon.fa6 {
+                    background-image: none;
+                }
+
                 .reset.fa6-arrows-to-circle {
                     font-size: 25px;
                 }
@@ -734,6 +738,7 @@ class scrollmapWithZoom
         }
     }
     _loadSettings(){
+        let scrolled = false;
         let settings = JSON.parse(localStorage.getItem(this._localStorageKey));
         if (settings != null){
             debug("_loadSettings", settings.board_x, settings.board_y);
@@ -746,12 +751,12 @@ class scrollmapWithZoom
             if (settings.board_x!=null && settings.board_y!=null){
                 this._scrolled = true;
                 this.scrollto(settings.board_x, settings.board_y, 0, 0);
-                return true;
+                scrolled = true;
             }
-            if (this.bAdaptHeightAuto)
+            if (this.bAdaptHeightAuto || !this.bIncrHeightBtnVisible)
                 this.setDisplayHeight(height);
         }
-        return false;
+        return scrolled;
     }
     _saveSettings(){
         debug("_saveSettings", this.board_x, this.board_y);
