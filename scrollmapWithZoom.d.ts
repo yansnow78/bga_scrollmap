@@ -15,164 +15,176 @@ interface Position {
     y: number;
 }
 declare class scrollmapWithZoom {
+    /**
+     * board properties
+     */
     board_x: number;
     board_y: number;
     defaultPosition: Position;
+    startPosition: Position;
     container_div: HTMLElement;
     scrollable_div: HTMLElement;
     surface_div: HTMLElement;
     onsurface_div: HTMLElement;
     clipped_div: HTMLElement;
     animation_div: HTMLElement;
-    private _btnInfo;
+    /**
+     * zoom properties
+     */
     zoom: number;
     maxZoom: number;
     minZoom: number;
     defaultZoom: number;
-    private _prevZoom;
-    zoomPinchDelta: number;
-    zoomWheelDelta: number;
-    zoomDelta: number;
-    wheelZoomingKeys: {
-        Disabled: number;
-        Any: number;
-        None: number;
-        Ctrl: number;
-        Alt: number;
-        Shift: number;
-        AnyOrNone: number;
-    };
     zoomingOptions: {
-        wheelZoming: number;
+        wheelZoming: scrollmapWithZoom.wheelZoomingKeys;
         pinchZooming: boolean;
     };
     zoomChangeHandler: Function;
-    private _bEnableZooming;
+    zoomPinchDelta: number;
+    zoomWheelDelta: number;
+    zoomDelta: number;
     get bEnableZooming(): boolean;
     set bEnableZooming(value: boolean);
+    /**
+     * scrolling properties
+     */
     bEnableScrolling: boolean;
     scrollingOptions: {
         bOneFingerScrolling: boolean;
     };
     bScrollDeltaAlignWithZoom: boolean;
     scrollDelta: number;
-    private _scrollDeltaAlignWithZoom;
     scrollPosInitial: object;
-    bHeightChanged: boolean;
+    scrollingTresh: number;
+    /**
+     * resizing properties
+     */
     minHeight: number;
     incrHeightGlobalKey: string;
     incrHeightDelta: number;
     bIncrHeightKeepInPos: boolean;
-    private _bAdaptHeightAuto;
     get bAdaptHeightAuto(): boolean;
     set bAdaptHeightAuto(value: boolean);
-    private _bIncrHeightGlobally;
     get bIncrHeightGlobally(): boolean;
     set bIncrHeightGlobally(value: boolean);
-    private _bIncrHeightBtnVisible;
     get bIncrHeightBtnVisible(): boolean;
     set bIncrHeightBtnVisible(value: boolean);
     adaptHeightCorr: number;
-    private _bInfoBtnVisible;
     get bInfoBtnVisible(): boolean;
-    set bInfoBtnVisible(value: boolean);
+    /**
+     * enable/disble long press on buttons
+     */
     bEnableLongPress: boolean;
-    private _pointers;
-    private _classNameSuffix;
-    private _longPress;
-    private _enableTooltipsAndClickTimerId;
-    private _enabledTooltips;
-    private _enabledClicks;
-    private _enableTooltipsAndClick_handler;
-    private _resizeObserver;
-    private _resizeHeadersObserver;
-    private _onpointermove_handler;
-    private _onpointerup_handler;
-    private _onpointerup_handled;
-    private _suppressCLickEvent_handler;
-    private _touchInteracting;
-    private _setupDone;
-    private _bConfigurableInUserPreference;
-    private _btnMoveRight;
+    /**
+     * info button
+     */
+    set bInfoBtnVisible(value: boolean);
+    /**
+     * buttons default classes
+     */
     btnMoveRightClasses: string;
-    private _btnMoveLeft;
     btnMoveLeftClasses: string;
-    private _btnMoveTop;
     btnMoveTopClasses: string;
-    private _btnMoveDown;
     btnMoveDownClasses: string;
-    private _btnZoomPlus;
-    private _btnZoomMinus;
-    private _btnZoomPlusNames;
     btnZoomPlusClasses: string;
-    private _btnZoomMinusNames;
     btnZoomMinusClasses: string;
-    private _btnReset;
-    private _btnResetNames;
     btnResetClasses: string;
-    private _btnBackToCenter;
-    private _bEnlargeReduceButtonsInsideMap;
-    private _btnIncreaseHeight;
-    private _btnDecreaseHeight;
-    private _xPrev;
-    private _yPrev;
-    private _xPrevMid;
-    private _yPrevMid;
-    private _scrolling;
-    scrollingTresh: number;
-    scrolltoBusy: boolean;
-    startScrollDuration: number;
-    passiveEventListener: {};
-    notPassiveEventListener: {};
-    loadedSettings: boolean;
-    startPosition: Position;
-    private _localStorageKey;
-    private _scrolled;
-    private _prevDist;
-    private _gestureStart;
-    private _prevTouchesDist;
-    private _prevTouchesMiddle;
-    private _custom_css_query;
-    private _isScrolling;
-    private _resetZoom;
-    get _btnIncreaseHeightDefault(): string;
-    get _btnDecreaseHeightDefault(): string;
-    get _btnMoveLeftDefault(): string;
-    get _btnMoveTopDefault(): string;
-    get _btnMoveRightDefault(): string;
-    get _btnMoveDownDefault(): string;
-    get _btnZoomPlusDefault(): string;
-    get _btnZoomMinusDefault(): string;
-    get _btnResetDefault(): string;
+    protected _prevZoom: number;
+    protected _bEnableZooming: boolean;
+    protected _scrollDeltaAlignWithZoom: number;
+    protected _bHeightChanged: boolean;
+    protected _bAdaptHeightAuto: boolean;
+    protected _bIncrHeightGlobally: boolean;
+    protected _bIncrHeightBtnVisible: boolean;
+    protected _bInfoBtnVisible: boolean;
+    protected _pointers: Map<any, any>;
+    protected _classNameSuffix: string;
+    protected _longPress: boolean;
+    protected _enableTooltipsAndClickTimerId: number;
+    protected _enabledTooltips: boolean;
+    protected _enabledClicks: boolean;
+    protected _enableTooltipsAndClick_handler: (this: HTMLElement, ev: MouseEvent) => any;
+    protected _resizeObserver: ResizeObserver;
+    protected _resizeHeadersObserver: ResizeObserver;
+    protected _onpointermove_handler: (this: HTMLElement, ev: MouseEvent) => any;
+    protected _onpointerup_handler: (this: HTMLElement, ev: MouseEvent) => any;
+    protected _onpointerup_handled: boolean;
+    protected _suppressCLickEvent_handler: (this: HTMLElement, ev: MouseEvent) => any;
+    protected _touchInteracting: boolean;
+    protected _setupDone: boolean;
+    protected _bConfigurableInUserPreference: boolean;
+    protected _btnMoveRight: HTMLElement;
+    protected _btnMoveLeft: HTMLElement;
+    protected _btnMoveTop: HTMLElement;
+    protected _btnMoveDown: HTMLElement;
+    protected _btnZoomPlus: HTMLElement;
+    protected _btnZoomMinus: HTMLElement;
+    protected _btnZoomPlusNames: string;
+    protected _btnZoomMinusNames: string;
+    protected _btnReset: HTMLElement;
+    protected _btnResetNames: string;
+    protected _btnInfo: HTMLElement;
+    protected _btnBackToCenter: HTMLElement;
+    protected _bEnlargeReduceButtonsInsideMap: boolean;
+    protected _btnIncreaseHeight: HTMLElement;
+    protected _btnDecreaseHeight: HTMLElement;
+    protected _xPrev: number;
+    protected _yPrev: number;
+    protected _xPrevMid: number;
+    protected _yPrevMid: number;
+    protected _scrolling: boolean;
+    protected _scrolltoBusy: boolean;
+    protected _startScrollAnimDuration: number;
+    protected _passiveEventListener: {};
+    protected _notPassiveEventListener: {};
+    protected _loadedSettings: boolean;
+    protected _localStorageKey: string;
+    protected _scrolled: boolean;
+    protected _prevDist: number;
+    protected _gestureStart: boolean;
+    protected _prevTouchesDist: number;
+    protected _prevTouchesMiddle: DOMPoint;
+    protected _custom_css_query: string;
+    protected _isScrolling: number;
+    protected _resetZoom: boolean;
+    protected get _btnIncreaseHeightDefault(): string;
+    protected get _btnDecreaseHeightDefault(): string;
+    protected get _btnMoveLeftDefault(): string;
+    protected get _btnMoveTopDefault(): string;
+    protected get _btnMoveRightDefault(): string;
+    protected get _btnMoveDownDefault(): string;
+    protected get _btnZoomPlusDefault(): string;
+    protected get _btnZoomMinusDefault(): string;
+    protected get _btnResetDefault(): string;
     constructor();
-    static onShowTooltip(this: typeof dijit.Tooltip): void;
+    protected static onShowTooltip(this: typeof dijit.Tooltip): void;
     create(container_div: HTMLElement, scrollable_div: HTMLElement, surface_div: HTMLElement, onsurface_div: HTMLElement, clipped_div?: HTMLElement, animation_div?: HTMLElement, page?: any, create_extra?: Function): void;
     createCompletely(container_div: any, page?: any, create_extra?: any, bEnlargeReduceButtonsInsideMap?: boolean): void;
-    _init(): void;
-    _adaptHeight(): void;
-    onResize(): void;
-    _clearOldSettings(): void;
-    _loadSettings(): boolean;
-    _saveSettings(): void;
-    _onvisibilty_changehandler(e: any): void;
-    _onbeforeunload_handler(e: any): void;
-    _updatePointers(event: any): any;
-    _removePointers(event: any): void;
-    _getPageZoom(): number;
-    _getXYCoord(ev: any, ev2?: any): any[];
-    _enableInteractions(): void;
-    _disableInteractions(): void;
-    _enableTooltipsAndClick(): void;
-    _disableTooltipsAndClick(setTimer?: boolean): void;
-    _suppressCLickEvent(e: any): void;
-    _getTouchesDist(e: any): number;
-    _getTouchesMiddle(e: any): DOMPoint;
-    _handleTouch(e: any): void;
-    _onPointerEnter(ev: any): void;
-    _onPointerDown(ev: any): void;
-    _onPointerMove(ev: any): void;
-    _onPointerUp(ev: any): void;
-    _onWheel(evt: any): void;
+    protected _init(): void;
+    protected _adaptHeight(): void;
+    protected _onResize(): void;
+    protected _clearOldSettings(): void;
+    protected _loadSettings(): boolean;
+    protected _saveSettings(): void;
+    protected _onvisibilty_changehandler(e: any): void;
+    protected _onbeforeunload_handler(e: any): void;
+    protected _updatePointers(event: any): any;
+    protected _removePointers(event: any): void;
+    protected _getPageZoom(): number;
+    protected _getXYCoord(ev: any, ev2?: any): any[];
+    protected _enableInteractions(): void;
+    protected _disableInteractions(): void;
+    protected _enableTooltipsAndClick(): void;
+    protected _disableTooltipsAndClick(setTimer?: boolean): void;
+    protected _suppressCLickEvent(e: any): void;
+    protected _getTouchesDist(e: any): number;
+    protected _getTouchesMiddle(e: any): DOMPoint;
+    protected _handleTouch(e: any): void;
+    protected _onPointerEnter(ev: any): void;
+    protected _onPointerDown(ev: any): void;
+    protected _onPointerMove(ev: any): void;
+    protected _onPointerUp(ev: any): void;
+    protected _onWheel(evt: any): void;
     scroll(dx: any, dy: any, duration?: any, delay?: any): void;
     scrollto(x: any, y: any, duration?: any, delay?: any): void;
     scrollToCenter(custom_css_query?: any, duration?: any, delay?: any): {
@@ -185,42 +197,42 @@ declare class scrollmapWithZoom {
     };
     changeMapZoom(diff: any, x?: number, y?: number): void;
     setMapZoom(zoom: any, x?: number, y?: number): void;
-    _setScale(elemId: any, scale: any): void;
-    _getButton(btnNames: any, idSuffix?: string): any;
-    _hideButton(btnNames: any, idSuffix?: string): void;
-    _showButton(btnNames: any, idSuffix?: string, display?: string): void;
-    _initButton(btnName: any, defaultButton: any, onClick: any, onLongPressedAnim?: any, idSuffix?: string, display?: string): any;
-    _onButtonLongPress(onLongPressedAnim: any, evt: any): void;
-    _onButtonLongPressEnd(evt: any): void;
+    protected _setScale(elemId: any, scale: any): void;
+    protected _getButton(btnNames: any, idSuffix?: string): any;
+    protected _hideButton(btnNames: any, idSuffix?: string): void;
+    protected _showButton(btnNames: any, idSuffix?: string, display?: string): void;
+    protected _initButton(btnName: any, defaultButton: any, onClick: any, onLongPressedAnim?: any, idSuffix?: string, display?: string): any;
+    protected _onButtonLongPress(onLongPressedAnim: any, evt: any): void;
+    protected _onButtonLongPressEnd(evt: any): void;
     setupOnScreenArrows(scrollDelta: any, bScrollDeltaAlignWithZoom?: boolean): void;
     showOnScreenArrows(): void;
     hideOnScreenArrows(): void;
-    _onMoveTop(evt: any): void;
-    _onMoveLeft(evt: any): void;
-    _onMoveRight(evt: any): void;
-    _onMoveDown(evt: any): void;
+    protected _onMoveTop(evt: any): void;
+    protected _onMoveLeft(evt: any): void;
+    protected _onMoveRight(evt: any): void;
+    protected _onMoveDown(evt: any): void;
     isVisible(x: any, y: any): boolean;
     enableScrolling(): void;
     disableScrolling(): void;
     setupOnScreenZoomButtons(zoomDelta?: number): void;
     showOnScreenZoomButtons(): void;
     hideOnScreenZoomButtons(): void;
-    _onZoomIn(evt: any): void;
-    _onZoomOut(evt: any): void;
+    protected _onZoomIn(evt: any): void;
+    protected _onZoomOut(evt: any): void;
     setupOnScreenResetButtons(resetZoom?: boolean): void;
     showOnScreenResetButtons(): void;
     hideOnScreenResetButtons(): void;
-    _onReset(evt: any): void;
-    _getEnlargeReduceButtonsProps(bInsideMap: any): {
+    protected _onReset(evt: any): void;
+    protected _getEnlargeReduceButtonsProps(bInsideMap: any): {
         idSuffix: string;
         display: string;
     };
-    _setupEnlargeReduceButtons(bInsideMap: any): boolean;
+    protected _setupEnlargeReduceButtons(bInsideMap: any): boolean;
     setupEnlargeReduceButtons(incrHeightDelta: any, bIncrHeightKeepInPos: any, minHeight: any): void;
     showEnlargeReduceButtons(): void;
     hideEnlargeReduceButtons(): void;
-    _onIncreaseDisplayHeight(evt: any): void;
-    _onDecreaseDisplayHeight(evt: any): void;
+    protected _onIncreaseDisplayHeight(evt: any): void;
+    protected _onDecreaseDisplayHeight(evt: any): void;
     changeDisplayHeight(delta: any): void;
     setDisplayHeight(new_height: any, dispatch?: boolean): void;
     static updateHeight(new_height: number, incrHeightGlobalKey: string): void;
@@ -229,4 +241,15 @@ declare class scrollmapWithZoom {
     showInfoButton(): void;
     hideInfoButton(): void;
     setInfoButtonTooltip(): any;
+}
+declare namespace scrollmapWithZoom {
+    enum wheelZoomingKeys {
+        Disabled = 0,
+        Any = 1,
+        None = 2,
+        Ctrl = 4,
+        Alt = 8,
+        Shift = 16,
+        AnyOrNone = 32
+    }
 }

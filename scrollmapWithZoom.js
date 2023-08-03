@@ -82,6 +82,9 @@ class scrollmapWithZoom {
     get bInfoBtnVisible() {
         return this._bInfoBtnVisible;
     }
+    /**
+     * info button
+     */
     set bInfoBtnVisible(value) {
         this._bInfoBtnVisible = value;
         if (!this.container_div)
@@ -118,6 +121,9 @@ class scrollmapWithZoom {
         return `<i class="reset  ${this.btnResetClasses} scrollmap_icon btn_pos_top_right"></i>`;
     }
     constructor() {
+        /**
+         * board properties
+         */
         this.board_x = 0;
         this.board_y = 0;
         this.defaultPosition = null;
@@ -127,36 +133,57 @@ class scrollmapWithZoom {
         this.onsurface_div = null;
         this.clipped_div = null;
         this.animation_div = null;
-        this._btnInfo = null;
+        /**
+         * zoom properties
+         */
         this.zoom = 1;
         this.maxZoom = 2;
         this.minZoom = 0.1;
         this.defaultZoom = null;
-        this._prevZoom = 1;
+        this.zoomingOptions = { wheelZoming: scrollmapWithZoom.wheelZoomingKeys.Any, pinchZooming: true };
+        this.zoomChangeHandler = null;
         this.zoomPinchDelta = 0.005;
         this.zoomWheelDelta = 0.001;
         this.zoomDelta = 0.2;
-        this.wheelZoomingKeys = { Disabled: 0, Any: 1, None: 2, Ctrl: 4, Alt: 8, Shift: 16, AnyOrNone: 32 };
-        this.zoomingOptions = { wheelZoming: this.wheelZoomingKeys.Any, pinchZooming: true };
-        this.zoomChangeHandler = null;
-        this._bEnableZooming = true;
+        /**
+         * scrolling properties
+         */
         this.bEnableScrolling = true;
         this.scrollingOptions = { bOneFingerScrolling: false };
         this.bScrollDeltaAlignWithZoom = true;
         this.scrollDelta = 100;
-        this._scrollDeltaAlignWithZoom = 0;
         this.scrollPosInitial = null;
-        this.bHeightChanged = false;
+        this.scrollingTresh = 30;
+        /**
+         * resizing properties
+         */
         this.minHeight = 300;
         this.incrHeightGlobalKey = null;
         this.incrHeightDelta = 100;
         this.bIncrHeightKeepInPos = true;
+        this.adaptHeightCorr = 0;
+        /**
+         * enable/disble long press on buttons
+         */
+        this.bEnableLongPress = true;
+        /**
+         * buttons default classes
+         */
+        this.btnMoveRightClasses = 'fa fa-chevron-right';
+        this.btnMoveLeftClasses = 'fa fa-chevron-left';
+        this.btnMoveTopClasses = 'fa fa-chevron-up';
+        this.btnMoveDownClasses = 'fa fa-chevron-down';
+        this.btnZoomPlusClasses = 'fa fa-search-plus';
+        this.btnZoomMinusClasses = 'fa fa-search-minus';
+        this.btnResetClasses = 'fa6-solid fa6-arrows-to-dot';
+        this._prevZoom = 1;
+        this._bEnableZooming = true;
+        this._scrollDeltaAlignWithZoom = 0;
+        this._bHeightChanged = false;
         this._bAdaptHeightAuto = false;
         this._bIncrHeightGlobally = false;
         this._bIncrHeightBtnVisible = true;
-        this.adaptHeightCorr = 0;
         this._bInfoBtnVisible = true;
-        this.bEnableLongPress = true;
         this._pointers = new Map();
         this._classNameSuffix = '';
         this._longPress = false;
@@ -164,7 +191,7 @@ class scrollmapWithZoom {
         this._enabledTooltips = true;
         this._enabledClicks = true;
         this._enableTooltipsAndClick_handler = this._enableTooltipsAndClick.bind(this);
-        this._resizeObserver = (typeof ResizeObserver !== 'undefined') ? new ResizeObserver(this.onResize.bind(this)) : null;
+        this._resizeObserver = (typeof ResizeObserver !== 'undefined') ? new ResizeObserver(this._onResize.bind(this)) : null;
         this._resizeHeadersObserver = (typeof ResizeObserver !== 'undefined') ? new ResizeObserver(this._adaptHeight.bind(this)) : null;
         this._onpointermove_handler = this._onPointerMove.bind(this);
         this._onpointerup_handler = this._onPointerUp.bind(this);
@@ -174,22 +201,16 @@ class scrollmapWithZoom {
         this._setupDone = false;
         this._bConfigurableInUserPreference = false;
         this._btnMoveRight = null;
-        this.btnMoveRightClasses = 'fa fa-chevron-right';
         this._btnMoveLeft = null;
-        this.btnMoveLeftClasses = 'fa fa-chevron-left';
         this._btnMoveTop = null;
-        this.btnMoveTopClasses = 'fa fa-chevron-up';
         this._btnMoveDown = null;
-        this.btnMoveDownClasses = 'fa fa-chevron-down';
         this._btnZoomPlus = null;
         this._btnZoomMinus = null;
         this._btnZoomPlusNames = 'zoomplus,zoom_plus,zoomin,zoom_in';
-        this.btnZoomPlusClasses = 'fa fa-search-plus';
         this._btnZoomMinusNames = 'zoomminus,zoom_minus,zoomout,zoom_out';
-        this.btnZoomMinusClasses = 'fa fa-search-minus';
         this._btnReset = null;
         this._btnResetNames = 'reset,back_to_center,reset_map,map_reset';
-        this.btnResetClasses = 'fa6-solid fa6-arrows-to-dot';
+        this._btnInfo = null;
         this._btnBackToCenter = null;
         this._bEnlargeReduceButtonsInsideMap = true;
         this._btnIncreaseHeight = null;
@@ -202,17 +223,16 @@ class scrollmapWithZoom {
         this._xPrevMid = null;
         this._yPrevMid = null;
         this._scrolling = false;
-        this.scrollingTresh = 30;
-        this.scrolltoBusy = false;
-        this.startScrollDuration = 5;
-        this.passiveEventListener = {};
-        this.notPassiveEventListener = {};
+        this._scrolltoBusy = false;
+        this._startScrollAnimDuration = 5;
+        this._passiveEventListener = {};
+        this._notPassiveEventListener = {};
         this._scrolled = false;
         this._prevDist = -1;
         this._gestureStart = false;
         this._custom_css_query = null;
         this._isScrolling = 0;
-        // private _longPressAnim: FrameRequestCallback(time: any, anim?: any) => void;
+        // protected _longPressAnim: FrameRequestCallback(time: any, anim?: any) => void;
         this._resetZoom = false;
         // this.ControlPosition = {
         //     TOP_CENTER : 0,
@@ -249,8 +269,8 @@ class scrollmapWithZoom {
             });
             window.addEventListener("testPassive", null, opts);
             window.removeEventListener("testPassive", null, opts);
-            this.passiveEventListener = passiveEventListener;
-            this.notPassiveEventListener = notPassiveEventListener;
+            this._passiveEventListener = passiveEventListener;
+            this._notPassiveEventListener = notPassiveEventListener;
         }
         catch (e) { /**/ }
     }
@@ -549,19 +569,19 @@ class scrollmapWithZoom {
         var onPointerDown = this._onPointerDown.bind(this);
         //var onPointerEnter =this._onPointerEnter.bind(this);
         if (window.PointerEvent) {
-            //this.surface_div.addEventListener('pointerenter', onPointerDown, this.passiveEventListener);
-            this.surface_div.addEventListener('pointerdown', onPointerDown, this.passiveEventListener);
+            //this.surface_div.addEventListener('pointerenter', onPointerDown, this._passiveEventListener);
+            this.surface_div.addEventListener('pointerdown', onPointerDown, this._passiveEventListener);
         }
         else {
-            this.surface_div.addEventListener('mousedown', onPointerDown, this.passiveEventListener);
-            this.surface_div.addEventListener('touchstart', onPointerDown, this.passiveEventListener);
+            this.surface_div.addEventListener('mousedown', onPointerDown, this._passiveEventListener);
+            this.surface_div.addEventListener('touchstart', onPointerDown, this._passiveEventListener);
         }
-        this.container_div.addEventListener('wheel', this._onWheel.bind(this), this.notPassiveEventListener);
+        this.container_div.addEventListener('wheel', this._onWheel.bind(this), this._notPassiveEventListener);
         var _handleTouch = this._handleTouch.bind(this);
-        this.container_div.addEventListener("touchstart", _handleTouch, this.passiveEventListener);
-        this.container_div.addEventListener("touchmove", _handleTouch, this.notPassiveEventListener);
-        document.addEventListener("touchend", _handleTouch, this.passiveEventListener);
-        document.addEventListener("touchcancel", _handleTouch, this.passiveEventListener);
+        this.container_div.addEventListener("touchstart", _handleTouch, this._passiveEventListener);
+        this.container_div.addEventListener("touchmove", _handleTouch, this._notPassiveEventListener);
+        document.addEventListener("touchend", _handleTouch, this._passiveEventListener);
+        document.addEventListener("touchcancel", _handleTouch, this._passiveEventListener);
         this.setupOnScreenArrows(this.scrollDelta, this.bScrollDeltaAlignWithZoom);
         this.setupOnScreenZoomButtons(this.zoomDelta);
         if (!this._bEnableZooming)
@@ -660,12 +680,12 @@ class scrollmapWithZoom {
         var map_height = screen_height - other_elements_height;
         this.setDisplayHeight(map_height);
     }
-    onResize() {
+    _onResize() {
         if (!this._setupDone) {
             debug("1st onResize after setup");
             this._clearOldSettings();
-            this.loadedSettings = this._loadSettings();
-            if (!this.loadedSettings) {
+            this._loadedSettings = this._loadSettings();
+            if (!this._loadedSettings) {
                 if (this.startPosition)
                     this.scrollto(this.startPosition.x * this.zoom, this.startPosition.y * this.zoom);
                 else
@@ -702,7 +722,7 @@ class scrollmapWithZoom {
             debug("_loadSettings", settings.board_x, settings.board_y);
             var height = this.getDisplayHeight();
             if (settings.height != null) {
-                this.bHeightChanged = true;
+                this._bHeightChanged = true;
                 this.setDisplayHeight(settings.height);
             }
             this.setMapZoom(settings.zoom);
@@ -943,16 +963,16 @@ class scrollmapWithZoom {
         if (this._onpointerup_handled == false) {
             this._onpointerup_handled = true;
             if (window.PointerEvent) {
-                document.addEventListener("pointermove", this._onpointermove_handler /* , this.passiveEventListener */);
-                document.addEventListener("pointerup", this._onpointerup_handler, this.passiveEventListener);
-                document.addEventListener("pointercancel", this._onpointerup_handler, this.passiveEventListener);
+                document.addEventListener("pointermove", this._onpointermove_handler /* , this._passiveEventListener */);
+                document.addEventListener("pointerup", this._onpointerup_handler, this._passiveEventListener);
+                document.addEventListener("pointercancel", this._onpointerup_handler, this._passiveEventListener);
             }
             else {
-                document.addEventListener("mousemove", this._onpointermove_handler, this.passiveEventListener);
-                document.addEventListener("touchmove", this._onpointermove_handler, this.passiveEventListener);
-                document.addEventListener("mouseup", this._onpointerup_handler, this.passiveEventListener);
-                document.addEventListener("touchend", this._onpointerup_handler, this.passiveEventListener);
-                document.addEventListener("touchcancel", this._onpointerup_handler, this.passiveEventListener);
+                document.addEventListener("mousemove", this._onpointermove_handler, this._passiveEventListener);
+                document.addEventListener("touchmove", this._onpointermove_handler, this._passiveEventListener);
+                document.addEventListener("mouseup", this._onpointerup_handler, this._passiveEventListener);
+                document.addEventListener("touchend", this._onpointerup_handler, this._passiveEventListener);
+                document.addEventListener("touchcancel", this._onpointerup_handler, this._passiveEventListener);
             }
         }
         this._updatePointers(ev);
@@ -972,8 +992,8 @@ class scrollmapWithZoom {
                 [this._xPrev, this._yPrev] = this._getXYCoord(ev);
             else {
                 const [x, y] = this._getXYCoord(ev);
-                if (((Math.hypot(x - this._xPrev, y - this._yPrev) > this.scrollingTresh) || this._scrolling) && (!this.scrolltoBusy)) {
-                    this.scroll(x - this._xPrev, y - this._yPrev, this._scrolling ? 0 : this.startScrollDuration, 0);
+                if (((Math.hypot(x - this._xPrev, y - this._yPrev) > this.scrollingTresh) || this._scrolling) && (!this._scrolltoBusy)) {
+                    this.scroll(x - this._xPrev, y - this._yPrev, this._scrolling ? 0 : this._startScrollAnimDuration, 0);
                     this._scrolling = true;
                     this._xPrev = x;
                     this._yPrev = y;
@@ -1007,9 +1027,9 @@ class scrollmapWithZoom {
                 else {
                     const scrollingDist = Math.hypot(x - this._xPrevMid, y - this._yPrevMid);
                     if ((scrollingDist > this.scrollingTresh) || this._scrolling)
-                        if (((Math.hypot(x - this._xPrevMid, y - this._yPrevMid) > this.scrollingTresh) || this._scrolling) && !this.scrolltoBusy) {
+                        if (((Math.hypot(x - this._xPrevMid, y - this._yPrevMid) > this.scrollingTresh) || this._scrolling) && !this._scrolltoBusy) {
                             if (this.bEnableScrolling) {
-                                this.scroll(x - this._xPrevMid, y - this._yPrevMid, this._scrolling ? 0 : this.startScrollDuration, 0);
+                                this.scroll(x - this._xPrevMid, y - this._yPrevMid, this._scrolling ? 0 : this._startScrollAnimDuration, 0);
                                 this._xPrevMid = x;
                                 this._yPrevMid = y;
                                 this._scrolling = true;
@@ -1036,16 +1056,16 @@ class scrollmapWithZoom {
         if (this._pointers.size === 0) {
             this._onpointerup_handled = false;
             if (window.PointerEvent) {
-                document.removeEventListener("pointermove", this._onpointermove_handler /* , this.passiveEventListener */);
-                document.removeEventListener("pointerup", this._onpointerup_handler, this.passiveEventListener);
-                document.removeEventListener("pointercancel", this._onpointerup_handler, this.passiveEventListener);
+                document.removeEventListener("pointermove", this._onpointermove_handler /* , this._passiveEventListener */);
+                document.removeEventListener("pointerup", this._onpointerup_handler, this._passiveEventListener);
+                document.removeEventListener("pointercancel", this._onpointerup_handler, this._passiveEventListener);
             }
             else {
-                document.removeEventListener("mousemove", this._onpointermove_handler, this.passiveEventListener);
-                document.removeEventListener("touchmove", this._onpointermove_handler, this.passiveEventListener);
-                document.removeEventListener("mouseup", this._onpointerup_handler, this.passiveEventListener);
-                document.removeEventListener("touchend", this._onpointerup_handler, this.passiveEventListener);
-                document.removeEventListener("touchcancel", this._onpointerup_handler, this.passiveEventListener);
+                document.removeEventListener("mousemove", this._onpointermove_handler, this._passiveEventListener);
+                document.removeEventListener("touchmove", this._onpointermove_handler, this._passiveEventListener);
+                document.removeEventListener("mouseup", this._onpointerup_handler, this._passiveEventListener);
+                document.removeEventListener("touchend", this._onpointerup_handler, this._passiveEventListener);
+                document.removeEventListener("touchcancel", this._onpointerup_handler, this._passiveEventListener);
             }
             this._enableTooltipsAndClick();
             this._scrolling = false;
@@ -1065,27 +1085,27 @@ class scrollmapWithZoom {
         var wheelZoom = true;
         switch (this.zoomingOptions.wheelZoming) {
             // Zoom with scroll wheel
-            case this.wheelZoomingKeys.Disabled:
+            case scrollmapWithZoom.wheelZoomingKeys.Disabled:
                 wheelZoom = false;
                 return;
-            case this.wheelZoomingKeys.None:
+            case scrollmapWithZoom.wheelZoomingKeys.None:
                 wheelZoom = !(evt.ctrlKey || evt.altKey || evt.metaKey || evt.shiftKey);
                 break;
-            case this.wheelZoomingKeys.AnyOrNone:
+            case scrollmapWithZoom.wheelZoomingKeys.AnyOrNone:
                 break;
-            case this.wheelZoomingKeys.Any:
+            case scrollmapWithZoom.wheelZoomingKeys.Any:
                 wheelZoom = (evt.ctrlKey || evt.altKey || evt.metaKey || evt.shiftKey);
                 break;
-            case this.wheelZoomingKeys.Ctrl:
+            case scrollmapWithZoom.wheelZoomingKeys.Ctrl:
                 wheelZoom = evt.ctrlKey;
                 break;
-            case this.wheelZoomingKeys.Shift:
+            case scrollmapWithZoom.wheelZoomingKeys.Shift:
                 wheelZoom = evt.shiftKey;
                 break;
-            case this.wheelZoomingKeys.Alt:
+            case scrollmapWithZoom.wheelZoomingKeys.Alt:
                 wheelZoom = evt.altKey;
                 break;
-            // case this.wheelZoomingKeys.Meta:
+            // case scrollmapWithZoom.wheelZoomingKeys.Meta:
             //     if (evt.metaKey)
             //         break;
             //     return;
@@ -1177,8 +1197,8 @@ class scrollmapWithZoom {
             anims = [anim1, anim2];
         var anim = dojo.fx.combine(anims);
         anim.play();
-        this.scrolltoBusy = true;
-        setTimeout(() => { this.scrolltoBusy = false; }, duration + delay);
+        this._scrolltoBusy = true;
+        setTimeout(() => { this._scrolltoBusy = false; }, duration + delay);
     }
     // Scroll map in order to center everything
     // By default, take all elements in movable_scrollmap
@@ -1546,7 +1566,7 @@ class scrollmapWithZoom {
         this.changeDisplayHeight(-this.incrHeightDelta);
     }
     changeDisplayHeight(delta) {
-        this.bHeightChanged = true;
+        this._bHeightChanged = true;
         var current_height = this.getDisplayHeight();
         this.setDisplayHeight(current_height + delta);
     }
@@ -1618,6 +1638,18 @@ class scrollmapWithZoom {
             return info;
     }
 }
+(function (scrollmapWithZoom) {
+    let wheelZoomingKeys;
+    (function (wheelZoomingKeys) {
+        wheelZoomingKeys[wheelZoomingKeys["Disabled"] = 0] = "Disabled";
+        wheelZoomingKeys[wheelZoomingKeys["Any"] = 1] = "Any";
+        wheelZoomingKeys[wheelZoomingKeys["None"] = 2] = "None";
+        wheelZoomingKeys[wheelZoomingKeys["Ctrl"] = 4] = "Ctrl";
+        wheelZoomingKeys[wheelZoomingKeys["Alt"] = 8] = "Alt";
+        wheelZoomingKeys[wheelZoomingKeys["Shift"] = 16] = "Shift";
+        wheelZoomingKeys[wheelZoomingKeys["AnyOrNone"] = 32] = "AnyOrNone";
+    })(wheelZoomingKeys = scrollmapWithZoom.wheelZoomingKeys || (scrollmapWithZoom.wheelZoomingKeys = {}));
+})(scrollmapWithZoom || (scrollmapWithZoom = {}));
 dojo.require("dojo.has");
 dojo.has.add('config-tlmSiblingOfDojo', 0, 0, 1);
 define([
