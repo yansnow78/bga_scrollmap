@@ -832,8 +832,7 @@ class scrollmapWithZoom {
             this._enabledTooltips = true;
             this._enableTooltipsAndClickTimerId = null;
         }
-        this._enabledClicks = true;
-        setTimeout(() => { this.onsurface_div.removeEventListener('click', this._suppressCLickEvent_handler, true); }, 200);
+        setTimeout(() => { this._enabledClicks = true; this.onsurface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener); }, 200);
     }
     _disableTooltipsAndClick(setTimer = false) {
         if (setTimer) {
@@ -850,12 +849,11 @@ class scrollmapWithZoom {
         }
         if (this._enabledClicks) {
             this._enabledClicks = false;
-            this.onsurface_div.removeEventListener('click', this._suppressCLickEvent_handler, true);
-            this.onsurface_div.addEventListener('click', this._suppressCLickEvent_handler, true);
+            this.onsurface_div.addEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
         }
     }
     _suppressCLickEvent(e) {
-        this.onsurface_div.removeEventListener('click', this._suppressCLickEvent_handler, true);
+        this.onsurface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
         e.stopImmediatePropagation();
         e.preventDefault();
         e.stopPropagation();
