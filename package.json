@@ -4,7 +4,9 @@
   "description": "",
   "main": "scrollmapWithZoom.js",
   "scripts": {
+    "prebuild:ts": "js-beautify -o src/scrollmapWithZoom.ts",
     "build:ts": "tsc",
+    "postbuild:ts": "js-beautify -r -o '**.js'",
     "build:scss": "sass --no-source-map src/scrollmapWithZoom.scss build/scrollmapWithZoom.css"
   },
   "author": "",

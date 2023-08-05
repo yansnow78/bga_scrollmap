@@ -1,25 +1,28 @@
 {
-    "rootDir": ".", 
-    "compilerOptions": {
-      "target": "es6",
-      "module": "none",
-      "lib": ["dom", "esnext"],  
-      "sourceMap": true,
-      // "allowJs": true,
-      // "checkJs": true,
-      // "noImplicitAny": true,
-      // "outDir": "build/",
-      "declaration": true, 
-      "outFile": "scrollmapWithZoom.js",
-    },
-    "include": [
-      // "./node_modules/dojo-typings/dojo/1.11/modules.d.ts",
-      // "./node_modules/dojo-typings/dijit/1.11/modules.d.ts",
-      // "./node_modules/dojo-typings/dojo/1.11/loader.d.ts",
-      "./src/**/*.js",
-      "./src/**/*.ts"
-    ]
-    // "files": [
-    //     "src/scrollmapWithZoom.ts",
-    // ]
+  "rootDir": ".",
+  "compilerOptions": {
+    "target": "es6",
+    "module": "none",
+    "lib": [
+      "dom",
+      "esnext"
+    ],
+    "sourceMap": true,
+    // "allowJs": true,
+    // "checkJs": true,
+    // "noImplicitAny": true,
+    // "outDir": "build/",
+    "declaration": true,
+    "outFile": "scrollmapWithZoom.js",
+  },
+  "include": [
+    // "./node_modules/dojo-typings/dojo/1.11/modules.d.ts",
+    // "./node_modules/dojo-typings/dijit/1.11/modules.d.ts",
+    // "./node_modules/dojo-typings/dojo/1.11/loader.d.ts",
+    "./src/**/*.js",
+    "./src/**/*.ts"
+  ]
+  // "files": [
+  //     "src/scrollmapWithZoom.ts",
+  // ]
 }

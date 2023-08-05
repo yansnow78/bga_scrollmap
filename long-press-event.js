@@ -27,7 +27,7 @@
     var startY = 0; // mouse y position when timer started
     var maxDiffX = 10; // max number of X pixels the mouse can move during long press before it is canceled
     var maxDiffY = 10; // max number of Y pixels the mouse can move during long press before it is canceled
-    
+
     var longPressedEl = null;
 
     // patch CustomEvent to allow constructor creation (IE/Chrome)
@@ -35,7 +35,11 @@
 
         window.CustomEvent = function (event, params) {
 
-            params = params || { bubbles: false, cancelable: false, detail: undefined };
+            params = params || {
+                bubbles: false,
+                cancelable: false,
+                detail: undefined
+            };
 
             var evt = document.createEvent('CustomEvent');
             evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
@@ -77,8 +81,7 @@
 
             if (delta >= delay) {
                 fn.call();
-            }
-            else {
+            } else {
                 handle.value = requestAnimFrame(loop);
             }
         };
@@ -97,11 +100,11 @@
         if (handle) {
             window.cancelAnimationFrame ? window.cancelAnimationFrame(handle.value) :
                 window.webkitCancelAnimationFrame ? window.webkitCancelAnimationFrame(handle.value) :
-                    window.webkitCancelRequestAnimationFrame ? window.webkitCancelRequestAnimationFrame(handle.value) : /* Support for legacy API */
-                        window.mozCancelRequestAnimationFrame ? window.mozCancelRequestAnimationFrame(handle.value) :
-                            window.oCancelRequestAnimationFrame ? window.oCancelRequestAnimationFrame(handle.value) :
-                                window.msCancelRequestAnimationFrame ? window.msCancelRequestAnimationFrame(handle.value) :
-                                    clearTimeout(handle);
+                window.webkitCancelRequestAnimationFrame ? window.webkitCancelRequestAnimationFrame(handle.value) : /* Support for legacy API */
+                window.mozCancelRequestAnimationFrame ? window.mozCancelRequestAnimationFrame(handle.value) :
+                window.oCancelRequestAnimationFrame ? window.oCancelRequestAnimationFrame(handle.value) :
+                window.msCancelRequestAnimationFrame ? window.msCancelRequestAnimationFrame(handle.value) :
+                clearTimeout(handle);
         }
     }
 
@@ -144,7 +147,7 @@
             var suppressClickEvent = function suppressCLickEvent(e) {
                 document.removeEventListener('click', suppressClickEvent, true);
                 cancelEvent(e);
-            }; 
+            };
             document.addEventListener('click', suppressClickEvent, true);
             document.addEventListener(mouseDown, function suppressEvents(e) {
                 document.removeEventListener(mouseDown, suppressEvents, true);
@@ -235,10 +238,10 @@
     }
 
     /**
-    * Cancels the current event
-    * @param {object} e - browser event object
-    * @returns {void}
-    */
+     * Cancels the current event
+     * @param {object} e - browser event object
+     * @returns {void}
+     */
     function cancelEvent(e) {
         e.stopImmediatePropagation();
         e.preventDefault();
