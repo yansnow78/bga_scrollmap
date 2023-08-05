@@ -198,10 +198,10 @@ declare class scrollmapWithZoom {
     changeMapZoom(diff: any, x?: number, y?: number): void;
     setMapZoom(zoom: any, x?: number, y?: number): void;
     protected _setScale(elemId: any, scale: any): void;
-    protected _getButton(btnNames: any, idSuffix?: string): any;
+    protected _getButton(btnNames: any, idSuffix?: string): HTMLElement;
     protected _hideButton(btnNames: any, idSuffix?: string): void;
     protected _showButton(btnNames: any, idSuffix?: string, display?: string): void;
-    protected _initButton(btnName: any, defaultButton: any, onClick: any, onLongPressedAnim?: any, idSuffix?: string, display?: string): any;
+    protected _initButton(btnName: any, defaultButton: any, onClick: any, onLongPressedAnim?: any, idSuffix?: string, display?: string): HTMLElement;
     protected _onButtonLongPress(onLongPressedAnim: any, evt: any): void;
     protected _onButtonLongPressEnd(evt: any): void;
     setupOnScreenArrows(scrollDelta: any, bScrollDeltaAlignWithZoom?: boolean): void;

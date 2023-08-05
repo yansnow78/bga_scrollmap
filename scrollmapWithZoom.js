@@ -827,20 +827,34 @@ class scrollmapWithZoom {
         // this.container_div.style.touchAction = "auto";
     }
     _enableTooltipsAndClick() {
+        if (isDebug)
+            var debugMsg = "";
         if (!this._enabledTooltips) {
+            if (isDebug)
+                debugMsg += "tooltips";
             gameui.switchDisplayTooltips(false);
             this._enabledTooltips = true;
             this._enableTooltipsAndClickTimerId = null;
         }
-        setTimeout(() => { this._enabledClicks = true; this.onsurface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener); }, 200);
+        if (!this._enabledClicks) {
+            if (isDebug)
+                debugMsg += "click";
+            setTimeout(() => { this._enabledClicks = true; this.onsurface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener); }, 200);
+        }
+        if (isDebug && debugMsg != "")
+            debug("_enableTooltipsAndClick enable " + debugMsg);
     }
     _disableTooltipsAndClick(setTimer = false) {
+        if (isDebug)
+            var debugMsg = "";
         if (setTimer) {
             if (this._enableTooltipsAndClickTimerId != null)
-                clearInterval(this._enableTooltipsAndClickTimerId);
-            this._enableTooltipsAndClickTimerId = setInterval(this._enableTooltipsAndClick_handler, 500);
+                clearTimeout(this._enableTooltipsAndClickTimerId);
+            this._enableTooltipsAndClickTimerId = setTimeout(this._enableTooltipsAndClick_handler, 500);
         }
         if (this._enabledTooltips && !gameui.bHideTooltips) {
+            if (isDebug)
+                debugMsg += "tooltips";
             gameui.switchDisplayTooltips(true);
             for (var i in gameui.tooltips) {
                 gameui.tooltips[i]._setStateAttr("DORMANT");
@@ -848,14 +862,18 @@ class scrollmapWithZoom {
             this._enabledTooltips = false;
         }
         if (this._enabledClicks) {
+            if (isDebug)
+                debugMsg += "click";
             this._enabledClicks = false;
             this.onsurface_div.addEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
         }
+        if (isDebug && debugMsg != "")
+            debug("_disableTooltipsAndClick enable " + debugMsg);
     }
     _suppressCLickEvent(e) {
+        debug("_suppressCLickEvent");
         this.onsurface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
-        e.stopImmediatePropagation();
-        e.preventDefault();
+        // e.stopImmediatePropagation();
         e.stopPropagation();
     }
     _getTouchesDist(e) {
@@ -1359,12 +1377,12 @@ class scrollmapWithZoom {
         if (!$btn)
             return null;
         onClick = onClick.bind(this);
-        $btn.addEventListener('click', (e) => { onClick(e); e.stopImmediatePropagation(); }, true);
+        $btn.addEventListener('click', (e) => { onClick(e); e.stopPropagation(); }, true);
         $btn.style.cursor = 'pointer';
         $btn.style.display = display;
         if (this.bEnableLongPress && onLongPressedAnim != null) {
             $btn.removeAttribute("href");
-            $btn.setAttribute("data-long-press-delay", 500);
+            $btn.setAttribute("data-long-press-delay", "500");
             $btn.addEventListener('long-press', this._onButtonLongPress.bind(this, onLongPressedAnim));
             $btn.addEventListener('long-press-end', this._onButtonLongPressEnd.bind(this));
         }
