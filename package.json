@@ -6,7 +6,7 @@
   "scripts": {
     "prebuild:ts": "js-beautify -o src/scrollmapWithZoom.ts",
     "build:ts": "tsc",
-    "postbuild:ts": "js-beautify -r -o '**.js'",
+    "postbuild:ts": "js-beautify -o scrollmapWithZoom.js",
     "build:scss": "sass --no-source-map src/scrollmapWithZoom.scss build/scrollmapWithZoom.css"
   },
   "author": "",
