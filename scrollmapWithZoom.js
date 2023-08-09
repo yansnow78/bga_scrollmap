@@ -112,13 +112,13 @@ class scrollmapWithZoom {
         return `<i class="movedown ${this.btnMoveDownClasses} scrollmap_icon"></i>`;
     }
     get _btnZoomPlusDefault() {
-        return `<i class="zoomplus ${this.btnZoomPlusClasses} scrollmap_icon btn_pos_top_right"></i>`;
+        return `<i class="zoomplus ${this.btnZoomPlusClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
     }
     get _btnZoomMinusDefault() {
-        return `<i class="zoomminus  ${this.btnZoomMinusClasses} scrollmap_icon btn_pos_top_right"></i>`;
+        return `<i class="zoomminus  ${this.btnZoomMinusClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
     }
     get _btnResetDefault() {
-        return `<i class="reset  ${this.btnResetClasses} scrollmap_icon btn_pos_top_right"></i>`;
+        return `<i class="reset  ${this.btnResetClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
     }
     constructor() {
         /**
@@ -126,7 +126,6 @@ class scrollmapWithZoom {
          */
         this.board_x = 0;
         this.board_y = 0;
-        this.defaultPosition = null;
         this.container_div = null;
         this.scrollable_div = null;
         this.surface_div = null;
@@ -159,6 +158,8 @@ class scrollmapWithZoom {
         this.scrollDelta = 100;
         this.scrollPosInitial = null;
         this.scrollingTresh = 30;
+        this.defaultPosition = null;
+        this.centerCalcUseAlsoOnsurface = false;
         /**
          * resizing properties
          */
@@ -181,6 +182,7 @@ class scrollmapWithZoom {
         this.btnZoomPlusClasses = 'fa fa-search-plus';
         this.btnZoomMinusClasses = 'fa fa-search-minus';
         this.btnResetClasses = 'fa6-solid fa6-arrows-to-dot';
+        this.btnsPositionClasses = 'btn_pos_top_right';
         this._prevZoom = 1;
         this._bEnableZooming = true;
         this._scrollDeltaAlignWithZoom = 0;
@@ -318,7 +320,7 @@ class scrollmapWithZoom {
         this.clipped_div = clipped_div;
         this.animation_div = animation_div;
         var styleElt = document.createElement("style");
-        var enl_xpos = "calc(50% + var(--icon_size)/2 + 16px)";
+        var enl_xpos = "calc(50% + var(--icon_size_z)/2 + 16px)";
         if (!$("css-scrollmap")) {
             const css = String.raw;
             const styleSheetContent = css `
@@ -335,6 +337,7 @@ class scrollmapWithZoom {
                     --scrollmap_unzoomed_transform: ;
                     --scrollmap_height: ;
                     --z_index_anim: 10;
+                    --page_zoom: 1;
                 }
 
                 .scrollmap_container {
@@ -459,30 +462,30 @@ class scrollmapWithZoom {
                     transform: translateY(-50%)
                 }
 
-
-                .scrollmap_container {
-                    --icon_size:32px;
-                    --icon_font_size:1.7em;
-                }
-
-
-                @media (pointer: coarse) {
-                    .scrollmap_container{
-                        --icon_size:32px;
-                        --icon_font_size:32px;
-                    }
-                }
-
                 .scrollmap_icon {
+                    --icon_size:32px;
+                    --icon_font_size:27px;
+                    --margin_x: 8px;
+                    --margin_y: 8px;
+                    --offset_x: 8px;
+                    --offset_y: 8px;
+                    --margin_x_z: calc(var(--margin_x)/var(--page_zoom));
+                    --margin_y_z: calc(var(--margin_y)/var(--page_zoom));
+                    --icon_size_z: calc(var(--icon_size)/var(--page_zoom));
+                    --icon_font_size_z: calc(var(--icon_font_size)/var(--page_zoom));
+                    --index_x: 0;
+                    --index_y: 0;
+                    --y_pos: calc((var(--icon_size_z) + var(--margin_y_z)) * var(--index_y) + var(--offset_y));
+                    --x_pos: calc((var(--icon_size_z) + var(--margin_x_z)) * var(--index_x) + var(--offset_x));
                     display: none;
                     position: absolute;
                     vertical-align: middle;
                     text-align: center;
                     overflow: hidden;
-                    font-size: var(--icon_font_size);
-                    line-height: var(--icon_size);
-                    width: var(--icon_size);
-                    height: var(--icon_size);
+                    font-size: var(--icon_font_size_z);
+                    line-height: var(--icon_size_z);
+                    width: var(--icon_size_z);
+                    height: var(--icon_size_z);
                     margin : 0;
                 }
 
@@ -497,29 +500,32 @@ class scrollmapWithZoom {
                 * positioning of buttons  *
                 ***************************/
                 .scrollmap_icon.btn_pos_top_right{
-                    --index_x: 0;
-                    --offset_x: 8px;
-                    --offset_y: 8px;
-                    --margin_x: 8px;
-                    --margin_y: 8px;
-                    top: calc((var(--icon_size) + var(--margin_y)) * var(--index_y) + var(--offset_y));
-                    right: calc((var(--icon_size) + var(--margin_x)) * var(--index_x) + var(--offset_x));
+                    top: var(--y_pos);
+                    right: var(--x_pos);
+                }
+                .scrollmap_icon.btn_pos_top_left{
+                    top: var(--y_pos);
+                    left: var(--x_pos);
                 }
 
-                .scrollmap_container > .zoomminus.btn_pos_top_right {
+                .scrollmap_container > .zoomminus.btn_pos_top_right,
+                .scrollmap_container > .zoomminus.btn_pos_top_left {
                     --index_y: 2;
                 }
 
-                .scrollmap_container > .zoomplus.btn_pos_top_right  {
+                .scrollmap_container > .zoomplus.btn_pos_top_right,
+                .scrollmap_container > .zoomplus.btn_pos_top_left {
                     --index_y: 1;
                 }
 
-                .scrollmap_container > .info.btn_pos_top_right {
+                .scrollmap_container > .info.btn_pos_top_right,
+                .scrollmap_container > .info.btn_pos_top_left {
                     --index_x: 1;
                     --index_y: 0;
                 }
 
-                .scrollmap_container > .reset.btn_pos_top_right {
+                .scrollmap_container > .reset.btn_pos_top_right,
+                .scrollmap_container > .reset.btn_pos_top_left {
                     --index_y: 0;
                 }
 
@@ -646,7 +652,6 @@ class scrollmapWithZoom {
                 <div class="scrollmap_surface" ></div>
                 <div class="scrollmap_onsurface"></div>
             </div>
-            <i id=${info_id} class="info fa fa-question scrollmap_icon btn_pos_top_right"></i>
             ${bEnlargeReduceButtonsInsideMap ? tmplDisplayButtons : ``}
             <div class="scrollmap_anim"></div>
         `;
@@ -681,17 +686,19 @@ class scrollmapWithZoom {
             document.documentElement.clientHeight ||
             document.body.clientHeight;
         var container_pos = dojo.coords('map_container', true);
-        screen_height /= gameui.gameinterface_zoomFactor;
+        var pageZoom = this._getPageZoom();
+        document.body.style.setProperty("--page_zoom", pageZoom.toString());
+        screen_height /= pageZoom;
         var other_elements_height = this.adaptHeightCorr + container_pos.y;
         // var $log_history_status = $('log_history_status'); 
         // if ($log_history_status)
         //     other_elements_height -= $log_history_status.getBoundingClientRect().height/gameui.gameinterface_zoomFactor;
         var $connect_status = $('connect_status');
         if ($connect_status)
-            other_elements_height -= $connect_status.getBoundingClientRect().height / gameui.gameinterface_zoomFactor;
+            other_elements_height -= $connect_status.getBoundingClientRect().height / pageZoom;
         var $chatwindowavatar = document.querySelector(".chatwindowavatar");
         if ($chatwindowavatar)
-            other_elements_height += $chatwindowavatar.getBoundingClientRect().height / gameui.gameinterface_zoomFactor;
+            other_elements_height += $chatwindowavatar.getBoundingClientRect().height / pageZoom;
         var map_height = screen_height - other_elements_height;
         this.setDisplayHeight(map_height);
     }
@@ -803,7 +810,7 @@ class scrollmapWithZoom {
         try {
             var pageZoomStr = $("page-content").style.getPropertyValue("zoom");
             if (pageZoomStr !== "")
-                pageZoom = parseFloat($("page-content").style.getPropertyValue("zoom"));
+                pageZoom = parseFloat(pageZoomStr);
         } catch (error) {
             /* empty */
         }
@@ -1299,9 +1306,10 @@ class scrollmapWithZoom {
             this.scrollable_div.querySelectorAll(css_query).forEach((node) => {
                 calcMaxMin(node, this.scrollable_div);
             });
-            this.onsurface_div.querySelectorAll(css_query).forEach((node) => {
-                calcMaxMin(node, this.onsurface_div);
-            });
+            if (this.centerCalcUseAlsoOnsurface)
+                this.onsurface_div.querySelectorAll(css_query).forEach((node) => {
+                    calcMaxMin(node, this.onsurface_div);
+                });
         }
         // debug("getMapCenter", css_query, css_query_div);
         var center = {
@@ -1654,7 +1662,7 @@ class scrollmapWithZoom {
             var $btn = this._getButton("info");
             if ($btn === null) {
                 var info_id = this.container_div.id + "_info";
-                var btnInfoDefault = `<i id=${info_id} class="info fa fa-question scrollmap_icon btn_pos_top_right"></i>`;
+                var btnInfoDefault = `<i id=${info_id} class="info fa fa-question scrollmap_icon ${this.btnsPositionClasses}"></i>`;
                 this.container_div.insertAdjacentHTML("beforeend", btnInfoDefault);
                 $btn = this._getButton("info");
             }

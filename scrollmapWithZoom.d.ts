@@ -20,7 +20,6 @@ declare class scrollmapWithZoom {
      */
     board_x: number;
     board_y: number;
-    defaultPosition: Position;
     startPosition: Position;
     container_div: HTMLElement;
     scrollable_div: HTMLElement;
@@ -56,6 +55,8 @@ declare class scrollmapWithZoom {
     scrollDelta: number;
     scrollPosInitial: object;
     scrollingTresh: number;
+    defaultPosition: Position;
+    centerCalcUseAlsoOnsurface: boolean;
     /**
      * resizing properties
      */
@@ -89,6 +90,7 @@ declare class scrollmapWithZoom {
     btnZoomPlusClasses: string;
     btnZoomMinusClasses: string;
     btnResetClasses: string;
+    btnsPositionClasses: string;
     protected _prevZoom: number;
     protected _bEnableZooming: boolean;
     protected _scrollDeltaAlignWithZoom: number;
