@@ -34,33 +34,50 @@ in your css file
 }
 ```
 
-in your game file
-```javascript
-return declare("mygame", [ebg.core.gamegui, ebg.core.core_patch], {
-constructor: function () {
-  ...
-  this.scrollmap = new ebg.scrollmapWithZoom(); // Scrollable area
-  this.scrollmap.zoom = 0.8;
-  ...
-}
-
-setup: function (gamedatas) {
-  ...
-  /*
-    Create scrollmap
-  */
-  const scrollmapCreateExtra = (scrollmap) => {
-    dojo.place(dojo.eval("jstpl_map_onsurface"), scrollmap.onsurface_div);
-    dojo.place(dojo.eval("jstpl_map_clipped"), scrollmap.clipped_div);
-    scrollmap.zoomChangeHandler = this.handleMapZoomChange.bind(this);
-  };
-  /* settings you can change
+in your js file
+```
+  settings you can change :
 	zoom, maxZoom, minZoom, defaultZoom, zoomPinchDelta, zoomWheelDelta, zoomDelta, bEnableZooming, zoomingOptions, zoomChangeHandler
 	scrollDelta, bScrollDeltaAlignWithZoom, bEnableScrolling, crollingOptions
 	minHeight, incrHeightDelta, incrHeightKeepInPos, bAdaptHeightAuto, adaptHeightCorr
-	
-	example:
-	this.scrollmap.zoomDelta = 0.2;*/
+```
+
+```javascript
+setup: function (gamedatas) {
+  ...
+  this.scrollmap = new ebg.scrollmapWithZoom(); // Scrollable area
+  this.scrollmap.zoom = 0.8;
+
+  this.scrollmap.createCompletely($('map_container'));
+
+  // if needed
+  //scrollable elements above surface that you can click
+  dojo.place(dojo.eval("jstpl_map_onsurface"), this.scrollmap.onsurface_div);
+  //elements fix on the scrollmap
+  // if you wnat that they also zoom, add class="scrollmap_zoomed" style="transform-origin: 0px 0px;">
+  dojo.place(dojo.eval("jstpl_map_clipped"), this.scrollmap.clipped_div);
+  //scrollable elements below surface you can not click
+  dojo.place(dojo.eval("jstpl_map_scrollable"), this.scrollmap.scrollable_div);
+}
+```
+ alternative
+```javascript
+setup: function (gamedatas) {
+  ...
+  // if needed
+  const scrollmapCreateExtra = (scrollmap) => {
+    //scrollable elements above surface that you can click
+    dojo.place(dojo.eval("jstpl_map_onsurface"), scrollmap.onsurface_div);
+    //elements fix on the scrollmap
+    // if you wnat that they also zoom, add class="scrollmap_zoomed" style="transform-origin: 0px 0px;">
+    dojo.place(dojo.eval("jstpl_map_clipped"), scrollmap.clipped_div);
+  //scrollable elements below surface you can not click
+    dojo.place(dojo.eval("jstpl_map_scrollable"), scrollmap.scrollable_div);
+  };
+
+  this.scrollmap = new ebg.scrollmapWithZoom(); // Scrollable area
+  this.scrollmap.zoom = 0.8;
+
   this.scrollmap.createCompletely($('map_container'), this, scrollmapCreateExtra);
 }
 ```
