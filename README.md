@@ -41,7 +41,7 @@ setup: function (gamedatas) {
   /* settings you can change
 	zoom, maxZoom, minZoom, defaultZoom, zoomPinchDelta, zoomWheelDelta, zoomDelta, bEnableZooming, zoomingOptions, zoomChangeHandler
 	scrollDelta, bScrollDeltaAlignWithZoom, bEnableScrolling, crollingOptions
-	minHeight, incrHeightDelta, incrHeightKeepInPos, adaptHeightAuto, adaptHeightCorr
+	minHeight, incrHeightDelta, incrHeightKeepInPos, bAdaptHeightAuto, adaptHeightCorr
 	
 	example:
 	this.scrollmap.zoomDelta = 0.2;*/
