@@ -194,10 +194,7 @@ declare class ScrollmapWithZoom {
         x: number;
         y: number;
     };
-    getMapCenter(custom_css_query: any): {
-        x: number;
-        y: number;
-    };
+    getMapCenter(custom_css_query: any): any;
     changeMapZoom(diff: any, x?: number, y?: number): void;
     setMapZoom(zoom: any, x?: number, y?: number): void;
     protected _setScale(elemId: any, scale: any): void;

@@ -697,8 +697,8 @@ class ScrollmapWithZoom {
     createCompletely(container_div, page = null, create_extra = null, bEnlargeReduceButtonsInsideMap = true) {
         debug("createCompletely");
         var tmplDisplayButtons = String.raw`
-            <a class="enlargedisplay">↓  ${_("Enlarge")}  ↓</a>
-            <a class="reducedisplay">↑ ${_("Reduce")} ↑</a>
+            ${this._btnIncreaseHeightDefault}
+            ${this._btnDecreaseHeightDefault}
         `;
         var info_id = container_div.id + "_info";
 
@@ -775,7 +775,7 @@ class ScrollmapWithZoom {
             this._loadedSettings = this._loadSettings();
             if (!this._loadedSettings) {
                 if (this.startPosition)
-                    this.scrollto(this.startPosition.x * this.zoom, this.startPosition.y * this.zoom);
+                    this.scrollto(-this.startPosition.x * this.zoom, -this.startPosition.y * this.zoom);
                 else
                     this.scrollToCenter();
             }
@@ -1374,10 +1374,10 @@ class ScrollmapWithZoom {
         if (custom_css_query)
             this._custom_css_query = custom_css_query;
         // Get all elements inside and get their max x/y/w/h
-        var max_x = 0;
-        var max_y = 0;
-        var min_x = 0;
-        var min_y = 0;
+        var max_x = null;
+        var max_y = null;
+        var min_x = null;
+        var min_y = null;
 
         var scales = new Map();
 
@@ -1410,13 +1410,13 @@ class ScrollmapWithZoom {
             }
             let left = (parseFloat(s.left) * scaleTotal) || 0;
             let width = (parseFloat(s.width) * scaleTotal) || (node.offsetWidth * scaleTotal);
-            max_x = Math.max(max_x, left + width);
-            min_x = Math.min(min_x, left);
+            max_x = (max_x !== null) ? Math.max(max_x, left + width) : left + width;
+            min_x = (min_x !== null) ? Math.min(min_x, left) : left;
 
             let top = (parseFloat(s.top) * scaleTotal) || 0;
             let height = (parseFloat(s.height) * scaleTotal) || (node.offsetHeight * scaleTotal);
-            max_y = Math.max(max_y, top + height);
-            min_y = Math.min(min_y, top);
+            max_y = (max_y !== null) ? Math.max(max_y, top + height) : top + height;
+            min_y = (min_y !== null) ? Math.min(min_y, top) : top;
             debug(node.id, left, top, left + width, top + height);
         }
         if ((typeof this._custom_css_query != 'undefined') && (this._custom_css_query !== null)) {
@@ -1434,11 +1434,19 @@ class ScrollmapWithZoom {
                 });
         }
         // debug("getMapCenter", css_query, css_query_div);
-
-        var center = {
-            x: (min_x + max_x) / 2,
-            y: (min_y + max_y) / 2
-        };
+        var center;
+        if (min_x !== null || min_y !== null || max_x !== null || max_y !== null)
+            center = {
+                x: (min_x + max_x) / 2,
+                y: (min_y + max_y) / 2
+            };
+        else if (this.startPosition)
+            center = this.startPosition;
+        else
+            center = {
+                x: 0,
+                y: 0
+            };
         // debug("getMapCenter",  min_x,  max_x, min_y, max_y);
         // debug("getMapCenter",  center);
 
@@ -1734,7 +1742,7 @@ class ScrollmapWithZoom {
         if (this._resetZoom)
             this.setMapZoom(this.defaultZoom);
         if (this.defaultPosition)
-            this.scrollto(this.defaultPosition.x * this.zoom, this.defaultPosition.y * this.zoom);
+            this.scrollto(-this.defaultPosition.x * this.zoom, -this.defaultPosition.y * this.zoom);
         else
             this.scrollToCenter();
     }
