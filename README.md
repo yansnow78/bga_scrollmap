@@ -14,11 +14,27 @@ Improved version of scrollmap used in multiple bga game
 - only allow 2 fingers scrolling by default, one finger is for page scrolling
 - only allow zoom with wheel if alt or ctrl or shift are pressed by default, wheel+no key pressed scroll the page as usual.
 - keep in memory zoom, pos for each game table between sessions via localStore
-- adapt height automatically when adaptHeightAuto is set
+- adapt height automatically when bAdaptHeightAuto is set
 - allow tooltips on any scrollmap layer
 - ...
 
 # usage
+in tpl file:
+```html
+<div id="map_container" class="scrollmap_container">
+</div>
+```
+
+in your css file
+```css
+#map_container {
+  position: relative;
+  width: 100%;
+  height: 600px;
+}
+```
+
+in your game file
 ```javascript
 return declare("mygame", [ebg.core.gamegui, ebg.core.core_patch], {
 constructor: function () {
