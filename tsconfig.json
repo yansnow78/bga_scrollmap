@@ -1,19 +1,20 @@
 {
   "rootDir": ".",
   "compilerOptions": {
-    "target": "es6",
-    "module": "none",
+    "target": "ES6",
+    "module": "None",
+    // "moduleResolution": "node",
     "lib": [
       "dom",
       "esnext"
     ],
-    "sourceMap": true,
+    // "sourceMap": true,
     // "allowJs": true,
     // "checkJs": true,
     // "noImplicitAny": true,
-    // "outDir": "build/",
+    "outDir": "./",
     "declaration": true,
-    "outFile": "scrollmapWithZoom.js",
+    // "outFile": "scrollmapWithZoom.js",
   },
   "include": [
     // "./node_modules/dojo-typings/dojo/1.11/modules.d.ts",
@@ -21,8 +22,8 @@
     // "./node_modules/dojo-typings/dojo/1.11/loader.d.ts",
     "./src/**/*.js",
     "./src/**/*.ts"
+  ],
+  "files": [
+      "src/scrollmapWithZoom.ts",
   ]
-  // "files": [
-  //     "src/scrollmapWithZoom.ts",
-  // ]
 }

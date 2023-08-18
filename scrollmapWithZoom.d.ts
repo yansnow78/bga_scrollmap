@@ -14,7 +14,7 @@ interface Position {
     x: number;
     y: number;
 }
-declare class scrollmapWithZoom {
+declare class ScrollmapWithZoom {
     /**
      * board properties
      */
@@ -35,7 +35,7 @@ declare class scrollmapWithZoom {
     minZoom: number;
     defaultZoom: number;
     zoomingOptions: {
-        wheelZoming: scrollmapWithZoom.wheelZoomingKeys;
+        wheelZoming: ScrollmapWithZoom.wheelZoomingKeys;
         pinchZooming: boolean;
     };
     zoomChangeHandler: Function;
@@ -141,6 +141,7 @@ declare class scrollmapWithZoom {
     protected _notPassiveEventListener: {};
     protected _loadedSettings: boolean;
     protected _localStorageKey: string;
+    protected _localStorageOldKey: string;
     protected _scrolled: boolean;
     protected _prevDist: number;
     protected _gestureStart: boolean;
@@ -244,7 +245,7 @@ declare class scrollmapWithZoom {
     hideInfoButton(): void;
     setInfoButtonTooltip(): any;
 }
-declare namespace scrollmapWithZoom {
+declare namespace ScrollmapWithZoom {
     enum wheelZoomingKeys {
         Disabled = 0,
         Any = 1,

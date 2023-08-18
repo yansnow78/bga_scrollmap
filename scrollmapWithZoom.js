@@ -1,5 +1,5 @@
 /*
-scrollmapWithZoom: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -23,7 +23,7 @@ https://github.com/yansnow78/bga_scrollmap.git
 /*global gameui, dojo, dijit*/
 var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
 var debug = isDebug ? console.info.bind(window.console) : function() {};
-class scrollmapWithZoom {
+class ScrollmapWithZoom {
     get bEnableZooming() {
         return this._bEnableZooming;
     }
@@ -140,7 +140,7 @@ class scrollmapWithZoom {
         this.minZoom = 0.1;
         this.defaultZoom = null;
         this.zoomingOptions = {
-            wheelZoming: scrollmapWithZoom.wheelZoomingKeys.Any,
+            wheelZoming: ScrollmapWithZoom.wheelZoomingKeys.Any,
             pinchZooming: true
         };
         this.zoomChangeHandler = null;
@@ -257,7 +257,7 @@ class scrollmapWithZoom {
         //   };
         const descr = Object.getOwnPropertyDescriptor(dijit.Tooltip.prototype, "onShow");
         if (descr.writable) {
-            dijit.Tooltip.prototype.onShow = scrollmapWithZoom.onShowTooltip;
+            dijit.Tooltip.prototype.onShow = ScrollmapWithZoom.onShowTooltip;
             Object.defineProperty(dijit.Tooltip.prototype, "onShow", {
                 writable: false
             });
@@ -294,7 +294,7 @@ class scrollmapWithZoom {
             });
     }
     create(container_div, scrollable_div, surface_div, onsurface_div, clipped_div = null, animation_div = null, page = null, create_extra = null) {
-        debug("ebg.scrollmapWithZoom create");
+        debug("ebg.ScrollmapWithZoom create");
         if (typeof gameui.calcScale == "undefined") {
             dojo.safeMixin(gameui, new ebg.core.core_patch_slideto());
         }
@@ -341,6 +341,10 @@ class scrollmapWithZoom {
                 }
 
                 .scrollmap_container {
+                    --icon_size:32px;
+                    --icon_font_size:24px;
+                    --icon_size_z: calc(var(--icon_size)/var(--page_zoom));
+                    --icon_font_size_z: calc(var(--icon_font_size)/var(--page_zoom));
                     z-index: var(--z_index_anim);
                     touch-action: initial !important;
                 }
@@ -463,16 +467,13 @@ class scrollmapWithZoom {
                 }
 
                 .scrollmap_icon {
-                    --icon_size:32px;
-                    --icon_font_size:27px;
                     --margin_x: 8px;
                     --margin_y: 8px;
                     --offset_x: 8px;
                     --offset_y: 8px;
                     --margin_x_z: calc(var(--margin_x)/var(--page_zoom));
                     --margin_y_z: calc(var(--margin_y)/var(--page_zoom));
-                    --icon_size_z: calc(var(--icon_size)/var(--page_zoom));
-                    --icon_font_size_z: calc(var(--icon_font_size)/var(--page_zoom));
+
                     --index_x: 0;
                     --index_y: 0;
                     --y_pos: calc((var(--icon_size_z) + var(--margin_y_z)) * var(--index_y) + var(--offset_y));
@@ -489,8 +490,11 @@ class scrollmapWithZoom {
                     margin : 0;
                 }
 
-                .scrollmap_icon.fa, .scrollmap_icon.fa6 {
+                .scrollmap_icon {
                     background-image: none;
+                    background-color: rgba(255,255,255,0.5);
+                    color: black;
+                    border-radius: 100%;
                 }
 
                 .reset.fa6-arrows-to-circle {
@@ -624,7 +628,8 @@ class scrollmapWithZoom {
             this._resizeHeadersObserver.observe($('page-title'));
             this._resizeHeadersObserver.observe($('after-page-title'));
         }
-        this._localStorageKey = 'scrollmap_' + gameui.table_id + '_' + this.container_div.id;
+        this._localStorageKey = 'scrollmap_' + gameui.table_id + '_' + gameui.player_id + '_' + this.container_div.id;
+        this._localStorageOldKey = 'scrollmap_' + gameui.table_id + '_' + this.container_div.id;
         window.addEventListener('pagehide', (e) => {
             this._onbeforeunload_handler(e);
         });
@@ -634,7 +639,7 @@ class scrollmapWithZoom {
         });
         dojo.connect(gameui, "onGameUiWidthChange", this, dojo.hitch(this, '_adaptHeight'));
         dojo.require("dojo.aspect");
-        dojo.aspect.after(scrollmapWithZoom, "updateHeight", (new_height, incrHeightGlobalKey) => {
+        dojo.aspect.after(ScrollmapWithZoom, "updateHeight", (new_height, incrHeightGlobalKey) => {
             if (this.incrHeightGlobalKey == incrHeightGlobalKey)
                 this.setDisplayHeight(new_height, false);
         }, true);
@@ -738,8 +743,16 @@ class scrollmapWithZoom {
     }
     _loadSettings() {
         let scrolled = false;
-        let settings = JSON.parse(localStorage.getItem(this._localStorageKey));
-        if (settings != null) {
+        let settingsStr = localStorage.getItem(this._localStorageKey);
+        if (settingsStr == null) {
+            settingsStr = localStorage.getItem(this._localStorageOldKey);
+            if (settingsStr != null) {
+                localStorage.setItem(this._localStorageKey, settingsStr);
+                localStorage.removeItem(this._localStorageOldKey);
+            }
+        }
+        if (settingsStr != null) {
+            let settings = JSON.parse(settingsStr);
             debug("_loadSettings", settings.board_x, settings.board_y);
             var height = this.getDisplayHeight();
             if (settings.height != null) {
@@ -1122,27 +1135,27 @@ class scrollmapWithZoom {
         var wheelZoom = true;
         switch (this.zoomingOptions.wheelZoming) {
             // Zoom with scroll wheel
-            case scrollmapWithZoom.wheelZoomingKeys.Disabled:
+            case ScrollmapWithZoom.wheelZoomingKeys.Disabled:
                 wheelZoom = false;
                 return;
-            case scrollmapWithZoom.wheelZoomingKeys.None:
+            case ScrollmapWithZoom.wheelZoomingKeys.None:
                 wheelZoom = !(evt.ctrlKey || evt.altKey || evt.metaKey || evt.shiftKey);
                 break;
-            case scrollmapWithZoom.wheelZoomingKeys.AnyOrNone:
+            case ScrollmapWithZoom.wheelZoomingKeys.AnyOrNone:
                 break;
-            case scrollmapWithZoom.wheelZoomingKeys.Any:
+            case ScrollmapWithZoom.wheelZoomingKeys.Any:
                 wheelZoom = (evt.ctrlKey || evt.altKey || evt.metaKey || evt.shiftKey);
                 break;
-            case scrollmapWithZoom.wheelZoomingKeys.Ctrl:
+            case ScrollmapWithZoom.wheelZoomingKeys.Ctrl:
                 wheelZoom = evt.ctrlKey;
                 break;
-            case scrollmapWithZoom.wheelZoomingKeys.Shift:
+            case ScrollmapWithZoom.wheelZoomingKeys.Shift:
                 wheelZoom = evt.shiftKey;
                 break;
-            case scrollmapWithZoom.wheelZoomingKeys.Alt:
+            case ScrollmapWithZoom.wheelZoomingKeys.Alt:
                 wheelZoom = evt.altKey;
                 break;
-                // case scrollmapWithZoom.wheelZoomingKeys.Meta:
+                // case ScrollmapWithZoom.wheelZoomingKeys.Meta:
                 //     if (evt.metaKey)
                 //         break;
                 //     return;
@@ -1647,7 +1660,7 @@ class scrollmapWithZoom {
         this.container_div.style.height = 'var(--scrollmap_height)';
         if (this.bIncrHeightGlobally) {
             if (dispatch) {
-                scrollmapWithZoom.updateHeight(new_height, this.incrHeightGlobalKey);
+                ScrollmapWithZoom.updateHeight(new_height, this.incrHeightGlobalKey);
             }
         }
     }
@@ -1704,7 +1717,7 @@ class scrollmapWithZoom {
             return info;
     }
 }
-(function(scrollmapWithZoom) {
+(function(ScrollmapWithZoom) {
     let wheelZoomingKeys;
     (function(wheelZoomingKeys) {
         wheelZoomingKeys[wheelZoomingKeys["Disabled"] = 0] = "Disabled";
@@ -1714,16 +1727,13 @@ class scrollmapWithZoom {
         wheelZoomingKeys[wheelZoomingKeys["Alt"] = 8] = "Alt";
         wheelZoomingKeys[wheelZoomingKeys["Shift"] = 16] = "Shift";
         wheelZoomingKeys[wheelZoomingKeys["AnyOrNone"] = 32] = "AnyOrNone";
-    })(wheelZoomingKeys = scrollmapWithZoom.wheelZoomingKeys || (scrollmapWithZoom.wheelZoomingKeys = {}));
-})(scrollmapWithZoom || (scrollmapWithZoom = {}));
+    })(wheelZoomingKeys = ScrollmapWithZoom.wheelZoomingKeys || (ScrollmapWithZoom.wheelZoomingKeys = {}));
+})(ScrollmapWithZoom || (ScrollmapWithZoom = {}));
 dojo.require("dojo.has");
 dojo.has.add('config-tlmSiblingOfDojo', 0, 0, 1);
 define([
     "dojo", "dojo/_base/declare", "dijit/Tooltip", "dojo/aspect", "./long-press-event", "./core_patch_slideto"
 ], function() {
-    ebg.scrollmapWithZoom = scrollmapWithZoom;
-    return {
-        scrollmapWithZoom
-    };
+    ebg.scrollmapWithZoom = ScrollmapWithZoom;
+    return ScrollmapWithZoom;
 });
-//# sourceMappingURL=scrollmapWithZoom.js.map
