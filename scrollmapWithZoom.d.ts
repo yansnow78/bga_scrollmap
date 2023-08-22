@@ -65,6 +65,8 @@ declare class ScrollmapWithZoom {
     bIncrHeightKeepInPos: boolean;
     get bAdaptHeightAuto(): boolean;
     set bAdaptHeightAuto(value: boolean);
+    set adaptHeightCorrDivs(value: HTMLDivElement[]);
+    get adaptHeightCorrDivs(): HTMLDivElement[];
     get bIncrHeightGlobally(): boolean;
     set bIncrHeightGlobally(value: boolean);
     get bIncrHeightBtnVisible(): boolean;
@@ -95,6 +97,7 @@ declare class ScrollmapWithZoom {
     protected _scrollDeltaAlignWithZoom: number;
     protected _bHeightChanged: boolean;
     protected _bAdaptHeightAuto: boolean;
+    protected _adaptHeightCorrDivs: Array<HTMLDivElement>;
     protected _bIncrHeightGlobally: boolean;
     protected _bIncrHeightBtnVisible: boolean;
     protected _bInfoBtnVisible: boolean;
@@ -163,8 +166,8 @@ declare class ScrollmapWithZoom {
     create(container_div: HTMLElement, scrollable_div: HTMLElement, surface_div: HTMLElement, onsurface_div: HTMLElement, clipped_div?: HTMLElement, animation_div?: HTMLElement, page?: object, create_extra?: Function): void;
     createCompletely(container_div: HTMLElement, page?: object, create_extra?: Function, bEnlargeReduceButtonsInsideMap?: boolean): void;
     protected _init(): void;
-    protected _adaptHeight(): void;
-    protected _onResize(): void;
+    _adaptHeight(entries: ResizeObserverEntry[]): void;
+    protected _onResize(entries: ResizeObserverEntry[]): void;
     protected _clearOldSettings(): void;
     protected _loadSettings(): boolean;
     protected _saveSettings(): void;
