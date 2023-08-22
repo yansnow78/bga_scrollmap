@@ -156,7 +156,6 @@ class ScrollmapWithZoom {
         };
         this.bScrollDeltaAlignWithZoom = true;
         this.scrollDelta = 100;
-        this.scrollPosInitial = null;
         this.scrollingTresh = 30;
         this.defaultPosition = null;
         this.centerCalcUseAlsoOnsurface = false;
@@ -1386,9 +1385,9 @@ class ScrollmapWithZoom {
         $(elemId).style.transform = 'scale(' + scale + ')';
     }
     _getButton(btnNames, idSuffix = "") {
-        btnNames = btnNames.split(",");
-        for (let i in btnNames) {
-            let btnName = btnNames[i];
+        var btnNamesL = btnNames.split(",");
+        for (let i in btnNamesL) {
+            let btnName = btnNamesL[i];
             var $btn = null;
             var $querydiv;
             if (idSuffix == "")
