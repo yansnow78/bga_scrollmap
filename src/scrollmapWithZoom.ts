@@ -750,7 +750,7 @@ class ScrollmapWithZoom {
 
     protected _init() {}
 
-    _adaptHeight(entries: ResizeObserverEntry[]) {
+    protected _adaptHeight(entries: ResizeObserverEntry[]) {
         window.requestAnimationFrame(() => {
             if (!Array.isArray(entries) || !entries.length) {
                 return;

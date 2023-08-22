@@ -166,7 +166,7 @@ declare class ScrollmapWithZoom {
     create(container_div: HTMLElement, scrollable_div: HTMLElement, surface_div: HTMLElement, onsurface_div: HTMLElement, clipped_div?: HTMLElement, animation_div?: HTMLElement, page?: object, create_extra?: Function): void;
     createCompletely(container_div: HTMLElement, page?: object, create_extra?: Function, bEnlargeReduceButtonsInsideMap?: boolean): void;
     protected _init(): void;
-    _adaptHeight(entries: ResizeObserverEntry[]): void;
+    protected _adaptHeight(entries: ResizeObserverEntry[]): void;
     protected _onResize(entries: ResizeObserverEntry[]): void;
     protected _clearOldSettings(): void;
     protected _loadSettings(): boolean;
