@@ -55,6 +55,7 @@ declare class ScrollmapWithZoom {
     scrollDelta: number;
     scrollingTresh: number;
     defaultPosition: Position;
+    centerPositionOffset: Position;
     centerCalcUseAlsoOnsurface: boolean;
     /**
      * resizing properties
@@ -63,6 +64,7 @@ declare class ScrollmapWithZoom {
     incrHeightGlobalKey: string;
     incrHeightDelta: number;
     bIncrHeightKeepInPos: boolean;
+    bAdaptHeightAutoCompensateChatIcon: boolean;
     get bAdaptHeightAuto(): boolean;
     set bAdaptHeightAuto(value: boolean);
     set adaptHeightCorrDivs(value: HTMLDivElement[]);
@@ -116,6 +118,7 @@ declare class ScrollmapWithZoom {
     protected _suppressCLickEvent_handler: (this: HTMLElement, ev: MouseEvent) => any;
     protected _touchInteracting: boolean;
     protected _setupDone: boolean;
+    protected _adaptHeightDone: boolean;
     protected _bConfigurableInUserPreference: boolean;
     protected _btnMoveRight: HTMLElement;
     protected _btnMoveLeft: HTMLElement;
@@ -151,7 +154,7 @@ declare class ScrollmapWithZoom {
     protected _prevTouchesMiddle: DOMPoint;
     protected _custom_css_query: string;
     protected _isScrolling: number;
-    protected _resetZoom: boolean;
+    protected _resetMode: ScrollmapWithZoom.ResetMode;
     protected get _btnIncreaseHeightDefault(): string;
     protected get _btnDecreaseHeightDefault(): string;
     protected get _btnMoveLeftDefault(): string;
@@ -176,6 +179,7 @@ declare class ScrollmapWithZoom {
     protected _updatePointers(event: PointerEvent | TouchEvent | MouseEvent): any;
     protected _removePointers(event: PointerEvent | TouchEvent | MouseEvent): void;
     protected _getPageZoom(): number;
+    protected _getInterfaceFactor(): number;
     protected _getXYCoord(ev: PointerEvent | Touch | MouseEvent, ev2?: PointerEvent | Touch | MouseEvent): any[];
     protected _enableInteractions(): void;
     protected _disableInteractions(): void;
@@ -196,10 +200,17 @@ declare class ScrollmapWithZoom {
         x: number;
         y: number;
     };
-    getMapCenter(custom_css_query: string): {
+    getMapLimits(custom_css_query?: string): {
+        min_x: number;
+        max_x: number;
+        min_y: number;
+        max_y: number;
+    };
+    getMapCenter(custom_css_query?: string): {
         x: number;
         y: number;
     };
+    zoomToFit(): void;
     changeMapZoom(diff: number, x?: number, y?: number): void;
     setMapZoom(zoom: number, x?: number, y?: number): void;
     protected _setScale(elemId: HTMLElement, scale: number): void;
@@ -224,7 +235,7 @@ declare class ScrollmapWithZoom {
     hideOnScreenZoomButtons(): void;
     protected _onZoomIn(evt: Event): void;
     protected _onZoomOut(evt: Event): void;
-    setupOnScreenResetButtons(resetZoom?: boolean): void;
+    setupOnScreenResetButtons(resetMode?: ScrollmapWithZoom.ResetMode): void;
     showOnScreenResetButtons(): void;
     hideOnScreenResetButtons(): void;
     protected _onReset(evt: Event): void;
@@ -256,5 +267,10 @@ declare namespace ScrollmapWithZoom {
         Alt = 8,
         Shift = 16,
         AnyOrNone = 32
+    }
+    enum ResetMode {
+        Scroll = 0,
+        ScrollAndZoom = 1,
+        ScrollAndZoomFit = 2
     }
 }
