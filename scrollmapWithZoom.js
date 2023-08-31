@@ -765,7 +765,7 @@ class ScrollmapWithZoom {
     }
     _onResize(entries) {
         window.requestAnimationFrame(() => {
-            if (!this._setupDone || !this._adaptHeightDone) {
+            if (!this._setupDone || (this.bAdaptHeightAuto && !this._adaptHeightDone)) {
                 debug("1st onResize after setup");
                 this._clearOldSettings();
                 this._loadedSettings = this._loadSettings();
