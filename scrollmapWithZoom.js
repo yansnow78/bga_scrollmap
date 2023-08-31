@@ -537,11 +537,11 @@ class ScrollmapWithZoom {
                 /**************************
                 * positioning of buttons  *
                 ***************************/
-                .scrollmap_icon.btn_pos_top_right{
+                .scrollmap_container .scrollmap_icon.btn_pos_top_right{
                     top: var(--y_pos);
                     right: var(--x_pos);
                 }
-                .scrollmap_icon.btn_pos_top_left{
+                .scrollmap_container .scrollmap_icon.btn_pos_top_left{
                     top: var(--y_pos);
                     left: var(--x_pos);
                 }
