@@ -413,6 +413,7 @@ class ScrollmapWithZoom {
                     --icon_around_size_z : calc(var(--icon_around_size)/var(--page_zoom));
                     z-index: var(--z_index_anim);
                     touch-action: initial !important;
+                    user-select:none;
                 }
 
                 .scrollmap_container *{
