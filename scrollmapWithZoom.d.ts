@@ -73,6 +73,10 @@ declare class ScrollmapWithZoom {
     set bIncrHeightGlobally(value: boolean);
     get bIncrHeightBtnVisible(): boolean;
     set bIncrHeightBtnVisible(value: boolean);
+    get bIncrHeightBtnIsShort(): boolean;
+    set bIncrHeightBtnIsShort(value: boolean);
+    get bIncrHeightBtnGroupedWithOthers(): boolean;
+    set bIncrHeightBtnGroupedWithOthers(value: boolean);
     adaptHeightCorr: number;
     get bInfoBtnVisible(): boolean;
     /**
@@ -104,6 +108,8 @@ declare class ScrollmapWithZoom {
     protected _adaptHeightCorrDivs: Array<HTMLDivElement>;
     protected _bIncrHeightGlobally: boolean;
     protected _bIncrHeightBtnVisible: boolean;
+    protected _bIncrHeightBtnIsShort: boolean;
+    protected _bIncrHeightBtnGroupedWithOthers: boolean;
     protected _bInfoBtnVisible: boolean;
     protected _pointers: Map<any, any>;
     protected _classNameSuffix: string;
@@ -159,6 +165,7 @@ declare class ScrollmapWithZoom {
     protected _resetMode: ScrollmapWithZoom.ResetMode;
     protected get _btnIncreaseHeightDefault(): string;
     protected get _btnDecreaseHeightDefault(): string;
+    protected _btnIncreaseHeightPosClasses(): string;
     protected get _btnIncreaseHeightDefaultShort(): string;
     protected get _btnDecreaseHeightDefaultShort(): string;
     protected get _btnMoveLeftDefault(): string;
@@ -247,8 +254,8 @@ declare class ScrollmapWithZoom {
         idSuffix: string;
         display: string;
     };
-    protected _setupEnlargeReduceButtons(bInsideMap: boolean, bShort?: boolean): boolean;
-    setupEnlargeReduceButtons(incrHeightDelta: number, bIncrHeightKeepInPos: boolean, minHeight: number): void;
+    protected _setupEnlargeReduceButtons(bInsideMap: boolean, bShort?: boolean, bGroupedWithOthers?: boolean): boolean;
+    setupEnlargeReduceButtons(incrHeightDelta: number, bIncrHeightKeepInPos?: boolean, minHeight?: number, bShort?: boolean, bGroupedWithOthers?: boolean): void;
     showEnlargeReduceButtons(): void;
     hideEnlargeReduceButtons(): void;
     protected _onIncreaseDisplayHeight(evt: Event): void;

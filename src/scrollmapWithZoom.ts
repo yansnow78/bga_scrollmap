@@ -127,7 +127,7 @@ class ScrollmapWithZoom {
         this._bAdaptHeightAuto = value;
         if (!this.container_div)
             return;
-        if (!this._bAdaptHeightAuto) {
+        if (this._bAdaptHeightAuto) {
             this.hideEnlargeReduceButtons();
         }
     }
@@ -163,6 +163,18 @@ class ScrollmapWithZoom {
         if (!this._bIncrHeightBtnVisible) {
             this.hideEnlargeReduceButtons();
         }
+    }
+    public get bIncrHeightBtnIsShort(): boolean {
+        return this._bIncrHeightBtnIsShort;
+    }
+    public set bIncrHeightBtnIsShort(value: boolean) {
+        this._bIncrHeightBtnIsShort = value;
+    }
+    public get bIncrHeightBtnGroupedWithOthers(): boolean {
+        return this._bIncrHeightBtnGroupedWithOthers;
+    }
+    public set bIncrHeightBtnGroupedWithOthers(value: boolean) {
+        this._bIncrHeightBtnGroupedWithOthers = value;
     }
     adaptHeightCorr: number = 0;
     public get bInfoBtnVisible(): boolean {
@@ -208,6 +220,8 @@ class ScrollmapWithZoom {
     protected _adaptHeightCorrDivs: Array < HTMLDivElement > = [];
     protected _bIncrHeightGlobally: boolean = false;
     protected _bIncrHeightBtnVisible: boolean = true;
+    protected _bIncrHeightBtnIsShort = true;
+    protected _bIncrHeightBtnGroupedWithOthers = true;
     protected _bInfoBtnVisible: boolean = true;
     protected _pointers: Map < any,
     any > = new Map();
@@ -276,13 +290,22 @@ class ScrollmapWithZoom {
     protected get _btnDecreaseHeightDefault(): string {
         return `<a class="reducedisplay">↑  ${_("Reduce")}  ↑</a>`;
     }
+    protected _btnIncreaseHeightPosClasses(): string {
+        var positionClasses;
+        if (this.bIncrHeightBtnGroupedWithOthers)
+            positionClasses = this.btnsPositionClasses + ' grouped_with_others';
+        else {
+            positionClasses = (this.btnsPositionClasses == 'btn_pos_top_right') ? 'btn_pos_top_left' : "btn_pos_top_right";
+            positionClasses += "opposite_to_others";
+        }
+        return positionClasses;
+    }
     protected get _btnIncreaseHeightDefaultShort(): string {
-        var positionClasses = (this.btnsPositionClasses == 'btn_pos_top_right') ? 'btn_pos_top_left' : "btn_pos_top_right";
-        return `<i class="enlargedisplay scrollmap_icon ${positionClasses} ${this.btnIncreaseHeightClasses}" style="--index_y: 1;"></i>`;
+        return `<i class="enlargedisplay scrollmap_icon ${this.btnIncreaseHeightClasses} ${this._btnIncreaseHeightPosClasses()}"></i>`;
     }
     protected get _btnDecreaseHeightDefaultShort(): string {
-        var positionClasses = (this.btnsPositionClasses == 'btn_pos_top_right') ? 'btn_pos_top_left' : "btn_pos_top_right";
-        return `<i class="reducedisplay scrollmap_icon ${positionClasses} ${this.btnDecreaseHeightClasses}" style="--index_y: 0;"></i>`;
+        var positionClasses;
+        return `<i class="reducedisplay scrollmap_icon ${this.btnDecreaseHeightClasses} ${this._btnIncreaseHeightPosClasses()}"></i>`;
     }
     protected get _btnMoveLeftDefault(): string {
         return `<i class="moveleft ${this.btnMoveLeftClasses} scrollmap_icon"></i>`;
@@ -543,7 +566,7 @@ class ScrollmapWithZoom {
                     transform: translateY(-50%)
                 }
 
-                .scrollmap_icon {
+                .scrollmap_container .scrollmap_icon {
                     --margin_x: 0px;
                     --margin_y: 0px;
                     --offset_x: 8px;
@@ -595,10 +618,14 @@ class ScrollmapWithZoom {
                 .scrollmap_container .scrollmap_icon.btn_pos_top_right{
                     top: var(--y_pos);
                     right: var(--x_pos);
+                    left: unset;
+                    bottom: unset;
                 }
                 .scrollmap_container .scrollmap_icon.btn_pos_top_left{
                     top: var(--y_pos);
                     left: var(--x_pos);
+                    right: unset;
+                    bottom: unset;
                 }
 
                 .scrollmap_container .zoomminus.btn_pos_top_right,
@@ -645,6 +672,23 @@ class ScrollmapWithZoom {
                     top: 0px;
                 }
 
+                .scrollmap_container .enlargedisplay.grouped_with_others{
+                    --index_x: 1;
+                    --index_y: 2;
+                }
+
+                .scrollmap_container .reducedisplay.grouped_with_others{
+                    --index_x: 1;
+                    --index_y: 1;
+                }
+
+                .scrollmap_container .enlargedisplay.opposite_to_others{
+                    --index_y: 1;
+                }
+
+                .scrollmap_container .reducedisplay.opposite_to_others{
+                    --index_y: 0;
+                }
                 /**********************************
                 * positioning of fontAwesome icon *
                 ***********************************/
@@ -702,7 +746,7 @@ class ScrollmapWithZoom {
         if (!this._bEnableZooming)
             this.hideOnScreenZoomButtons();
         this.setupOnScreenResetButtons();
-        this.setupEnlargeReduceButtons(this.incrHeightDelta, this.bIncrHeightKeepInPos, this.minHeight);
+        this.setupEnlargeReduceButtons(this.incrHeightDelta, this.bIncrHeightKeepInPos, this.minHeight, this.bIncrHeightBtnIsShort, this._bIncrHeightBtnGroupedWithOthers);
         if (this._bAdaptHeightAuto || !this._bIncrHeightBtnVisible)
             this.hideEnlargeReduceButtons();
         this.bIncrHeightGlobally = this._bIncrHeightGlobally;
@@ -1882,7 +1926,9 @@ class ScrollmapWithZoom {
         };
     }
 
-    protected _setupEnlargeReduceButtons(bInsideMap: boolean, bShort: boolean = true) {
+    protected _setupEnlargeReduceButtons(bInsideMap: boolean, bShort: boolean = true, bGroupedWithOthers = true) {
+        this._bIncrHeightBtnIsShort = bShort;
+        this._bIncrHeightBtnGroupedWithOthers = bGroupedWithOthers;
         var btnsProps = this._getEnlargeReduceButtonsProps(bInsideMap);
         if (!this._btnIncreaseHeight)
             this._btnIncreaseHeight = this._initButton('enlargedisplay', bInsideMap ? (bShort ? this._btnIncreaseHeightDefaultShort : this._btnIncreaseHeightDefault) : null, this._onIncreaseDisplayHeight, () => {
@@ -1895,17 +1941,23 @@ class ScrollmapWithZoom {
             }, btnsProps.idSuffix, btnsProps.display);
         if (this._btnDecreaseHeight || this._btnIncreaseHeight) {
             this._bEnlargeReduceButtonsInsideMap = true;
+            if (bShort && bInsideMap) {
+                if (bGroupedWithOthers) {
+
+                }
+
+            }
             return true;
         }
         return false;
     }
 
 
-    setupEnlargeReduceButtons(incrHeightDelta: number, bIncrHeightKeepInPos: boolean, minHeight: number) {
+    setupEnlargeReduceButtons(incrHeightDelta: number, bIncrHeightKeepInPos: boolean = true, minHeight: number = null, bShort: boolean = true, bGroupedWithOthers = true) {
         debug("setupEnlargeReduceButtons");
 
         if (!this._setupEnlargeReduceButtons(false)) {
-            this._setupEnlargeReduceButtons(true);
+            this._setupEnlargeReduceButtons(true, bShort, bGroupedWithOthers);
         }
 
         this.incrHeightDelta = incrHeightDelta;
