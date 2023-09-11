@@ -622,6 +622,7 @@ class ScrollmapWithZoom {
                     background-color: rgba(255,255,255,0.5);
                     font-size: 110%;
                     line-height: 24px;
+                    text-decoration: none;
                 }
 
                 .scrollmap_container .enlargedisplay {
