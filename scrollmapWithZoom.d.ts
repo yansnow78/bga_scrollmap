@@ -93,6 +93,8 @@ declare class ScrollmapWithZoom {
     btnZoomPlusClasses: string;
     btnZoomMinusClasses: string;
     btnResetClasses: string;
+    btnIncreaseHeightClasses: string;
+    btnDecreaseHeightClasses: string;
     btnsPositionClasses: string;
     protected _prevZoom: number;
     protected _bEnableZooming: boolean;
@@ -157,6 +159,8 @@ declare class ScrollmapWithZoom {
     protected _resetMode: ScrollmapWithZoom.ResetMode;
     protected get _btnIncreaseHeightDefault(): string;
     protected get _btnDecreaseHeightDefault(): string;
+    protected get _btnIncreaseHeightDefaultShort(): string;
+    protected get _btnDecreaseHeightDefaultShort(): string;
     protected get _btnMoveLeftDefault(): string;
     protected get _btnMoveTopDefault(): string;
     protected get _btnMoveRightDefault(): string;
@@ -243,7 +247,7 @@ declare class ScrollmapWithZoom {
         idSuffix: string;
         display: string;
     };
-    protected _setupEnlargeReduceButtons(bInsideMap: boolean): boolean;
+    protected _setupEnlargeReduceButtons(bInsideMap: boolean, bShort?: boolean): boolean;
     setupEnlargeReduceButtons(incrHeightDelta: number, bIncrHeightKeepInPos: boolean, minHeight: number): void;
     showEnlargeReduceButtons(): void;
     hideEnlargeReduceButtons(): void;

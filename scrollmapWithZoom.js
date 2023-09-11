@@ -108,6 +108,14 @@ class ScrollmapWithZoom {
     get _btnDecreaseHeightDefault() {
         return `<a class="reducedisplay">↑  ${_("Reduce")}  ↑</a>`;
     }
+    get _btnIncreaseHeightDefaultShort() {
+        var positionClasses = (this.btnsPositionClasses == 'btn_pos_top_right') ? 'btn_pos_top_left' : "btn_pos_top_right";
+        return `<i class="enlargedisplay scrollmap_icon ${positionClasses} ${this.btnIncreaseHeightClasses}" style="--index_y: 1;"></i>`;
+    }
+    get _btnDecreaseHeightDefaultShort() {
+        var positionClasses = (this.btnsPositionClasses == 'btn_pos_top_right') ? 'btn_pos_top_left' : "btn_pos_top_right";
+        return `<i class="reducedisplay scrollmap_icon ${positionClasses} ${this.btnDecreaseHeightClasses}" style="--index_y: 0;"></i>`;
+    }
     get _btnMoveLeftDefault() {
         return `<i class="moveleft ${this.btnMoveLeftClasses} scrollmap_icon"></i>`;
     }
@@ -196,6 +204,8 @@ class ScrollmapWithZoom {
         this.btnZoomPlusClasses = 'fa fa-search-plus';
         this.btnZoomMinusClasses = 'fa fa-search-minus';
         this.btnResetClasses = 'fa6-solid fa6-arrows-to-dot';
+        this.btnIncreaseHeightClasses = 'fa6-solid fa6-arrow-down';
+        this.btnDecreaseHeightClasses = 'fa6-solid fa6-arrow-up';
         this.btnsPositionClasses = 'btn_pos_top_right';
         this._prevZoom = 1;
         this._bEnableZooming = true;
@@ -1716,14 +1726,14 @@ class ScrollmapWithZoom {
             display
         };
     }
-    _setupEnlargeReduceButtons(bInsideMap) {
+    _setupEnlargeReduceButtons(bInsideMap, bShort = true) {
         var btnsProps = this._getEnlargeReduceButtonsProps(bInsideMap);
         if (!this._btnIncreaseHeight)
-            this._btnIncreaseHeight = this._initButton('enlargedisplay', bInsideMap ? this._btnIncreaseHeightDefault : null, this._onIncreaseDisplayHeight, () => {
+            this._btnIncreaseHeight = this._initButton('enlargedisplay', bInsideMap ? (bShort ? this._btnIncreaseHeightDefaultShort : this._btnIncreaseHeightDefault) : null, this._onIncreaseDisplayHeight, () => {
                 this.changeDisplayHeight(5);
             }, btnsProps.idSuffix, btnsProps.display);
         if (!this._btnDecreaseHeight)
-            this._btnDecreaseHeight = this._initButton('reducedisplay', bInsideMap ? this._btnDecreaseHeightDefault : null, this._onDecreaseDisplayHeight, () => {
+            this._btnDecreaseHeight = this._initButton('reducedisplay', bInsideMap ? (bShort ? this._btnDecreaseHeightDefaultShort : this._btnDecreaseHeightDefault) : null, this._onDecreaseDisplayHeight, () => {
                 this.changeDisplayHeight(-5);
             }, btnsProps.idSuffix, btnsProps.display);
         if (this._btnDecreaseHeight || this._btnIncreaseHeight) {
