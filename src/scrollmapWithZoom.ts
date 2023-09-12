@@ -465,6 +465,7 @@ class ScrollmapWithZoom {
 
                 .scrollmap_scrollable, .scrollmap_onsurface, .scrollmap_anim {
                     position: absolute;
+                    transform-origin: left top;
                 }
 
                 .scrollmap_surface {
@@ -1504,7 +1505,7 @@ class ScrollmapWithZoom {
         function calcMaxMin(node: HTMLElement, top_div: HTMLElement) {
             // debug(node);
             let s = window.getComputedStyle(node);
-            if (s.left == "auto") {
+            if (s.left == "auto" && s.position == "absolute") {
                 Array.from(node.children).forEach((node) => {
                     calcMaxMin( < HTMLElement > node, top_div);
                 });
@@ -1528,12 +1529,12 @@ class ScrollmapWithZoom {
                 scales.set(directParent, scaleTotal);
                 // debug("scaleTotal",scaleTotal);
             }
-            let left = (parseFloat(s.left) * scaleTotal) || 0;
+            let left = (node.offsetLeft * scaleTotal) || 0;
             let width = (parseFloat(s.width) * scaleTotal) || (node.offsetWidth * scaleTotal);
             max_x = (max_x !== null) ? Math.max(max_x, left + width) : left + width;
             min_x = (min_x !== null) ? Math.min(min_x, left) : left;
 
-            let top = (parseFloat(s.top) * scaleTotal) || 0;
+            let top = (node.offsetTop * scaleTotal) || 0;
             let height = (parseFloat(s.height) * scaleTotal) || (node.offsetHeight * scaleTotal);
             max_y = (max_y !== null) ? Math.max(max_y, top + height) : top + height;
             min_y = (min_y !== null) ? Math.min(min_y, top) : top;
