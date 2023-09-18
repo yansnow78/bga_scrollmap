@@ -1397,11 +1397,17 @@ class ScrollmapWithZoom {
             this._scrolltoBusy = false;
         }, duration + delay);
     }
+    zoomToFitAndScrollToCenter(custom_css_query, duration, delay, x_extra_l = 0, x_extra_r = 0, y_extra_u = 0, y_extra_d = 0) {
+        this.zoomToFit(x_extra_l, x_extra_r, y_extra_u, y_extra_d);
+        return this.scrollToCenter(custom_css_query, duration, delay, x_extra_l, x_extra_r, y_extra_u, y_extra_d);
+    }
     // Scroll map in order to center everything
     // By default, take all elements in movable_scrollmap
     //  you can also specify (optional) a custom CSS query to get all concerned DOM elements
-    scrollToCenter(custom_css_query, duration, delay) {
+    scrollToCenter(custom_css_query, duration, delay, x_extra_l = 0, x_extra_r = 0, y_extra_u = 0, y_extra_d = 0) {
         const center = this.getMapCenter(custom_css_query);
+        center.x += (x_extra_r - x_extra_l) / 2;
+        center.y += (y_extra_d - y_extra_u) / 2;
         this.scrollto(-center.x * this.zoom, -center.y * this.zoom, duration, delay);
         debug("scrollToCenter", center.x, center.y);
         return {
@@ -1483,7 +1489,7 @@ class ScrollmapWithZoom {
             max_x,
             min_y,
             max_y
-        } = this.getMapLimits();
+        } = this.getMapLimits(custom_css_query);
         var center;
         var centerOffset = this.centerPositionOffset;
         if (min_x !== null || min_y !== null || max_x !== null || max_y !== null)
@@ -1509,14 +1515,14 @@ class ScrollmapWithZoom {
         // debug("getMapCenter",  center);
         return center;
     }
-    zoomToFit() {
+    zoomToFit(x_extra_l = 0, x_extra_r = 0, y_extra_u = 0, y_extra_d = 0) {
         const {
             min_x,
             max_x,
             min_y,
             max_y
         } = this.getMapLimits();
-        const newZoom = Math.min(this.container_div.clientWidth / (max_x - min_x), this.container_div.clientHeight / (max_y - min_y));
+        const newZoom = Math.min(this.container_div.clientWidth / (max_x - min_x + x_extra_l + x_extra_r), this.container_div.clientHeight / (max_y - min_y + y_extra_u + y_extra_d));
         this.setMapZoom(newZoom);
     }
     changeMapZoom(diff, x = 0, y = 0) {

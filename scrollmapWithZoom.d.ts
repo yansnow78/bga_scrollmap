@@ -220,7 +220,11 @@ declare class ScrollmapWithZoom {
     protected _onWheel(evt: WheelEvent): void;
     scroll(dx: number, dy: number, duration?: number, delay?: number): void;
     scrollto(x: number, y: number, duration?: number, delay?: number): void;
-    scrollToCenter(custom_css_query?: string, duration?: number, delay?: number): {
+    zoomToFitAndScrollToCenter(custom_css_query?: string, duration?: number, delay?: number, x_extra_l?: number, x_extra_r?: number, y_extra_u?: number, y_extra_d?: number): {
+        x: number;
+        y: number;
+    };
+    scrollToCenter(custom_css_query?: string, duration?: number, delay?: number, x_extra_l?: number, x_extra_r?: number, y_extra_u?: number, y_extra_d?: number): {
         x: number;
         y: number;
     };
@@ -234,7 +238,7 @@ declare class ScrollmapWithZoom {
         x: number;
         y: number;
     };
-    zoomToFit(): void;
+    zoomToFit(x_extra_l?: number, x_extra_r?: number, y_extra_u?: number, y_extra_d?: number): void;
     changeMapZoom(diff: number, x?: number, y?: number): void;
     setMapZoom(zoom: number, x?: number, y?: number): void;
     protected _setScale(elemId: HTMLElement, scale: number): void;
