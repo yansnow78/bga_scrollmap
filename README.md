@@ -6,6 +6,7 @@ Improved version of scrollmap used in multiple bga game
 - add possibility to adjust pan delta to tile size when clicking on arrows
 - allow zoom with scroll wheel
 - allow pan/scrool and pinch zoom on smartphone
+- allow control of scrollmap with keys
 - make clickable area of buttons a bit bigger on smartphone
 - zooming with buttons doesn't drift the board anymore
 - improve animation between game board and player bards tanks to an animation_div

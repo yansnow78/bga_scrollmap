@@ -40,6 +40,8 @@ interface Position {
 }
 
 class ScrollmapWithZoom {
+    private static count: number = 0;
+    private static instances: Map < string, ScrollmapWithZoom > = new Map < string, ScrollmapWithZoom > ();
     /**
      * board properties
      */
@@ -184,6 +186,22 @@ class ScrollmapWithZoom {
     /**
      * enable/disble long press on buttons
      */
+    public static get bEnableKeys(): boolean {
+        return ScrollmapWithZoom._bEnableKeys;
+    }
+    public static set bEnableKeys(value: boolean) {
+        ScrollmapWithZoom._bEnableKeys = value && (ScrollmapWithZoom.count == 1);
+        for (let inst of ScrollmapWithZoom.instances.values()) {
+            inst.setInfoButtonTooltip();
+        }
+    }
+    bEnableKeysArrows: boolean = true;
+    bEnableKeysPlusMinus: boolean = true;
+    bEnableKeyHome: boolean = true;
+    bEnableKeyEnd: boolean = true;
+    /**
+     * enable/disble long press on buttons
+     */
     bEnableLongPress: boolean = true;
 
     /**
@@ -223,10 +241,14 @@ class ScrollmapWithZoom {
     protected _bIncrHeightBtnIsShort = true;
     protected _bIncrHeightBtnGroupedWithOthers = true;
     protected _bInfoBtnVisible: boolean = true;
-    protected _pointers: Map < any,
-    any > = new Map();
+    protected _pointers: Map < number,
+        any > = new Map();
     protected _classNameSuffix: string = '';
     protected _longPress: boolean = false;
+    // protected _longKeyPress: boolean = false;
+    protected _keysPressed: Map < string,
+        any > = new Map();
+    protected static _bEnableKeys: boolean = true;
     protected _enableTooltipsAndClickTimerId: number = null;
     protected _enabledTooltips: boolean = true;
     protected _enabledClicks: boolean = true;
@@ -345,6 +367,7 @@ class ScrollmapWithZoom {
         //     RIGHT_TOP : 10,
         //     RIGHT_BOTTOM: 11,
         //   };
+
         const descr = Object.getOwnPropertyDescriptor(dijit.Tooltip.prototype, "onShow");
         if (descr.writable) {
             dijit.Tooltip.prototype.onShow = ScrollmapWithZoom.onShowTooltip;
@@ -389,6 +412,9 @@ class ScrollmapWithZoom {
 
     create(container_div: HTMLElement, scrollable_div: HTMLElement, surface_div: HTMLElement, onsurface_div: HTMLElement, clipped_div: HTMLElement = null, animation_div: HTMLElement = null, page: object = null, create_extra: Function = null) {
         debug("ebg.ScrollmapWithZoom create");
+        ScrollmapWithZoom.count++;
+        ScrollmapWithZoom.instances.set(container_div.id, this);
+        ScrollmapWithZoom.bEnableKeys = ScrollmapWithZoom._bEnableKeys;
         if (typeof gameui.calcScale == "undefined") {
             dojo.safeMixin(gameui, new ebg.core.core_patch_slideto());
         }
@@ -742,6 +768,7 @@ class ScrollmapWithZoom {
         document.addEventListener("touchend", _handleTouch, this._passiveEventListener);
         document.addEventListener("touchcancel", _handleTouch, this._passiveEventListener);
 
+        this.setupKeys();
         this.setupOnScreenArrows(this.scrollDelta, this.bScrollDeltaAlignWithZoom);
         this.setupOnScreenZoomButtons(this.zoomDelta);
         if (!this._bEnableZooming)
@@ -778,6 +805,10 @@ class ScrollmapWithZoom {
         });
         dojo.connect(gameui, "onGameUiWidthChange", this, dojo.hitch(this, '_adaptHeight'));
         dojo.require("dojo.aspect");
+        dojo.aspect.after(ScrollmapWithZoom, "updateHeight", (new_height: number, incrHeightGlobalKey: string) => {
+            if (this.incrHeightGlobalKey == incrHeightGlobalKey)
+                this.setDisplayHeight(new_height, false);
+        }, true);
         dojo.aspect.after(ScrollmapWithZoom, "updateHeight", (new_height: number, incrHeightGlobalKey: string) => {
             if (this.incrHeightGlobalKey == incrHeightGlobalKey)
                 this.setDisplayHeight(new_height, false);
@@ -1748,6 +1779,165 @@ class ScrollmapWithZoom {
     }
 
     //////////////////////////////////////////////////
+    //// Scroll/zoom with keys
+
+    setupKeys() {
+        if (ScrollmapWithZoom.bEnableKeys) {
+            document.addEventListener("keydown", (e) => {
+                this._onKeyDown(e)
+            });
+            document.addEventListener("keyup", (e) => {
+                this._onKeyUp(e)
+            });
+        }
+    }
+
+
+    protected _onKeyDown(e: KeyboardEvent) {
+        console.log("onKeyDown");
+        if (!ScrollmapWithZoom.bEnableKeys || ScrollmapWithZoom.count != 1)
+            return;
+        if (gameui.chatbarWindows['table_' + gameui.table_id].status == 'expanded')
+            return;
+        if (!this._keysPressed.get(e.key))
+            this._keysPressed.set(e.key, {
+                pressed: true
+            });
+        // this._longKeyPress = false;
+        switch (e.key) {
+            case "ArrowLeft":
+            case "ArrowRight":
+            case "ArrowUp":
+            case "ArrowDown":
+            case "Home":
+            case "End":
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    break;
+                }
+                return;
+            case "+":
+            case "-":
+                if (this._keysPressed.size == 1) { // only this key pressed
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    break;
+                }
+                return;
+            default:
+                return;
+
+        }
+        if (typeof this._keysPressed.get(e.key).timer === "undefined")
+            this._keysPressed.get(e.key).timer = setTimeout(() => {
+                this._onKeyLongPress(e.key);
+            }, 500);
+    }
+
+    protected _onKeyLongPress(key: string) {
+        console.log("onKeyLongPress");
+        if (!this._keysPressed.get(key))
+            return false;
+        this._keysPressed.get(key).timer = null;
+        var _longPressAnim = (time: number) => {
+            this._onKeyLongPressAnim(key);
+            if (this._keysPressed.get(key))
+                requestAnimationFrame(_longPressAnim);
+        };
+        // this._longKeyPress = true;
+        requestAnimationFrame(_longPressAnim);
+    }
+
+    protected _onKeyLongPressAnim(key: string) {
+        var handled = true;
+        switch (key) {
+            case "ArrowLeft":
+                if (this.bEnableKeysArrows && this._keysPressed.get("Control"))
+                    this.scroll(3, 0, 0, 0);
+                break;
+            case "ArrowRight":
+                if (this.bEnableKeysArrows && this._keysPressed.get("Control"))
+                    this.scroll(-3, 0, 0, 0);
+                break;
+            case "ArrowUp":
+                if (this.bEnableKeysArrows && this._keysPressed.get("Control"))
+                    this.scroll(0, 3, 0, 0);
+                break;
+            case "ArrowDown":
+                if (this.bEnableKeysArrows && this._keysPressed.get("Control"))
+                    this.scroll(0, -3, 0, 0);
+                break;
+            case "+":
+                if (this.bEnableKeysPlusMinus)
+                    this.changeMapZoom(0.02);
+                break;
+            case "-":
+                if (this.bEnableKeysPlusMinus)
+                    this.changeMapZoom(-0.02);
+                break;
+            default:
+                handled = false;
+        }
+    }
+
+    protected _onKeyUp(e: KeyboardEvent) {
+        console.log("onKeyUp");
+        if (!ScrollmapWithZoom.bEnableKeys || ScrollmapWithZoom.count != 1)
+            return;
+        if (!this._keysPressed.get(e.key))
+            return;
+        var timer = this._keysPressed.get(e.key).timer;
+        this._keysPressed.delete(e.key);
+        if (!timer) {
+            return;
+        } else
+            clearTimeout(timer);
+
+        var handled = true;
+        switch (e.key) {
+            case "ArrowLeft":
+                if (this.bEnableKeysArrows && this._keysPressed.get("Control"))
+                    this._onMoveLeft(e);
+                break;
+            case "ArrowRight":
+                if (this.bEnableKeysArrows && this._keysPressed.get("Control"))
+                    this._onMoveRight(e);
+                break;
+            case "ArrowUp":
+                if (this.bEnableKeysArrows && this._keysPressed.get("Control"))
+                    this._onMoveTop(e);
+                break;
+            case "ArrowDown":
+                if (this.bEnableKeysArrows && this._keysPressed.get("Control"))
+                    this._onMoveDown(e);
+                break;
+            case "+":
+                if (this.bEnableKeysPlusMinus)
+                    this._onZoomIn(e);
+                break;
+            case "-":
+                if (this.bEnableKeysPlusMinus)
+                    this._onZoomOut(e);
+                break;
+            case "Home":
+                if (this.bEnableKeyHome && this._keysPressed.get("Control"))
+                    this.scrollToCenter();
+                break;
+            case "End":
+                if (this.bEnableKeyEnd && this._keysPressed.get("Control"))
+                    this.zoomToFit();
+                break;
+            default:
+                handled = false;
+        }
+        if (handled) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
+    }
+
+    //////////////////////////////////////////////////
     //// Scroll with buttons
 
     // Optional: setup on screen arrows to scroll the board
@@ -1791,26 +1981,31 @@ class ScrollmapWithZoom {
         this._hideButton('movedown');
     }
 
-    protected _onMoveTop(evt: Event) {
+    protected _onMoveTop(evt: Event = null) {
         //debug("onMoveTop");
+        if (evt)
+            evt.preventDefault();
         this.scroll(0, this._scrollDeltaAlignWithZoom);
     }
 
-    protected _onMoveLeft(evt: Event) {
+    protected _onMoveLeft(evt: Event = null) {
         // debug("onMoveLeft");
-        evt.preventDefault();
+        if (evt)
+            evt.preventDefault();
         this.scroll(this._scrollDeltaAlignWithZoom, 0);
     }
 
-    protected _onMoveRight(evt: Event) {
+    protected _onMoveRight(evt: Event = null) {
         // debug("onMoveRight");
-        evt.preventDefault();
+        if (evt)
+            evt.preventDefault();
         this.scroll(-this._scrollDeltaAlignWithZoom, 0);
     }
 
-    protected _onMoveDown(evt: Event) {
+    protected _onMoveDown(evt: Event = null) {
         // debug("onMoveDown");
-        evt.preventDefault();
+        if (evt)
+            evt.preventDefault();
         this.scroll(0, -this._scrollDeltaAlignWithZoom);
     }
 
@@ -1874,13 +2069,15 @@ class ScrollmapWithZoom {
         this._hideButton(this._btnZoomMinusNames);
     }
 
-    protected _onZoomIn(evt: Event) {
-        evt.preventDefault();
+    protected _onZoomIn(evt: Event = null) {
+        if (evt)
+            evt.preventDefault();
         this.changeMapZoom(this.zoomDelta);
     }
 
-    protected _onZoomOut(evt: Event) {
-        evt.preventDefault();
+    protected _onZoomOut(evt: Event = null) {
+        if (evt)
+            evt.preventDefault();
         this.changeMapZoom(-this.zoomDelta);
     }
 
@@ -2050,16 +2247,26 @@ class ScrollmapWithZoom {
     }
 
     setInfoButtonTooltip() {
+        if (!this._btnInfo)
+            return;
         var info = _('To scroll/pan: maintain the mouse button or 2 fingers pressed and move.');
-        info += '<BR><BR>' + _('another way is to press the scroll/pan buttons (long press : continious scroll/pan).');
+        info += '<BR>' + _('another way is to press the scroll/pan buttons (long press : continious scroll/pan).');
+        if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysArrows)
+            info += '<BR>' + _('another way is to press the arrow keys with ctrl key(long press : continious scroll/pan).');
         if (this._bEnableZooming)
             info += '<BR><BR>' + _('To zoom: use the scroll wheel (with alt or ctrl or shift key) or pinch fingers.');
         if (this._bEnableZooming)
-            info += '<BR><BR>' + _('another way is to press the zoom buttons (long press : continious zoom).');
+            info += '<BR>' + _('another way is to press the zoom buttons (long press : continious zoom).');
+        if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysPlusMinus)
+            info += '<BR>' + _('another way is to press the +/- keys (long press : continious zoom).');
+        info += '<BR><BR>' + _('To recenter: use the recenter button.');
+        if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeyHome)
+            info += '<BR>' + _('another way is to press the home key with ctrl key');
+        if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeyEnd)
+            info += '<BR><BR>' + _('To fit to content : press the end key with ctrl key');
         if (this._bConfigurableInUserPreference)
             info += _('This is configurable in user preference.');
         if (gameui != null) {
-
             gameui.addTooltip(this._btnInfo.id, info, '', 10);
             gameui.tooltips[this._btnInfo.id].bForceOpening = true;
         } else

@@ -15,6 +15,8 @@ interface Position {
     y: number;
 }
 declare class ScrollmapWithZoom {
+    private static count;
+    private static instances;
     /**
      * board properties
      */
@@ -82,6 +84,15 @@ declare class ScrollmapWithZoom {
     /**
      * enable/disble long press on buttons
      */
+    static get bEnableKeys(): boolean;
+    static set bEnableKeys(value: boolean);
+    bEnableKeysArrows: boolean;
+    bEnableKeysPlusMinus: boolean;
+    bEnableKeyHome: boolean;
+    bEnableKeyEnd: boolean;
+    /**
+     * enable/disble long press on buttons
+     */
     bEnableLongPress: boolean;
     /**
      * info button
@@ -111,9 +122,11 @@ declare class ScrollmapWithZoom {
     protected _bIncrHeightBtnIsShort: boolean;
     protected _bIncrHeightBtnGroupedWithOthers: boolean;
     protected _bInfoBtnVisible: boolean;
-    protected _pointers: Map<any, any>;
+    protected _pointers: Map<number, any>;
     protected _classNameSuffix: string;
     protected _longPress: boolean;
+    protected _keysPressed: Map<string, any>;
+    protected static _bEnableKeys: boolean;
     protected _enableTooltipsAndClickTimerId: number;
     protected _enabledTooltips: boolean;
     protected _enabledClicks: boolean;
@@ -231,21 +244,26 @@ declare class ScrollmapWithZoom {
     protected _initButton(btnName: string, defaultButton: string, onClick: Function, onLongPressedAnim?: Function, idSuffix?: string, display?: string): HTMLElement;
     protected _onButtonLongPress(onLongPressedAnim: Function, evt: Event): void;
     protected _onButtonLongPressEnd(evt: Event): void;
+    setupKeys(): void;
+    protected _onKeyDown(e: KeyboardEvent): void;
+    protected _onKeyLongPress(key: string): boolean;
+    protected _onKeyLongPressAnim(key: string): void;
+    protected _onKeyUp(e: KeyboardEvent): void;
     setupOnScreenArrows(scrollDelta: number, bScrollDeltaAlignWithZoom?: boolean): void;
     showOnScreenArrows(): void;
     hideOnScreenArrows(): void;
-    protected _onMoveTop(evt: Event): void;
-    protected _onMoveLeft(evt: Event): void;
-    protected _onMoveRight(evt: Event): void;
-    protected _onMoveDown(evt: Event): void;
+    protected _onMoveTop(evt?: Event): void;
+    protected _onMoveLeft(evt?: Event): void;
+    protected _onMoveRight(evt?: Event): void;
+    protected _onMoveDown(evt?: Event): void;
     isVisible(x: number, y: number): boolean;
     enableScrolling(): void;
     disableScrolling(): void;
     setupOnScreenZoomButtons(zoomDelta?: number): void;
     showOnScreenZoomButtons(): void;
     hideOnScreenZoomButtons(): void;
-    protected _onZoomIn(evt: Event): void;
-    protected _onZoomOut(evt: Event): void;
+    protected _onZoomIn(evt?: Event): void;
+    protected _onZoomOut(evt?: Event): void;
     setupOnScreenResetButtons(resetMode?: ScrollmapWithZoom.ResetMode): void;
     showOnScreenResetButtons(): void;
     hideOnScreenResetButtons(): void;
