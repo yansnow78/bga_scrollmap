@@ -301,7 +301,7 @@ class ScrollmapWithZoom {
         this._btnZoomPlusNames = 'zoomplus,zoom_plus,zoomin,zoom_in';
         this._btnZoomMinusNames = 'zoomminus,zoom_minus,zoomout,zoom_out';
         this._btnReset = null;
-        this._btnResetNames = 'reset,back_to_center,reset_map,map_reset';
+        this._btnResetNames = 'reset,back_to_center,reset_map,map_reset,center';
         this._btnInfo = null;
         this._btnBackToCenter = null;
         this._bEnlargeReduceButtonsInsideMap = true;

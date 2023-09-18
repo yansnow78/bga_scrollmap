@@ -276,7 +276,7 @@ class ScrollmapWithZoom {
     protected _btnZoomPlusNames: string = 'zoomplus,zoom_plus,zoomin,zoom_in';
     protected _btnZoomMinusNames: string = 'zoomminus,zoom_minus,zoomout,zoom_out';
     protected _btnReset: HTMLElement = null;
-    protected _btnResetNames: string = 'reset,back_to_center,reset_map,map_reset';
+    protected _btnResetNames: string = 'reset,back_to_center,reset_map,map_reset,center';
     protected _btnInfo: HTMLElement = null;
     protected _btnBackToCenter: HTMLElement = null;
     protected _bEnlargeReduceButtonsInsideMap = true;
