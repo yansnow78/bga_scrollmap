@@ -430,6 +430,7 @@ class ScrollmapWithZoom {
                     z-index: var(--z_index_anim);
                     touch-action: initial !important;
                     user-select:none;
+                    ${this.clipped_div ? "overflow: visible;" : ""};
                 }
 
                 .scrollmap_container *{
@@ -1490,12 +1491,7 @@ class ScrollmapWithZoom {
         };
     }
     getMapCenter(custom_css_query = null) {
-        var {
-            min_x,
-            max_x,
-            min_y,
-            max_y
-        } = this.getMapLimits(custom_css_query);
+        var { min_x, max_x, min_y, max_y } = this.getMapLimits(custom_css_query);
         var center;
         var centerOffset = this.centerPositionOffset;
         if (min_x !== null || min_y !== null || max_x !== null || max_y !== null)
@@ -1522,12 +1518,7 @@ class ScrollmapWithZoom {
         return center;
     }
     zoomToFit(x_extra_l = 0, x_extra_r = 0, y_extra_u = 0, y_extra_d = 0) {
-        const {
-            min_x,
-            max_x,
-            min_y,
-            max_y
-        } = this.getMapLimits();
+        const { min_x, max_x, min_y, max_y } = this.getMapLimits();
         const newZoom = Math.min(this.container_div.clientWidth / (max_x - min_x + x_extra_l + x_extra_r), this.container_div.clientHeight / (max_y - min_y + y_extra_u + y_extra_d));
         this.setMapZoom(newZoom);
     }

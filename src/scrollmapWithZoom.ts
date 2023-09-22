@@ -430,10 +430,12 @@ class ScrollmapWithZoom {
             onsurface_div.classList.add("scrollmap_onsurface");
             surface_div.appendChild(onsurface_div);
         }
-        if (!animation_div && !clipped_div) {
+        if (!animation_div) {
             animation_div = document.createElement('div');
             animation_div.classList.add("scrollmap_anim");
             container_div.appendChild(animation_div);
+        }
+        if (!!clipped_div) {
             clipped_div = document.createElement('div');
             clipped_div.classList.add("scrollmap_overflow_clipped");
             container_div.appendChild(clipped_div);
@@ -479,6 +481,7 @@ class ScrollmapWithZoom {
                     z-index: var(--z_index_anim);
                     touch-action: initial !important;
                     user-select:none;
+                    ${this.clipped_div ? "overflow: visible;" : ""};
                 }
 
                 .scrollmap_container *{
