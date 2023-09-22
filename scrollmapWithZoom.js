@@ -258,6 +258,16 @@ class ScrollmapWithZoom {
         this.btnIncreaseHeightClasses = 'fa6-solid fa6-arrow-down';
         this.btnDecreaseHeightClasses = 'fa6-solid fa6-arrow-up';
         this.btnsPositionClasses = 'btn_pos_top_right';
+        this.btnsBackgroundColor = 'rgba(255,255,255,0.5)';
+        this.btnsMarginX = '0px';
+        this.btnsMarginY = '0px';
+        this.btnsOffsetX = '8px';
+        this.btnsOffsetY = '8px';
+        this.btnsSize = '20px';
+        this.btnsFontSize = '20px';
+        this.btnsAroundSize = '6px';
+        this.longPressScroll = 5;
+        this.longPressZoom = 0.02;
         this._prevZoom = 1;
         this._bEnableZooming = true;
         this._scrollDeltaAlignWithZoom = 0;
@@ -422,9 +432,9 @@ class ScrollmapWithZoom {
                 }
 
                 .scrollmap_container {
-                    --icon_size:20px;
-                    --icon_font_size:20px;
-                    --icon_around_size:6px;
+                    --icon_size:${this.btnsSize};
+                    --icon_font_size:${this.btnsFontSize};
+                    --icon_around_size:${this.btnsAroundSize};
                     --icon_size_z: calc(var(--icon_size)/var(--page_zoom));
                     --icon_font_size_z: calc(var(--icon_font_size)/var(--page_zoom));
                     --icon_around_size_z : calc(var(--icon_around_size)/var(--page_zoom));
@@ -553,10 +563,10 @@ class ScrollmapWithZoom {
                 }
 
                 .scrollmap_container .scrollmap_icon {
-                    --margin_x: 0px;
-                    --margin_y: 0px;
-                    --offset_x: 8px;
-                    --offset_y: 8px;
+                    --margin_x: ${this.btnsMarginX};
+                    --margin_y: ${this.btnsMarginY};
+                    --offset_x: ${this.btnsOffsetX};
+                    --offset_y: ${this.btnsOffsetY};
                     --margin_x_z: calc(var(--margin_x)/var(--page_zoom));
                     --margin_y_z: calc(var(--margin_y)/var(--page_zoom));
                     --offset_x_z: calc(var(--offset_x)/var(--page_zoom));
@@ -590,7 +600,7 @@ class ScrollmapWithZoom {
 
                 .scrollmap_icon {
                     background-image: none;
-                    background-color: rgba(255,255,255,0.5);
+                    background-color: ${this.btnsBackgroundColor};
                     color: black;
                     border-radius: 100%;
                 }
@@ -1717,27 +1727,27 @@ class ScrollmapWithZoom {
         switch (key) {
             case "ArrowLeft":
                 if (this.bEnableKeysArrows && this._keysPressed.get("Control"))
-                    this.scroll(3, 0, 0, 0);
+                    this.scroll(this.longPressScroll, 0, 0, 0);
                 break;
             case "ArrowRight":
                 if (this.bEnableKeysArrows && this._keysPressed.get("Control"))
-                    this.scroll(-3, 0, 0, 0);
+                    this.scroll(-this.longPressScroll, 0, 0, 0);
                 break;
             case "ArrowUp":
                 if (this.bEnableKeysArrows && this._keysPressed.get("Control"))
-                    this.scroll(0, 3, 0, 0);
+                    this.scroll(0, this.longPressScroll, 0, 0);
                 break;
             case "ArrowDown":
                 if (this.bEnableKeysArrows && this._keysPressed.get("Control"))
-                    this.scroll(0, -3, 0, 0);
+                    this.scroll(0, -this.longPressScroll, 0, 0);
                 break;
             case "+":
                 if (this.bEnableKeysPlusMinus)
-                    this.changeMapZoom(0.02);
+                    this.changeMapZoom(this.longPressZoom);
                 break;
             case "-":
                 if (this.bEnableKeysPlusMinus)
-                    this.changeMapZoom(-0.02);
+                    this.changeMapZoom(-this.longPressZoom);
                 break;
             default:
                 handled = false;
@@ -1810,19 +1820,19 @@ class ScrollmapWithZoom {
             this._scrollDeltaAlignWithZoom = scrollDelta;
         if (!this._btnMoveTop)
             this._btnMoveTop = this._initButton('movetop', this._btnMoveTopDefault, this._onMoveTop, () => {
-                this.scroll(0, 3, 0, 0);
+                this.scroll(0, this.longPressScroll, 0, 0);
             });
         if (!this._btnMoveDown)
             this._btnMoveDown = this._initButton('movedown', this._btnMoveDownDefault, this._onMoveDown, () => {
-                this.scroll(0, -3, 0, 0);
+                this.scroll(0, -this.longPressScroll, 0, 0);
             });
         if (!this._btnMoveLeft)
             this._btnMoveLeft = this._initButton('moveleft', this._btnMoveLeftDefault, this._onMoveLeft, () => {
-                this.scroll(3, 0, 0, 0);
+                this.scroll(this.longPressScroll, 0, 0, 0);
             });
         if (!this._btnMoveRight)
             this._btnMoveRight = this._initButton('moveright', this._btnMoveRightDefault, this._onMoveRight, () => {
-                this.scroll(-3, 0, 0, 0);
+                this.scroll(-this.longPressScroll, 0, 0, 0);
             });
     }
     showOnScreenArrows() {
@@ -1894,11 +1904,11 @@ class ScrollmapWithZoom {
         this.zoomDelta = zoomDelta;
         if (!this._btnZoomPlus)
             this._btnZoomPlus = this._initButton(this._btnZoomPlusNames, this._btnZoomPlusDefault, this._onZoomIn, () => {
-                this.changeMapZoom(0.02);
+                this.changeMapZoom(this.longPressZoom);
             });
         if (!this._btnZoomMinus)
             this._btnZoomMinus = this._initButton(this._btnZoomMinusNames, this._btnZoomMinusDefault, this._onZoomOut, () => {
-                this.changeMapZoom(-0.02);
+                this.changeMapZoom(-this.longPressZoom);
             });
         //this.showOnScreenZoomButtons();
     }

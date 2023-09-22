@@ -111,6 +111,16 @@ declare class ScrollmapWithZoom {
     btnIncreaseHeightClasses: string;
     btnDecreaseHeightClasses: string;
     btnsPositionClasses: string;
+    btnsBackgroundColor: string;
+    btnsMarginX: string;
+    btnsMarginY: string;
+    btnsOffsetX: string;
+    btnsOffsetY: string;
+    btnsSize: string;
+    btnsFontSize: string;
+    btnsAroundSize: string;
+    longPressScroll: number;
+    longPressZoom: number;
     protected _prevZoom: number;
     protected _bEnableZooming: boolean;
     protected _scrollDeltaAlignWithZoom: number;
