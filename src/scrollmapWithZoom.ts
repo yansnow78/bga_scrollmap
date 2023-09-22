@@ -289,6 +289,8 @@ class ScrollmapWithZoom {
     protected _btnResetNames: string = 'reset,back_to_center,reset_map,map_reset,center';
     protected _btnInfo: HTMLElement = null;
     protected _btnBackToCenter: HTMLElement = null;
+    protected _btnIncreaseHeightNames = "enlargedisplay";
+    protected _btnDecreaseHeightNames = "reducedisplay,shrinkdisplay";
     protected _bEnlargeReduceButtonsInsideMap = true;
     protected _btnIncreaseHeight: HTMLElement = null;
     protected _btnDecreaseHeight: HTMLElement = null;
@@ -440,17 +442,18 @@ class ScrollmapWithZoom {
             onsurface_div.classList.add("scrollmap_onsurface");
             surface_div.appendChild(onsurface_div);
         }
-        if (!animation_div) {
-            animation_div = document.createElement('div');
-            container_div.appendChild(animation_div);
-        }
-        animation_div.classList.add("scrollmap_anim");
+
         if (!clipped_div) {
             clipped_div = document.createElement('div');
-            container_div.appendChild(clipped_div);
+            container_div.insertBefore(clipped_div, container_div.firstElementChild);
         }
         clipped_div.appendChild(surface_div);
         clipped_div.classList.add("scrollmap_overflow_clipped");
+        if (!animation_div) {
+            animation_div = document.createElement('div');
+            container_div.insertBefore(animation_div, container_div.firstElementChild);
+        }
+        animation_div.classList.add("scrollmap_anim");
         this.container_div = container_div;
         this.scrollable_div = scrollable_div;
         this.surface_div = surface_div;
@@ -618,8 +621,8 @@ class ScrollmapWithZoom {
                     --offset_y: ${this.btnsOffsetY};
                     --margin_x_z: calc(var(--margin_x)/var(--page_zoom));
                     --margin_y_z: calc(var(--margin_y)/var(--page_zoom));
-                    --offset_x_z: calc(var(--offset_x)/var(--page_zoom));
-                    --offset_y_z: calc(var(--offset_y)/var(--page_zoom));
+                    --offset_x_z: calc(var(--offset_x));
+                    --offset_y_z: calc(var(--offset_y));
                     --index_x: 0;
                     --index_y: 0;
                     --y_pos: calc((var(--icon_size_z) + 2 * var(--icon_around_size_z) + var(--margin_y_z)) * var(--index_y) + var(--offset_y_z));
@@ -2160,12 +2163,12 @@ class ScrollmapWithZoom {
         this._bIncrHeightBtnGroupedWithOthers = bGroupedWithOthers;
         var btnsProps = this._getEnlargeReduceButtonsProps(bInsideMap);
         if (!this._btnIncreaseHeight)
-            this._btnIncreaseHeight = this._initButton('enlargedisplay', bInsideMap ? (bShort ? this._btnIncreaseHeightDefaultShort : this._btnIncreaseHeightDefault) : null, this._onIncreaseDisplayHeight, () => {
+            this._btnIncreaseHeight = this._initButton(this._btnIncreaseHeightNames, bInsideMap ? (bShort ? this._btnIncreaseHeightDefaultShort : this._btnIncreaseHeightDefault) : null, this._onIncreaseDisplayHeight, () => {
                 this.changeDisplayHeight(5);
             }, btnsProps.idSuffix, btnsProps.display);
 
         if (!this._btnDecreaseHeight)
-            this._btnDecreaseHeight = this._initButton('reducedisplay', bInsideMap ? (bShort ? this._btnDecreaseHeightDefaultShort : this._btnDecreaseHeightDefault) : null, this._onDecreaseDisplayHeight, () => {
+            this._btnDecreaseHeight = this._initButton(this._btnDecreaseHeightNames, bInsideMap ? (bShort ? this._btnDecreaseHeightDefaultShort : this._btnDecreaseHeightDefault) : null, this._onDecreaseDisplayHeight, () => {
                 this.changeDisplayHeight(-5);
             }, btnsProps.idSuffix, btnsProps.display);
         if (this._btnDecreaseHeight || this._btnIncreaseHeight) {
@@ -2196,14 +2199,14 @@ class ScrollmapWithZoom {
 
     showEnlargeReduceButtons() {
         var btnsProps = this._getEnlargeReduceButtonsProps(this._bEnlargeReduceButtonsInsideMap);
-        this._showButton("enlargedisplay", btnsProps.idSuffix, btnsProps.display);
-        this._showButton("reducedisplay", btnsProps.idSuffix, btnsProps.display);
+        this._showButton(this._btnIncreaseHeightNames, btnsProps.idSuffix, btnsProps.display);
+        this._showButton(this._btnDecreaseHeightNames, btnsProps.idSuffix, btnsProps.display);
     }
 
     hideEnlargeReduceButtons() {
         var btnsProps = this._getEnlargeReduceButtonsProps(this._bEnlargeReduceButtonsInsideMap);
-        this._hideButton("enlargedisplay", btnsProps.idSuffix);
-        this._hideButton("reducedisplay", btnsProps.idSuffix);
+        this._hideButton(this._btnIncreaseHeightNames, btnsProps.idSuffix);
+        this._hideButton(this._btnDecreaseHeightNames, btnsProps.idSuffix);
     }
 
     protected _onIncreaseDisplayHeight(evt: Event) {

@@ -163,6 +163,8 @@ declare class ScrollmapWithZoom {
     protected _btnResetNames: string;
     protected _btnInfo: HTMLElement;
     protected _btnBackToCenter: HTMLElement;
+    protected _btnIncreaseHeightNames: string;
+    protected _btnDecreaseHeightNames: string;
     protected _bEnlargeReduceButtonsInsideMap: boolean;
     protected _btnIncreaseHeight: HTMLElement;
     protected _btnDecreaseHeight: HTMLElement;
