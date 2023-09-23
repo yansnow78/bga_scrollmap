@@ -442,18 +442,17 @@ class ScrollmapWithZoom {
             onsurface_div.classList.add("scrollmap_onsurface");
             surface_div.appendChild(onsurface_div);
         }
-
-        if (!clipped_div) {
-            clipped_div = document.createElement('div');
-            container_div.insertBefore(clipped_div, container_div.firstElementChild);
-        }
-        clipped_div.appendChild(surface_div);
-        clipped_div.classList.add("scrollmap_overflow_clipped");
         if (!animation_div) {
             animation_div = document.createElement('div');
             container_div.insertBefore(animation_div, container_div.firstElementChild);
         }
         animation_div.classList.add("scrollmap_anim");
+        if (!clipped_div) {
+            clipped_div = document.createElement('div');
+            container_div.insertBefore(clipped_div, animation_div);
+        }
+        clipped_div.appendChild(surface_div);
+        clipped_div.classList.add("scrollmap_overflow_clipped");
         this.container_div = container_div;
         this.scrollable_div = scrollable_div;
         this.surface_div = surface_div;
