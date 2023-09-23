@@ -145,6 +145,8 @@ define([
             //  1°) mobile_obj has a position:absolute or position:relative
             //  2°) a fixed mobile_obj parent has a position absolute or relative
             placeOnObjectPos: function (mobile_obj, target_obj, target_x, target_y, bRelPos) {
+                if (typeof bRelPos == 'undefined')
+                    bRelPos = this.bUseRelPosForObjPos;
                 this._placeOnObject(mobile_obj, target_obj, target_x, target_y, bRelPos);
             },
 
@@ -200,9 +202,15 @@ define([
 
             // Return an animation that is moving (slide) a DOM object over another one at the given coordinates
             slideToObjectPos: function (mobile_obj, target_obj, target_x, target_y, duration, delay) {
-                return this._slideToObject(mobile_obj, target_obj, target_x, target_y, false, duration, delay);
+                return this._slideToObject(mobile_obj, target_obj, target_x, target_y, this.bUseRelPosForObjPos, duration, delay);
 
             },
+
+            // Return an animation that is moving (slide) a DOM object over another one at the given coordinates
+            slideToObjectAbsPos: function (mobile_obj, target_obj, target_x, target_y, duration, delay) {
+                return this._slideToObject(mobile_obj, target_obj, target_x, target_y, false, duration, delay);
+
+            },            
 
             // Return an animation that is moving (slide) a DOM object over another one at the given relative coordinates from target_obj
             slideToObjectRelPos: function (mobile_obj, target_obj, target_x, target_y, duration, delay) {

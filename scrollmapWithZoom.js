@@ -383,6 +383,8 @@ class ScrollmapWithZoom {
     }
     create(container_div, scrollable_div, surface_div, onsurface_div, clipped_div = null, animation_div = null, page = null, create_extra = null) {
         debug("ebg.ScrollmapWithZoom create");
+        if (typeof gameui.bUseRelPosForObjPos == "undefined")
+            gameui.bUseRelPosForObjPos = true;
         ScrollmapWithZoom.count++;
         ScrollmapWithZoom.instances.set(container_div.id, this);
         ScrollmapWithZoom.bEnableKeys = ScrollmapWithZoom._bEnableKeys;
