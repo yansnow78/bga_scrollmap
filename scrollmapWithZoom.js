@@ -170,6 +170,9 @@ class ScrollmapWithZoom {
     get _btnResetDefault() {
         return `<i class="reset  ${this.btnResetClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
     }
+    get _btnZoomToFitDefault() {
+        return `<i class="zoomtofit  ${this.btnZoomToFitClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
+    }
     constructor() {
         // this.ControlPosition = {
         //     TOP_CENTER : 0,
@@ -255,6 +258,7 @@ class ScrollmapWithZoom {
         this.btnZoomPlusClasses = 'fa fa-search-plus';
         this.btnZoomMinusClasses = 'fa fa-search-minus';
         this.btnResetClasses = 'fa6-solid fa6-arrows-to-dot';
+        this.btnZoomToFitClasses = 'fa6-solid fa6-maximize';
         this.btnIncreaseHeightClasses = 'fa6-solid fa6-arrow-down';
         this.btnDecreaseHeightClasses = 'fa6-solid fa6-arrow-up';
         this.btnsPositionClasses = 'btn_pos_top_right';
@@ -313,7 +317,8 @@ class ScrollmapWithZoom {
         this._btnReset = null;
         this._btnResetNames = 'reset,back_to_center,reset_map,map_reset,center';
         this._btnInfo = null;
-        this._btnBackToCenter = null;
+        this._btnZoomToFit = null;
+        this._btnZoomToFitNames = 'zoomtofit,fullscreen';
         this._btnIncreaseHeightNames = "enlargedisplay";
         this._btnDecreaseHeightNames = "reducedisplay,shrinkdisplay";
         this._bEnlargeReduceButtonsInsideMap = true;
@@ -628,12 +633,12 @@ class ScrollmapWithZoom {
 
                 .scrollmap_container .zoomminus.btn_pos_top_right,
                 .scrollmap_container .zoomminus.btn_pos_top_left {
-                    --index_y: 2;
+                    --index_y: 3;
                 }
 
                 .scrollmap_container .zoomplus.btn_pos_top_right,
                 .scrollmap_container .zoomplus.btn_pos_top_left {
-                    --index_y: 1;
+                    --index_y: 2;
                 }
 
                 .scrollmap_container .info.btn_pos_top_right,
@@ -644,6 +649,11 @@ class ScrollmapWithZoom {
 
                 .scrollmap_container .reset.btn_pos_top_right,
                 .scrollmap_container .reset.btn_pos_top_left {
+                    --index_y: 1;
+                }
+
+                .scrollmap_container .zoomtofit.btn_pos_top_right,
+                .scrollmap_container .zoomtofit.btn_pos_top_left {
                     --index_y: 0;
                 }
 
@@ -690,27 +700,27 @@ class ScrollmapWithZoom {
                 /**********************************
                 * positioning of fontAwesome icon *
                 ***********************************/
-                .scrollmap_container > .movetop.fa,
-                .scrollmap_container > .moveleft.fa,
-                .scrollmap_container > .moveright.fa,
-                .scrollmap_container > .movedown.fa{
+                .scrollmap_container .movetop.fa,
+                .scrollmap_container .moveleft.fa,
+                .scrollmap_container .moveright.fa,
+                .scrollmap_container .movedown.fa{
                     background-color: rgba(255,255,255,0.5);
                     border-radius: 100%;
                 }
 
-                .scrollmap_container > .movetop.fa {
+                .scrollmap_container .movetop.fa {
                     border-radius: 0 0 100% 100%;
                 }
 
-                .scrollmap_container > .moveleft.fa {
+                .scrollmap_container .moveleft.fa {
                     border-radius: 0 100% 100% 0;
                 }
 
-                .scrollmap_container > .moveright.fa {
+                .scrollmap_container .moveright.fa {
                     border-radius: 100% 0 0 100%;
                 }
 
-                .scrollmap_container > .movedown.fa {
+                .scrollmap_container .movedown.fa {
                     border-radius: 100% 100% 0 0;
                 }
                 `;
@@ -1448,7 +1458,7 @@ class ScrollmapWithZoom {
         function calcMaxMin(node, top_div) {
             // debug(node);
             let s = window.getComputedStyle(node);
-            if (s.left == "auto" && s.position == "absolute") {
+            if (s.left == "auto" /*  && s.position == "absolute" */ ) {
                 Array.from(node.children).forEach((node) => {
                     calcMaxMin(node, top_div);
                 });
@@ -1939,13 +1949,17 @@ class ScrollmapWithZoom {
         debug("setupOnScreenResetButtons");
         if (!this._btnReset)
             this._btnReset = this._initButton(this._btnResetNames, this._btnResetDefault, this._onReset);
+        if (!this._btnZoomToFit)
+            this._btnZoomToFit = this._initButton(this._btnZoomToFitNames, this._btnZoomToFitDefault, () => this.zoomToFitAndScrollToCenter());
         // this.showOnScreenResetButtons();
     }
     showOnScreenResetButtons() {
         this._showButton(this._btnResetNames);
+        this._showButton(this._btnZoomToFitNames);
     }
     hideOnScreenResetButtons() {
         this._hideButton(this._btnResetNames);
+        this._hideButton(this._btnZoomToFitNames);
     }
     _onReset(evt) {
         if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoom)

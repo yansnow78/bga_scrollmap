@@ -58,8 +58,8 @@ define([
             calcNewLocation: function (mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter) {
                 if (typeof mobile_obj == 'string')
                     mobile_obj = $(mobile_obj);
-                // if( typeof target_obj == 'string' )
-                //     target_obj = $( target_obj ); 
+                if( typeof target_obj == 'string' )
+                    target_obj = $( target_obj ); 
                 var src = dojo.position(mobile_obj);
 
                 // Current mobile object relative coordinates

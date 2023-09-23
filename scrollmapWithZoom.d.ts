@@ -108,6 +108,7 @@ declare class ScrollmapWithZoom {
     btnZoomPlusClasses: string;
     btnZoomMinusClasses: string;
     btnResetClasses: string;
+    btnZoomToFitClasses: string;
     btnIncreaseHeightClasses: string;
     btnDecreaseHeightClasses: string;
     btnsPositionClasses: string;
@@ -162,7 +163,8 @@ declare class ScrollmapWithZoom {
     protected _btnReset: HTMLElement;
     protected _btnResetNames: string;
     protected _btnInfo: HTMLElement;
-    protected _btnBackToCenter: HTMLElement;
+    protected _btnZoomToFit: HTMLElement;
+    protected _btnZoomToFitNames: string;
     protected _btnIncreaseHeightNames: string;
     protected _btnDecreaseHeightNames: string;
     protected _bEnlargeReduceButtonsInsideMap: boolean;
@@ -200,6 +202,7 @@ declare class ScrollmapWithZoom {
     protected get _btnZoomPlusDefault(): string;
     protected get _btnZoomMinusDefault(): string;
     protected get _btnResetDefault(): string;
+    protected get _btnZoomToFitDefault(): string;
     constructor();
     protected static onShowTooltip(this: typeof dijit.Tooltip): void;
     create(container_div: HTMLElement, scrollable_div: HTMLElement, surface_div: HTMLElement, onsurface_div: HTMLElement, clipped_div?: HTMLElement, animation_div?: HTMLElement, page?: object, create_extra?: Function): void;
