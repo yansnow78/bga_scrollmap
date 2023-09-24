@@ -55,7 +55,7 @@ define([
             },
 
 
-            calcNewLocation: function (mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter) {
+            calcNewLocation: function (mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter, bToCenter) {
                 if (typeof mobile_obj == 'string')
                     mobile_obj = $(mobile_obj);
                 if( typeof target_obj == 'string' )
@@ -90,6 +90,14 @@ define([
 
                     vector_abs.x += target_v.x - delta_x;
                     vector_abs.y += target_v.y;
+                    if (bFromCenter) {
+                        vector_abs.x -= src.w / 2;
+                        vector_abs.y -= src.h / 2;
+                    }
+                    if (bToCenter) {
+                        vector_abs.x += tgt.w / 2;
+                        vector_abs.y += tgt.h / 2;
+                    }
                 } else {
                     vector_abs.x += toint(target_x);
                     vector_abs.y += toint(target_y);
@@ -110,7 +118,7 @@ define([
 
             },
 
-            _placeOnObject: function (mobile_obj, target_obj, target_x, target_y, bRelPos) {
+            _placeOnObject: function (mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter, bToCenter) {
                 //console.log( 'placeOnObject' );
 
                 if (mobile_obj === null) {
@@ -125,7 +133,7 @@ define([
                 var disabled3d = this.disable3dIfNeeded();
 
                 // Move to new location and fade in
-                var [left, top] = this.calcNewLocation(mobile_obj, target_obj, target_x, target_y, bRelPos);
+                var [left, top] = this.calcNewLocation(mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter, bToCenter);
                 dojo.style(mobile_obj, 'top', top + 'px');
                 dojo.style(mobile_obj, 'left', left + 'px');
 
@@ -144,14 +152,14 @@ define([
             // Note: if it does not work check that:
             //  1°) mobile_obj has a position:absolute or position:relative
             //  2°) a fixed mobile_obj parent has a position absolute or relative
-            placeOnObjectPos: function (mobile_obj, target_obj, target_x, target_y, bRelPos) {
+            placeOnObjectPos: function (mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter, bToCenter) {
                 if (typeof bRelPos == 'undefined')
                     bRelPos = this.bUseRelPosForObjPos;
-                this._placeOnObject(mobile_obj, target_obj, target_x, target_y, bRelPos);
+                this._placeOnObject(mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter, bToCenter);
             },
 
             // Return an animation that is moving (slide) a DOM object over another one
-            _slideToObject: function (mobile_obj, target_obj, target_x, target_y, bRelPos, duration, delay) {
+            _slideToObject: function (mobile_obj, target_obj, target_x, target_y, bRelPos, duration, delay, bFromCenter, bToCenter) {
                 if (mobile_obj === null) {
                     console.error('slideToObject: mobile obj is null');
                 }
@@ -175,7 +183,7 @@ define([
                     duration = Math.min(1, duration);
                 }
 
-                var [left, top, vector_x, vector_y] = this.calcNewLocation(mobile_obj, target_obj, target_x, target_y, bRelPos);
+                var [left, top, vector_x, vector_y] = this.calcNewLocation(mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter, bToCenter);
 
                 this.enable3dIfNeeded(disabled3d);
 
@@ -213,8 +221,8 @@ define([
             },            
 
             // Return an animation that is moving (slide) a DOM object over another one at the given relative coordinates from target_obj
-            slideToObjectRelPos: function (mobile_obj, target_obj, target_x, target_y, duration, delay) {
-                return this._slideToObject(mobile_obj, target_obj, target_x, target_y, true, duration, delay);
+            slideToObjectRelPos: function (mobile_obj, target_obj, target_x, target_y, duration, delay, bFromCenter, bToCenter) {
+                return this._slideToObject(mobile_obj, target_obj, target_x, target_y, true, duration, delay, bFromCenter, bToCenter);
 
             },
 
