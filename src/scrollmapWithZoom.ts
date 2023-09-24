@@ -344,29 +344,29 @@ class ScrollmapWithZoom {
         return `<i class="reducedisplay scrollmap_icon ${this.btnDecreaseHeightClasses} ${this._btnIncreaseHeightPosClasses()}"></i>`;
     }
     protected get _btnMoveLeftDefault(): string {
-        return `<i class="moveleft ${this.btnMoveLeftClasses} scrollmap_icon"></i>`;
+        return `<i class="moveleft ${this.btnMoveLeftClasses} scrollmap_icon" title="${_("Scroll display (you can also use key arrows)")}"></i>`;
     }
     protected get _btnMoveTopDefault(): string {
-        return `<i class="movetop ${this.btnMoveTopClasses} scrollmap_icon"></i>`;
+        return `<i class="movetop ${this.btnMoveTopClasses} scrollmap_icon" title="${_("Scroll display (you can also use key arrows)")}"></i>`;
     }
     protected get _btnMoveRightDefault(): string {
-        return `<i class="moveright ${this.btnMoveRightClasses} scrollmap_icon"></i>`;
+        return `<i class="moveright ${this.btnMoveRightClasses} scrollmap_icon" title="${_("Scroll display (you can also use key arrows)")}" ></i>`;
     }
     protected get _btnMoveDownDefault(): string {
-        return `<i class="movedown ${this.btnMoveDownClasses} scrollmap_icon"></i>`;
+        return `<i class="movedown ${this.btnMoveDownClasses} scrollmap_icon" title="${_("Scroll display (you can also use key arrows)")}" ></i>`;
     }
     protected get _btnZoomPlusDefault(): string {
-        return `<i class="zoomplus ${this.btnZoomPlusClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
+        return `<i class="zoomplus ${this.btnZoomPlusClasses} scrollmap_icon ${this.btnsPositionClasses}" title="${_("Zoom in")}" ></i>`;
     }
     protected get _btnZoomMinusDefault(): string {
-        return `<i class="zoomminus  ${this.btnZoomMinusClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
+        return `<i class="zoomminus  ${this.btnZoomMinusClasses} scrollmap_icon ${this.btnsPositionClasses}" title="${_("Zoom out")}"></i>`;
     }
     protected get _btnResetDefault(): string {
-        return `<i class="reset  ${this.btnResetClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
+        return `<i class="reset  ${this.btnResetClasses} scrollmap_icon ${this.btnsPositionClasses}" title="${_("Center")}"></i>`;
     }
 
     protected get _btnZoomToFitDefault(): string {
-        return `<i class="zoomtofit  ${this.btnZoomToFitClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
+        return `<i class="zoomtofit  ${this.btnZoomToFitClasses} scrollmap_icon ${this.btnsPositionClasses}" title="${_('Fit map to display area')}"></i>`;
     }
 
     constructor() {
