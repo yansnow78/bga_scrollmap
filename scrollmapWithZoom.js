@@ -395,13 +395,13 @@ class ScrollmapWithZoom {
         container_div.classList.add("scrollmap_container");
         if (surface_div)
             surface_div.classList.add("scrollmap_surface");
-        if (scrollable_div) {
-            scrollable_div.classList.add("scrollmap_scrollable");
-            surface_div.appendChild(scrollable_div);
-        }
         if (onsurface_div) {
             onsurface_div.classList.add("scrollmap_onsurface");
-            surface_div.appendChild(onsurface_div);
+            surface_div.insertBefore(onsurface_div, surface_div.firstElementChild);
+        }
+        if (scrollable_div) {
+            scrollable_div.classList.add("scrollmap_scrollable");
+            surface_div.insertBefore(scrollable_div, surface_div.firstElementChild);
         }
         if (!animation_div) {
             animation_div = document.createElement('div');
