@@ -209,7 +209,7 @@ class ScrollmapWithZoom {
         this.minZoom = 0.1;
         this.defaultZoom = null;
         this.zoomingOptions = {
-            wheelZoming: ScrollmapWithZoom.wheelZoomingKeys.Any,
+            wheelZoming: ScrollmapWithZoom.wheelZoomingKeys.Alt,
             pinchZooming: true
         };
         this.zoomChangeHandler = null;
@@ -2134,12 +2134,12 @@ class ScrollmapWithZoom {
         }
         info += '<BR>' + _('To recenter, do one of the folowing things:');
         info += '<ul>';
-        info += '<li>' + ('use the recenter button');
+        info += '<li>' + _('use the recenter button');
         if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeyHome)
             info += '<li>' + _('press the home key with ctrl key') + '</li>';
         info += '</ul>';
         if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeyEnd)
-            info += '<BR>' + _('To fit to content : press the end key with ctrl key') + '</li>';
+            info += '<BR>' + _('To fit to content : press the end key with ctrl key');
         if (this._bConfigurableInUserPreference)
             info += _('This is configurable in user preference.');
         info += '</div>';
