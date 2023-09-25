@@ -592,28 +592,28 @@ class ScrollmapWithZoom {
                     cursor: not-allowed !important;
                     pointer-events: none;
                 }
-                .scrollmap_container .movetop {
+                .scrollmap_container .movetop, .scrollmap_container #movetop {
                     top: 0px;
                     left: 50%;
                     margin-left: 0px;
                     transform: translateX(-50%)
                 }
 
-                .scrollmap_container .movedown {
+                .scrollmap_container .movedown, .scrollmap_container #movedown {
                     bottom: 0px;
                     left: 50%;
                     margin-left: 0px;
                     transform: translateX(-50%)
                 }
 
-                .scrollmap_container .moveleft {
+                .scrollmap_container .moveleft, .scrollmap_container #moveleft {
                     left: 0px;
                     top: 50%;
                     margin-top: 0px;
                     transform: translateY(-50%)
                 }
 
-                .scrollmap_container .moveright {
+                .scrollmap_container .moveright, .scrollmap_container #moveright {
                     right: 0px;
                     top: 50%;
                     margin-top: 0px;
@@ -1845,7 +1845,6 @@ class ScrollmapWithZoom {
 
 
     protected _onKeyDown(e: KeyboardEvent) {
-        console.log("onKeyDown");
         if (!ScrollmapWithZoom.bEnableKeys || ScrollmapWithZoom.count != 1)
             return;
         if (gameui.chatbarWindows['table_' + gameui.table_id].status == 'expanded')
@@ -1880,10 +1879,12 @@ class ScrollmapWithZoom {
                 return;
 
         }
-        if (typeof this._keysPressed.get(e.key).timer === "undefined")
+        if (typeof this._keysPressed.get(e.key).timer === "undefined") {
+            console.log("onKeyDown", e.key);
             this._keysPressed.get(e.key).timer = setTimeout(() => {
                 this._onKeyLongPress(e.key);
             }, 500);
+        }
     }
 
     protected _onKeyLongPress(key: string) {
@@ -1933,11 +1934,11 @@ class ScrollmapWithZoom {
     }
 
     protected _onKeyUp(e: KeyboardEvent) {
-        console.log("onKeyUp");
         if (!ScrollmapWithZoom.bEnableKeys || ScrollmapWithZoom.count != 1)
             return;
         if (!this._keysPressed.get(e.key))
             return;
+        console.log("onKeyUp", e.key);
         var timer = this._keysPressed.get(e.key).timer;
         this._keysPressed.delete(e.key);
         if (!timer) {
@@ -2061,6 +2062,8 @@ class ScrollmapWithZoom {
     }
 
     isVisible(x: number, y: number) {
+        x = x * this.zoom;
+        y = y * this.zoom;
         const s = window.getComputedStyle(this.container_div);
         const width = parseFloat(s.width);
         const height = parseFloat(s.height);
