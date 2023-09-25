@@ -491,7 +491,12 @@ class ScrollmapWithZoom {
                 }
 
                 .scrollmap_tooltip ul{
-                    list-style: square;
+                    list-style: disc;
+                }
+                
+                .scrollmap_tooltip li{
+                    list-style: unset;
+                    margin-left: 20px;
                 }
 
                 .scrollmap_zoomed{
@@ -2108,7 +2113,7 @@ class ScrollmapWithZoom {
     setInfoButtonTooltip() {
         if (!this._btnInfo)
             return;
-        var info = '<p class=scrollmap_tooltip>';
+        var info = '<div class="scrollmap_tooltip">';
         info += _('To scroll/pan, do one of the folowing things:');
         info += '<ul>';
         info += '<li>' + _('maintain the mouse button or 2 fingers pressed and move.') + '</li>';
@@ -2137,7 +2142,7 @@ class ScrollmapWithZoom {
             info += '<BR>' + _('To fit to content : press the end key with ctrl key') + '</li>';
         if (this._bConfigurableInUserPreference)
             info += _('This is configurable in user preference.');
-        info += '</p>';
+        info += '</div>';
         if (gameui != null) {
             gameui.addTooltipHtml(this._btnInfo.id, info, 10);
             gameui.tooltips[this._btnInfo.id].bForceOpening = true;
