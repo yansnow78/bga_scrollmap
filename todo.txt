@@ -1,6 +1,7 @@
 remark:
 should we compile ts to es5 or e6 (currently es6 to have a class may be to facilate autcompletion)
 what key to use with scroll wheel to zoom
+will translation be global
 
 to do by me:
 correct splashdown

@@ -29,7 +29,7 @@ declare const ebg: any;
 declare const $: Function;
 declare const dojo: any;
 declare const dijit: any;
-declare const _: Function;
+declare function _(str: string): string
 declare const g_gamethemeurl: string;
 declare const gameui: any;
 declare const toint: Function;
@@ -63,7 +63,7 @@ class ScrollmapWithZoom {
     minZoom: number = 0.1;
     defaultZoom: number = null;
     zoomingOptions: {
-        wheelZoming: ScrollmapWithZoom.wheelZoomingKeys;pinchZooming: boolean;
+        wheelZoming: number;pinchZooming: boolean;
     } = {
         wheelZoming: ScrollmapWithZoom.wheelZoomingKeys.Any,
         pinchZooming: true
@@ -89,7 +89,8 @@ class ScrollmapWithZoom {
         if (this._bEnableZooming)
             warning_touch += _("Pinch fingers to zoom");
         this.container_div.setAttribute("warning_touch", warning_touch);
-        this.container_div.setAttribute("warning_scroll", _("Use ctrl or alt or shift + scroll to zoom the board"));
+        var keysStr = this.getWheelZoomingOptionTranslated();
+        this.container_div.setAttribute("warning_scroll", dojo.string.substitute(_("Use (${keys}) + the scroll wheel to zoom the board"), { keys: keysStr }));
         if (this._btnInfo && (this._btnInfo.style.display == 'block')) {
             this.setInfoButtonTooltip();
         }
@@ -538,6 +539,10 @@ class ScrollmapWithZoom {
                     pointer-events: initial;
                 }
 
+                .scrollmap_tooltip ul{
+                    list-style: square;
+                }
+
                 .scrollmap_zoomed{
                     transform: var(--scrollmap_zoomed_transform);
                 }
@@ -657,6 +662,7 @@ class ScrollmapWithZoom {
                 /*}*/
 
                 .scrollmap_icon {
+                    z-index: var(--z_index_anim);
                     background-image: none;
                     background-color: ${this.btnsBackgroundColor};
                     color: black;
@@ -1433,10 +1439,9 @@ class ScrollmapWithZoom {
                 wheelZoom = evt.altKey;
                 break;
 
-                // case ScrollmapWithZoom.wheelZoomingKeys.Meta:
-                //     if (evt.metaKey)
-                //         break;
-                //     return;
+            case ScrollmapWithZoom.wheelZoomingKeys.Meta:
+                wheelZoom = evt.metaKey;
+                return;
 
         }
         if (!wheelZoom) {
@@ -2307,35 +2312,96 @@ class ScrollmapWithZoom {
     setInfoButtonTooltip() {
         if (!this._btnInfo)
             return;
-        var info = _('To scroll/pan: maintain the mouse button or 2 fingers pressed and move.');
-        info += '<BR>' + _('another way is to press the scroll/pan buttons (long press : continious scroll/pan).');
+        var info = '<p class=scrollmap_tooltip>'
+        info += _('To scroll/pan, do one of the folowing things:');
+        info += '<ul>';
+        info += '<li>' + _('maintain the mouse button or 2 fingers pressed and move.') + '</li>';
+        info += '<li>' + _('press the scroll/pan buttons (long press : continious scroll/pan).') + '</li>';
         if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysArrows)
-            info += '<BR>' + _('another way is to press the arrow keys with ctrl key(long press : continious scroll/pan).');
-        if (this._bEnableZooming)
-            info += '<BR><BR>' + _('To zoom: use the scroll wheel (with alt or ctrl or shift key) or pinch fingers.');
-        if (this._bEnableZooming)
-            info += '<BR>' + _('another way is to press the zoom buttons (long press : continious zoom).');
-        if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysPlusMinus)
-            info += '<BR>' + _('another way is to press the +/- keys (long press : continious zoom).');
-        info += '<BR><BR>' + _('To recenter: use the recenter button.');
+            info += '<li>' + _('press the arrow keys with ctrl key (long press : continious scroll/pan).') + '</li>';
+        info += '</ul>';
+        if (this._bEnableZooming) {
+            info += '<BR>';
+            info += _('To zoom, do one of the folowing things:');
+            info += '<ul>';
+            var keysStr = this.getWheelZoomingOptionTranslated();
+            info += '<li>' + dojo.string.substitute(_("use the scroll wheel with (${keys} keys) or pinch fingers."), { keys: keysStr }) + '</li>';
+            info += '<li>' + _('press the zoom buttons (long press : continious zoom).') + '</li>';
+            if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysPlusMinus)
+                info += '<li>' + _('press the +/- keys (long press : continious zoom).') + '</li>';
+            info += '</ul>';
+        }
+        info += '<BR>' + _('To recenter, do one of the folowing things:');
+        info += '<ul>';
+        info += '<li>' + ('use the recenter button');
         if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeyHome)
-            info += '<BR>' + _('another way is to press the home key with ctrl key');
+            info += '<li>' + _('press the home key with ctrl key') + '</li>';
+        info += '</ul>';
         if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeyEnd)
-            info += '<BR><BR>' + _('To fit to content : press the end key with ctrl key');
+            info += '<BR>' + _('To fit to content : press the end key with ctrl key') + '</li>';
         if (this._bConfigurableInUserPreference)
             info += _('This is configurable in user preference.');
+        info += '</p>';
         if (gameui != null) {
-            gameui.addTooltip(this._btnInfo.id, info, '', 10);
+            gameui.addTooltipHtml(this._btnInfo.id, info, 10);
             gameui.tooltips[this._btnInfo.id].bForceOpening = true;
         } else
             return info;
+    }
+
+    getWheelZoomingOptionTranslated() {
+        var keystr = "";
+        var altstr: string = _("alt");
+        var ctrlstr = _("ctrl");
+        var shiftstr = _("shift");
+        var metastr = _("meta");
+        var orstr = _("or");
+        var nonestr = _("no keys");
+        var anystr = [ctrlstr, altstr, shiftstr, metastr].join(" " + orstr + " ");
+
+        switch (this.zoomingOptions.wheelZoming) {
+            // Zoom with scroll wheel
+            case ScrollmapWithZoom.wheelZoomingKeys.Disabled:
+                keystr = dojo.string.substitute(_("disabled"));
+                return;
+
+            case ScrollmapWithZoom.wheelZoomingKeys.None:
+                keystr = nonestr;
+                break;
+
+            case ScrollmapWithZoom.wheelZoomingKeys.AnyOrNone:
+                keystr = nonestr + " " + orstr + " " + anystr
+                break;
+
+            case ScrollmapWithZoom.wheelZoomingKeys.Any:
+                keystr = anystr;
+                break;
+
+            case ScrollmapWithZoom.wheelZoomingKeys.Ctrl:
+                keystr = ctrlstr;
+                break;
+
+            case ScrollmapWithZoom.wheelZoomingKeys.Shift:
+                keystr = shiftstr;
+                break;
+
+            case ScrollmapWithZoom.wheelZoomingKeys.Alt:
+                keystr = altstr;
+                break;
+
+            case ScrollmapWithZoom.wheelZoomingKeys.Meta:
+                keystr = metastr;
+                return;
+
+        };
+        return keystr;
     }
 
 }
 
 namespace ScrollmapWithZoom {
     export enum wheelZoomingKeys {
-        Disabled = 0, Any = 1, None = 2, Ctrl = 4, Alt = 8, Shift = 16, AnyOrNone = 32
+        Disabled = 0, Any = 1, None = 2, AnyOrNone = 3, Ctrl = 4, Alt = 8, Shift = 16, Meta = 32
     }
     export enum ResetMode {
         Scroll = 0, ScrollAndZoom = 1, ScrollAndZoomFit = 2

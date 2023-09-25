@@ -5,7 +5,7 @@ declare const ebg: any;
 declare const $: Function;
 declare const dojo: any;
 declare const dijit: any;
-declare const _: Function;
+declare function _(str: string): string;
 declare const g_gamethemeurl: string;
 declare const gameui: any;
 declare const toint: Function;
@@ -37,7 +37,7 @@ declare class ScrollmapWithZoom {
     minZoom: number;
     defaultZoom: number;
     zoomingOptions: {
-        wheelZoming: ScrollmapWithZoom.wheelZoomingKeys;
+        wheelZoming: number;
         pinchZooming: boolean;
     };
     zoomChangeHandler: Function;
@@ -302,20 +302,22 @@ declare class ScrollmapWithZoom {
     setDisplayHeight(new_height: number, dispatch?: boolean): void;
     static updateHeight(new_height: number, incrHeightGlobalKey: string): void;
     getDisplayHeight(): number;
-    setupInfoButton(bConfigurableInUserPreference?: boolean): any;
+    setupInfoButton(bConfigurableInUserPreference?: boolean): string;
     showInfoButton(): void;
     hideInfoButton(): void;
-    setInfoButtonTooltip(): any;
+    setInfoButtonTooltip(): string;
+    getWheelZoomingOptionTranslated(): string;
 }
 declare namespace ScrollmapWithZoom {
     enum wheelZoomingKeys {
         Disabled = 0,
         Any = 1,
         None = 2,
+        AnyOrNone = 3,
         Ctrl = 4,
         Alt = 8,
         Shift = 16,
-        AnyOrNone = 32
+        Meta = 32
     }
     enum ResetMode {
         Scroll = 0,
