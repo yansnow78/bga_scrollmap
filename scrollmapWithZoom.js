@@ -888,12 +888,12 @@ class ScrollmapWithZoom {
                     if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoomFit)
                         this.zoomToFit();
                     if (this.startPosition)
-                        this.scrollto(-this.startPosition.x * this.zoom, -this.startPosition.y * this.zoom, 0, 0);
+                        this.scrollto(-this.startPosition.x, -this.startPosition.y, 0, 0);
                     else
                         this.scrollToCenter(null, 0, 0);
                 }
             } else
-                this.scrollto(this.board_x, this.board_y, 0, 0);
+                this._scrollto(this.board_x, this.board_y, 0, 0);
             this._setupDone = true;
         });
     }
@@ -937,7 +937,7 @@ class ScrollmapWithZoom {
             this.setMapZoom(settings.zoom);
             if (settings.board_x != null && settings.board_y != null) {
                 this._scrolled = true;
-                this.scrollto(settings.board_x, settings.board_y, 0, 0);
+                this._scrollto(settings.board_x, settings.board_y, 0, 0);
                 scrolled = true;
             }
             if (this.bAdaptHeightAuto || !this.bIncrHeightBtnVisible)
@@ -1356,10 +1356,15 @@ class ScrollmapWithZoom {
     }
     scroll(dx, dy, duration, delay) {
         // debug("scroll", this.board_x, dx, this.board_y, dy);
-        this.scrollto(this.board_x + dx, this.board_y + dy, duration, delay);
+        this._scrollto(this.board_x + dx, this.board_y + dy, duration, delay);
     }
     // Scroll the board to make it centered on given position
     scrollto(x, y, duration, delay) {
+        // debug("scroll", this.board_x, dx, this.board_y, dy);
+        this._scrollto(x * this.zoom, y * this.zoom, duration, delay);
+    }
+    // Scroll the board to make it centered on given position
+    _scrollto(x, y, duration, delay) {
         if (this._setupDone)
             this._scrolled = true;
         // debug("scrollto", this.board_x, this.board_y);
@@ -1440,7 +1445,7 @@ class ScrollmapWithZoom {
         const center = this.getMapCenter(custom_css_query);
         center.x += (x_extra_r - x_extra_l) / 2;
         center.y += (y_extra_d - y_extra_u) / 2;
-        this.scrollto(-center.x * this.zoom, -center.y * this.zoom, duration, delay);
+        this.scrollto(-center.x, -center.y, duration, delay);
         debug("scrollToCenter", center.x, center.y);
         return {
             x: -center.x,
@@ -1587,7 +1592,7 @@ class ScrollmapWithZoom {
             this.zoomChangeHandler(this.zoom);
         const zoomDelta = this.zoom / this._prevZoom;
         //debug(x+' '+ y+' '+ zoomDelta+' '+ this.zoom);
-        this.scrollto((this.board_x * zoomDelta) + x * (1 - zoomDelta), (this.board_y * zoomDelta) + y * (1 - zoomDelta), 0, 0);
+        this._scrollto((this.board_x * zoomDelta) + x * (1 - zoomDelta), (this.board_y * zoomDelta) + y * (1 - zoomDelta), 0, 0);
         this._prevZoom = this.zoom;
     }
     _setScale(elemId, scale) {
@@ -1969,7 +1974,7 @@ class ScrollmapWithZoom {
         if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoomFit)
             this.zoomToFit();
         if (this.defaultPosition)
-            this.scrollto(-this.defaultPosition.x * this.zoom, -this.defaultPosition.y * this.zoom);
+            this.scrollto(-this.defaultPosition.x, -this.defaultPosition.y);
         else
             this.scrollToCenter();
     }

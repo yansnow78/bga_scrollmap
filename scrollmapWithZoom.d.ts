@@ -235,6 +235,7 @@ declare class ScrollmapWithZoom {
     protected _onWheel(evt: WheelEvent): void;
     scroll(dx: number, dy: number, duration?: number, delay?: number): void;
     scrollto(x: number, y: number, duration?: number, delay?: number): void;
+    _scrollto(x: number, y: number, duration?: number, delay?: number): void;
     zoomToFitAndScrollToCenter(custom_css_query?: string, duration?: number, delay?: number, x_extra_l?: number, x_extra_r?: number, y_extra_u?: number, y_extra_d?: number): {
         x: number;
         y: number;
