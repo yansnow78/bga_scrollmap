@@ -1478,6 +1478,17 @@ class ScrollmapWithZoom {
         this._scrollto(x * this.zoom, y * this.zoom, duration, delay);
     }
 
+    scrolltoAndZoom(x: number, y: number, zoom: number, duration ? : number, delay ? : number) {
+        // debug("scroll", this.board_x, dx, this.board_y, dy);
+        this.setMapZoom(zoom);
+        this._scrollto(x * zoom, y * zoom, duration, delay);
+    }
+
+    scrolltoObjectAndZoom(obj: HTMLElement | string, zoom: number, duration ? : number, delay ? : number) {
+        this.setMapZoom(zoom);
+        this.scrolltoObject(obj, duration, delay);
+    };
+
     scrolltoObject(obj: HTMLElement | string, duration ? : number, delay ? : number) {
         if (typeof obj == "string")
             obj = < HTMLElement > $(obj);

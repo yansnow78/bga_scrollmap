@@ -1373,6 +1373,15 @@ class ScrollmapWithZoom {
         // debug("scroll", this.board_x, dx, this.board_y, dy);
         this._scrollto(x * this.zoom, y * this.zoom, duration, delay);
     }
+    scrolltoAndZoom(x, y, zoom, duration, delay) {
+        // debug("scroll", this.board_x, dx, this.board_y, dy);
+        this.setMapZoom(zoom);
+        this._scrollto(x * zoom, y * zoom, duration, delay);
+    }
+    scrolltoObjectAndZoom(obj, zoom, duration, delay) {
+        this.setMapZoom(zoom);
+        this.scrolltoObject(obj, duration, delay);
+    };
     scrolltoObject(obj, duration, delay) {
         if (typeof obj == "string")
             obj = $(obj);
