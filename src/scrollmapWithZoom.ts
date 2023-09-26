@@ -1478,6 +1478,23 @@ class ScrollmapWithZoom {
         this._scrollto(x * this.zoom, y * this.zoom, duration, delay);
     }
 
+    scrolltoObject(obj: HTMLElement | string, duration ? : number, delay ? : number) {
+        if (typeof obj == "string")
+            obj = < HTMLElement > $(obj);
+        if (!obj)
+            return
+        var objPos = obj.getBoundingClientRect();
+        var mapPos = this.scrollable_div.getBoundingClientRect();
+
+        // Coordinates (pixels left and top relative to map_scrollable_oversurface) of the player's frog
+        var objLocation = {
+            x: objPos.left + (objPos.width / 2) - mapPos.left,
+            y: objPos.top + (objPos.height / 2) - mapPos.top
+        };
+
+        this._scrollto(-objLocation.x, -objLocation.y, duration, delay);
+    }
+
     // Scroll the board to make it centered on given position
     _scrollto(x: number, y: number, duration ? : number, delay ? : number) {
         if (this._setupDone)
