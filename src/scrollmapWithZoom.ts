@@ -2179,7 +2179,7 @@ class ScrollmapWithZoom {
         this._resetMode = resetMode;
         debug("setupOnScreenResetButtons");
         if (!this._btnReset)
-            this._btnReset = this._initButton(this._btnResetNames, this._btnResetDefault, this._onReset);
+            this._btnReset = this._initButton(this._btnResetNames, this._btnResetDefault, this.onReset);
         if (!this._btnZoomToFit)
             this._btnZoomToFit = this._initButton(this._btnZoomToFitNames, this._btnZoomToFitDefault, () => this.zoomToFitAndScrollToCenter());
         // this.showOnScreenResetButtons();
@@ -2195,7 +2195,7 @@ class ScrollmapWithZoom {
         this._hideButton(this._btnZoomToFitNames);
     }
 
-    protected _onReset(evt: Event) {
+    protected onReset(evt: Event) {
         if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoom)
             this.setMapZoom(this.defaultZoom);
         if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoomFit)

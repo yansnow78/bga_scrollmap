@@ -290,7 +290,7 @@ declare class ScrollmapWithZoom {
     setupOnScreenResetButtons(resetMode?: ScrollmapWithZoom.ResetMode): void;
     showOnScreenResetButtons(): void;
     hideOnScreenResetButtons(): void;
-    protected _onReset(evt: Event): void;
+    protected onReset(evt: Event): void;
     protected _getEnlargeReduceButtonsProps(bInsideMap: boolean): {
         idSuffix: string;
         display: string;
