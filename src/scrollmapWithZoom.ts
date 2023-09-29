@@ -130,9 +130,6 @@ class ScrollmapWithZoom {
         this._bAdaptHeightAuto = value;
         if (!this.container_div)
             return;
-        if (this._bAdaptHeightAuto) {
-            this.hideEnlargeReduceButtons();
-        }
     }
     public set adaptHeightCorrDivs(value) {
         this._adaptHeightCorrDivs = value;
@@ -283,6 +280,7 @@ class ScrollmapWithZoom {
     protected _btnMoveLeft: HTMLElement = null;
     protected _btnMoveTop: HTMLElement = null;
     protected _btnMoveDown: HTMLElement = null;
+    protected _btnsMoveHelp: string;
     protected _btnZoomPlus: HTMLElement = null;
     protected _btnZoomMinus: HTMLElement = null;
     protected _btnZoomPlusNames: string = 'zoomplus,zoom_plus,zoomin,zoom_in';
@@ -345,16 +343,16 @@ class ScrollmapWithZoom {
         return `<i class="reducedisplay scrollmap_icon ${this.btnDecreaseHeightClasses} ${this._btnIncreaseHeightPosClasses()}"></i>`;
     }
     protected get _btnMoveLeftDefault(): string {
-        return `<i class="moveleft ${this.btnMoveLeftClasses} scrollmap_icon" title="${_("Scroll display (you can also use key arrows)")}"></i>`;
+        return `<i class="moveleft ${this.btnMoveLeftClasses} scrollmap_icon" title="${this._btnsMoveHelp}"></i>`;
     }
     protected get _btnMoveTopDefault(): string {
-        return `<i class="movetop ${this.btnMoveTopClasses} scrollmap_icon" title="${_("Scroll display (you can also use key arrows)")}"></i>`;
+        return `<i class="movetop ${this.btnMoveTopClasses} scrollmap_icon" title="${this._btnsMoveHelp}")}"></i>`;
     }
     protected get _btnMoveRightDefault(): string {
-        return `<i class="moveright ${this.btnMoveRightClasses} scrollmap_icon" title="${_("Scroll display (you can also use key arrows)")}" ></i>`;
+        return `<i class="moveright ${this.btnMoveRightClasses} scrollmap_icon" title="${this._btnsMoveHelp}")}" ></i>`;
     }
     protected get _btnMoveDownDefault(): string {
-        return `<i class="movedown ${this.btnMoveDownClasses} scrollmap_icon" title="${_("Scroll display (you can also use key arrows)")}" ></i>`;
+        return `<i class="movedown ${this.btnMoveDownClasses} scrollmap_icon" title="${this._btnsMoveHelp}")}" ></i>`;
     }
     protected get _btnZoomPlusDefault(): string {
         return `<i class="zoomplus ${this.btnZoomPlusClasses} scrollmap_icon ${this.btnsPositionClasses}" title="${_("Zoom in")}" ></i>`;
@@ -479,7 +477,15 @@ class ScrollmapWithZoom {
                     0% {
                     opacity: 0; }
                     100% {
-                    opacity: 1; } }
+                    opacity: 1; }
+                }
+
+                @keyframes scrollmap_warning_fadeout {
+                    0% {
+                    opacity: 1; }
+                    100% {
+                    opacity: 0; }
+                }
 
                 :root {
                     --scrollmap_zoomed_transform: ;
@@ -576,14 +582,26 @@ class ScrollmapWithZoom {
                 }
 
                 .scrollmap_warning_touch:after,
-                .scrollmap_warning_scroll:after {
-                        animation: scrollmap_warning_fadein 0.8s forwards; }
+                .scrollmap_warning_scroll:after,
+                .scrollmap_warning_arrowkeys:after, 
+                .scrollmap_warning_plusminuskeys:after {
+                    animation: scrollmap_warning_fadein 0.8s forwards; }
 
                 .scrollmap_warning_touch:after {
-                content: attr(warning_touch); }
+                    content: attr(warning_touch);
+                }
 
                 .scrollmap_warning_scroll:after {
-                content: attr(warning_scroll); }
+                    content: attr(warning_scroll);
+                }
+
+                .scrollmap_warning_arrowkeys:after {
+                    content: attr(warning_arrowkeys);
+                }
+
+                .scrollmap_warning_plusminuskeys:after {
+                    content: attr(warning_plusminuskeys);
+                }
 
                 .scrollmap_container.enable_zoom_interaction.enable_pan_interaction {
                     touch-action: none !important;
@@ -818,7 +836,7 @@ class ScrollmapWithZoom {
             this.hideOnScreenZoomButtons();
         this.setupOnScreenResetButtons();
         this.setupEnlargeReduceButtons(this.incrHeightDelta, this.bIncrHeightKeepInPos, this.minHeight, this.bIncrHeightBtnIsShort, this._bIncrHeightBtnGroupedWithOthers);
-        if (this._bAdaptHeightAuto || !this._bIncrHeightBtnVisible)
+        if (!this._bIncrHeightBtnVisible)
             this.hideEnlargeReduceButtons();
         this.bIncrHeightGlobally = this._bIncrHeightGlobally;
         this.setupInfoButton();
@@ -856,6 +874,11 @@ class ScrollmapWithZoom {
             if (this.incrHeightGlobalKey == incrHeightGlobalKey)
                 this.setDisplayHeight(new_height, false);
         }, true);
+
+        if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysArrows) {
+            let warning_arrowkeys = _('press the arrow keys with alt key to scroll the board');
+            this.container_div.setAttribute("warning_arrowkeys", warning_arrowkeys);
+        }
     }
 
     createCompletely(container_div: HTMLElement, page: object = null, create_extra: Function = null, bEnlargeReduceButtonsInsideMap: boolean = true) {
@@ -1903,6 +1926,8 @@ class ScrollmapWithZoom {
                     e.preventDefault();
                     e.stopImmediatePropagation();
                     break;
+                } else {
+                    this.container_div.classList.add("scrollmap_warning_arrowkeys");
                 }
                 return;
             case "+":
@@ -1974,6 +1999,7 @@ class ScrollmapWithZoom {
     protected _onKeyUp(e: KeyboardEvent) {
         if (!ScrollmapWithZoom.bEnableKeys || ScrollmapWithZoom.count != 1)
             return;
+        setTimeout(() => { this.container_div.classList.remove("scrollmap_warning_arrowkeys"); }, 2000);
         if (!this._keysPressed.get(e.key))
             return;
         console.log("onKeyUp", e.key);
@@ -2035,6 +2061,7 @@ class ScrollmapWithZoom {
         debug("setupOnScreenArrows");
         this.scrollDelta = scrollDelta;
         this.bScrollDeltaAlignWithZoom = bScrollDeltaAlignWithZoom;
+        this._btnsMoveHelp = dojo.string.substitute(_("Scroll display (you can also use ${keys} + arrow keys)"), { keys: _("alt") });
         if (this.bScrollDeltaAlignWithZoom)
             this._scrollDeltaAlignWithZoom = scrollDelta * this.zoom;
         else
@@ -2351,7 +2378,7 @@ class ScrollmapWithZoom {
         info += '<li>' + _('maintain the mouse button or 2 fingers pressed and move.') + '</li>';
         info += '<li>' + _('press the scroll/pan buttons (long press : continious scroll/pan).') + '</li>';
         if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysArrows)
-            info += '<li>' + _('press the arrow keys with ctrl key (long press : continious scroll/pan).') + '</li>';
+            info += '<li>' + _('press the arrow keys with alt key (long press : continious scroll/pan).') + '</li>';
         info += '</ul>';
         if (this._bEnableZooming) {
             info += '<BR>';

@@ -156,6 +156,7 @@ declare class ScrollmapWithZoom {
     protected _btnMoveLeft: HTMLElement;
     protected _btnMoveTop: HTMLElement;
     protected _btnMoveDown: HTMLElement;
+    protected _btnsMoveHelp: string;
     protected _btnZoomPlus: HTMLElement;
     protected _btnZoomMinus: HTMLElement;
     protected _btnZoomPlusNames: string;
