@@ -270,6 +270,10 @@ class ScrollmapWithZoom {
         this.btnsAroundSize = '6px';
         this.longPressScroll = 5;
         this.longPressZoom = 0.02;
+        this._x_extra_l = null;
+        this._x_extra_r = null;
+        this._y_extra_u = null;
+        this._y_extra_d = null;
         this._prevZoom = 1;
         this._bEnableZooming = true;
         this._scrollDeltaAlignWithZoom = 0;
@@ -919,10 +923,7 @@ class ScrollmapWithZoom {
                 if (!this._loadedSettings) {
                     if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoomFit)
                         this.zoomToFit();
-                    if (this.startPosition)
-                        this.scrollto(-this.startPosition.x, -this.startPosition.y, 0, 0);
-                    else
-                        this.scrollToCenter(null, 0, 0);
+                    this.scrollToCenter(null, 0, 0);
                 }
             } else
                 this._scrollto(this.board_x, this.board_y, 0, 0);
@@ -1488,19 +1489,37 @@ class ScrollmapWithZoom {
             this._scrolltoBusy = false;
         }, duration + delay);
     }
-    zoomToFitAndScrollToCenter(custom_css_query, duration, delay, x_extra_l = 0, x_extra_r = 0, y_extra_u = 0, y_extra_d = 0) {
+    zoomToFitAndScrollToCenter(custom_css_query, duration, delay, x_extra_l = null, x_extra_r = null, y_extra_u = null, y_extra_d = null) {
+        if (x_extra_l != null) {
+            this._x_extra_l = x_extra_l;
+            this._x_extra_r = x_extra_r;
+            this._y_extra_u = y_extra_u;
+            this._y_extra_d = y_extra_d;
+        }
         this.zoomToFit(x_extra_l, x_extra_r, y_extra_u, y_extra_d);
         return this.scrollToCenter(custom_css_query, duration, delay, x_extra_l, x_extra_r, y_extra_u, y_extra_d);
     }
     // Scroll map in order to center everything
     // By default, take all elements in movable_scrollmap
     //  you can also specify (optional) a custom CSS query to get all concerned DOM elements
-    scrollToCenter(custom_css_query, duration, delay, x_extra_l = 0, x_extra_r = 0, y_extra_u = 0, y_extra_d = 0) {
+    scrollToCenter(custom_css_query, duration, delay, x_extra_l = null, x_extra_r = null, y_extra_u = null, y_extra_d = null) {
+        if (this._x_extra_l != null && x_extra_l == null) {
+            x_extra_l = this._x_extra_l;
+            x_extra_r = this._x_extra_r;
+            y_extra_u = this._y_extra_u;
+            y_extra_d = this._y_extra_d;
+        }
+        if (x_extra_l == null) {
+            x_extra_l = 0;
+            x_extra_r = 0;
+            y_extra_u = 0;
+            y_extra_d = 0;
+        }
         const center = this.getMapCenter(custom_css_query);
         center.x += (x_extra_r - x_extra_l) / 2;
         center.y += (y_extra_d - y_extra_u) / 2;
+        debug("scrollToCenter", center.x, center.y, x_extra_l, x_extra_r, y_extra_u, y_extra_d);
         this.scrollto(-center.x, -center.y, duration, delay);
-        debug("scrollToCenter", center.x, center.y);
         return {
             x: -center.x,
             y: -center.y
@@ -1583,9 +1602,10 @@ class ScrollmapWithZoom {
                 x: (min_x + max_x) / 2,
                 y: (min_y + max_y) / 2
             };
-        else if (this.startPosition)
+        else if (this.startPosition) {
+            debug("getMapCenter use startPosition");
             center = this.startPosition;
-        else {
+        } else {
             center = {
                 x: 0,
                 y: 0
@@ -1598,10 +1618,23 @@ class ScrollmapWithZoom {
         center.x = center.x + centerOffset.x;
         center.y = center.y + centerOffset.y;
         // debug("getMapCenter",  min_x,  max_x, min_y, max_y);
-        // debug("getMapCenter",  center);
+        debug("getMapCenter", center);
         return center;
     }
-    zoomToFit(x_extra_l = 0, x_extra_r = 0, y_extra_u = 0, y_extra_d = 0) {
+    zoomToFit(x_extra_l = null, x_extra_r = null, y_extra_u = null, y_extra_d = null) {
+        if (this._x_extra_l != null && x_extra_l == null) {
+            x_extra_l = this._x_extra_l;
+            x_extra_r = this._x_extra_r;
+            y_extra_u = this._y_extra_u;
+            y_extra_d = this._y_extra_d;
+        }
+        if (x_extra_l == null) {
+            x_extra_l = 0;
+            x_extra_r = 0;
+            y_extra_u = 0;
+            y_extra_d = 0;
+        }
+        debug("zoomToFit", x_extra_l, x_extra_r, y_extra_u, y_extra_d);
         const { min_x, max_x, min_y, max_y } = this.getMapLimits();
         const newZoom = Math.min(this.container_div.clientWidth / (max_x - min_x + x_extra_l + x_extra_r), this.container_div.clientHeight / (max_y - min_y + y_extra_u + y_extra_d));
         this.setMapZoom(newZoom);
