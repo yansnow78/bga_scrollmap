@@ -306,6 +306,7 @@ class ScrollmapWithZoom {
         this._suppressCLickEvent_handler = this._suppressCLickEvent.bind(this);
         this._touchInteracting = false;
         this._setupDone = false;
+        this._zoomFitCalledDuringSetup = false;
         this._adaptHeightDone = false;
         this._bConfigurableInUserPreference = false;
         this._btnMoveRight = null;
@@ -906,22 +907,24 @@ class ScrollmapWithZoom {
                     other_elements_height += $chatwindowavatar.getBoundingClientRect().height / pageZoom;
             }
             var map_height = screen_height - other_elements_height;
-            this._onResize(null);
-            if (this._setupDone)
-                setTimeout(() => {
-                    this._adaptHeightDone = true;
-                }, 3000);
-            this.setDisplayHeight(map_height);
+            if (this.getDisplayHeight() != map_height) {
+                if (this._setupDone)
+                    setTimeout(() => {
+                        this._adaptHeightDone = true;
+                        this._zoomFitCalledDuringSetup = false;
+                    }, 3000);
+                this.setDisplayHeight(map_height);
+            }
         });
     }
     _onResize(entries) {
         window.requestAnimationFrame(() => {
             if (!this._setupDone || (this.bAdaptHeightAuto && !this._adaptHeightDone)) {
-                debug("1st onResize after setup");
+                debug(this._setupDone ? "onResize after adaptHeight" : "1st onResize after setup");
                 this._clearOldSettings();
                 this._loadedSettings = this._loadSettings();
                 if (!this._loadedSettings) {
-                    if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoomFit)
+                    if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoomFit || this._zoomFitCalledDuringSetup)
                         this.zoomToFit();
                     this.scrollToCenter(null, 0, 0);
                 }
@@ -1521,8 +1524,8 @@ class ScrollmapWithZoom {
         debug("scrollToCenter", center.x, center.y, x_extra_l, x_extra_r, y_extra_u, y_extra_d);
         this.scrollto(-center.x, -center.y, duration, delay);
         return {
-            x: -center.x,
-            y: -center.y
+            x: center.x,
+            y: center.y
         };
     }
     getMapLimits(custom_css_query = null) {
@@ -1634,10 +1637,12 @@ class ScrollmapWithZoom {
             y_extra_u = 0;
             y_extra_d = 0;
         }
-        debug("zoomToFit", x_extra_l, x_extra_r, y_extra_u, y_extra_d);
         const { min_x, max_x, min_y, max_y } = this.getMapLimits();
         const newZoom = Math.min(this.container_div.clientWidth / (max_x - min_x + x_extra_l + x_extra_r), this.container_div.clientHeight / (max_y - min_y + y_extra_u + y_extra_d));
+        debug("zoomToFit", newZoom, min_x, max_x, min_y, max_y, x_extra_l, x_extra_r, y_extra_u, y_extra_d);
         this.setMapZoom(newZoom);
+        if (!this._setupDone)
+            this._zoomFitCalledDuringSetup = true;
     }
     changeMapZoom(diff, x = 0, y = 0) {
         const newZoom = this.zoom + diff;

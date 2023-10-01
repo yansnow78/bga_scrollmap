@@ -154,6 +154,7 @@ declare class ScrollmapWithZoom {
     protected _suppressCLickEvent_handler: (this: HTMLElement, ev: MouseEvent) => any;
     protected _touchInteracting: boolean;
     protected _setupDone: boolean;
+    protected _zoomFitCalledDuringSetup: boolean;
     protected _adaptHeightDone: boolean;
     protected _bConfigurableInUserPreference: boolean;
     protected _btnMoveRight: HTMLElement;
