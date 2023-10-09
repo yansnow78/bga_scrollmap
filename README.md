@@ -83,3 +83,4 @@ setup: function (gamedatas) {
 }
 ```
 
+This project is tested with BrowserStack.
