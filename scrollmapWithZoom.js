@@ -40,7 +40,7 @@ class ScrollmapWithZoom {
             warning_touch += _("Pinch fingers to zoom");
         this.container_div.setAttribute("warning_touch", warning_touch);
         var keysStr = this.getWheelZoomingOptionTranslated();
-        this.container_div.setAttribute("warning_scroll", dojo.string.substitute(_("Use (${keys}) + the scroll wheel to zoom the board"), { keys: keysStr }));
+        this.container_div.setAttribute("warning_scroll", dojo.string.substitute(_("Use ${keys} + Mouse Wheel to zoom the board"), { keys: keysStr }));
         if (this._btnInfo && (this._btnInfo.style.display == 'block')) {
             this.setInfoButtonTooltip();
         }
@@ -821,10 +821,6 @@ class ScrollmapWithZoom {
             if (this.incrHeightGlobalKey == incrHeightGlobalKey)
                 this.setDisplayHeight(new_height, false);
         }, true);
-        dojo.aspect.after(ScrollmapWithZoom, "updateHeight", (new_height, incrHeightGlobalKey) => {
-            if (this.incrHeightGlobalKey == incrHeightGlobalKey)
-                this.setDisplayHeight(new_height, false);
-        }, true);
         if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysArrows) {
             let warning_arrowkeys = _('press the arrow keys with alt key to scroll the board');
             this.container_div.setAttribute("warning_arrowkeys", warning_arrowkeys);
@@ -877,11 +873,11 @@ class ScrollmapWithZoom {
             debug("_adaptHeight");
             if (!this.bAdaptHeightAuto)
                 return;
-            var screen_height = window.innerHeight ||
-                document.documentElement.clientHeight ||
-                document.body.clientHeight;
+            var screen_height = document.documentElement.clientHeight ||
+                document.body.clientHeight || window.innerHeight;
             var container_pos = dojo.coords('map_container', true);
             var pageZoom = this._getPageZoom();
+            screen_height /= pageZoom;
             if (pageZoom == 1) {
                 var interfaceFactor = this._getInterfaceFactor();
                 if (interfaceFactor < 1) {
@@ -890,7 +886,6 @@ class ScrollmapWithZoom {
                 }
             }
             document.body.style.setProperty("--page_zoom", pageZoom.toString());
-            screen_height /= pageZoom;
             var other_elements_height = this.adaptHeightCorr + container_pos.y;
             for (let i = 0; i < this.adaptHeightCorrDivs.length; i++) {
                 other_elements_height += this.adaptHeightCorrDivs[i].getBoundingClientRect().height;
@@ -907,12 +902,12 @@ class ScrollmapWithZoom {
                     other_elements_height += $chatwindowavatar.getBoundingClientRect().height / pageZoom;
             }
             var map_height = screen_height - other_elements_height;
+            if (this._setupDone)
+                setTimeout(() => {
+                    this._adaptHeightDone = true;
+                    this._zoomFitCalledDuringSetup = false;
+                }, 3000);
             if (this.getDisplayHeight() != map_height) {
-                if (this._setupDone)
-                    setTimeout(() => {
-                        this._adaptHeightDone = true;
-                        this._zoomFitCalledDuringSetup = false;
-                    }, 3000);
                 this.setDisplayHeight(map_height);
             }
         });
@@ -2151,11 +2146,16 @@ class ScrollmapWithZoom {
     changeDisplayHeight(delta) {
         this._bHeightChanged = true;
         var current_height = this.getDisplayHeight();
+        this.bAdaptHeightAuto = false;
         this.setDisplayHeight(current_height + delta);
     }
     setDisplayHeight(new_height, dispatch = true) {
+        var screen_height = document.documentElement.clientHeight ||
+            document.body.clientHeight || window.innerHeight;
+        var pageZoom = this._getPageZoom();
+        screen_height /= pageZoom;
         var current_height = this.getDisplayHeight();
-        new_height = Math.max(new_height, this.minHeight);
+        new_height = Math.min(Math.max(new_height, this.minHeight), screen_height);
         if (this.bIncrHeightKeepInPos)
             this.board_y += (current_height - new_height) / 2;
         this.container_div.style.setProperty("--scrollmap_height", new_height + 'px');
@@ -2222,7 +2222,8 @@ class ScrollmapWithZoom {
             info += _('To zoom, do one of the folowing things:');
             info += '<ul>';
             var keysStr = this.getWheelZoomingOptionTranslated();
-            info += '<li>' + dojo.string.substitute(_("use the scroll wheel with (${keys} keys) or pinch fingers."), { keys: keysStr }) + '</li>';
+            info += '<li>' + dojo.string.substitute(_("use the mouse wheel with ${keys}"), { keys: keysStr }) + '</li>';
+            info += '<li>' + _("pinch fingers.") + '</li>';
             info += '<li>' + _('press the zoom buttons (long press : continious zoom).') + '</li>';
             if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysPlusMinus)
                 info += '<li>' + _('press the +/- keys (long press : continious zoom).') + '</li>';
