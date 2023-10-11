@@ -122,6 +122,7 @@ declare class ScrollmapWithZoom {
     btnsAroundSize: string;
     longPressScroll: number;
     longPressZoom: number;
+    protected _cover_arrows: boolean;
     protected _x_extra_l: number;
     protected _x_extra_r: number;
     protected _y_extra_u: number;
@@ -244,7 +245,7 @@ declare class ScrollmapWithZoom {
     scrolltoObjectAndZoom(obj: HTMLElement | string, zoom: number, duration?: number, delay?: number): void;
     scrolltoObject(obj: HTMLElement | string, duration?: number, delay?: number): void;
     _scrollto(x: number, y: number, duration?: number, delay?: number): void;
-    zoomToFitAndScrollToCenter(custom_css_query?: string, duration?: number, delay?: number, x_extra_l?: number, x_extra_r?: number, y_extra_u?: number, y_extra_d?: number): {
+    zoomToFitAndScrollToCenter(custom_css_query?: string, duration?: number, delay?: number, x_extra_l?: number, x_extra_r?: number, y_extra_u?: number, y_extra_d?: number, cover_arrows?: boolean): {
         x: number;
         y: number;
     };
@@ -262,7 +263,7 @@ declare class ScrollmapWithZoom {
         x: number;
         y: number;
     };
-    zoomToFit(x_extra_l?: number, x_extra_r?: number, y_extra_u?: number, y_extra_d?: number): void;
+    zoomToFit(x_extra_l?: number, x_extra_r?: number, y_extra_u?: number, y_extra_d?: number, cover_arrows?: boolean): void;
     changeMapZoom(diff: number, x?: number, y?: number): void;
     setMapZoom(zoom: number, x?: number, y?: number): void;
     protected _setScale(elemId: HTMLElement, scale: number): void;

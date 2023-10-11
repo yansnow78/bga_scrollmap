@@ -239,6 +239,7 @@ class ScrollmapWithZoom {
     longPressScroll: number = 5;
     longPressZoom: number = 0.02;
 
+    protected _cover_arrows: boolean = null;
     protected _x_extra_l: number = null;
     protected _x_extra_r: number = null;
     protected _y_extra_u: number = null;
@@ -1532,10 +1533,10 @@ class ScrollmapWithZoom {
         if (this._setupDone)
             this._scrolled = true;
         // debug("scrollto", this.board_x, this.board_y);
-        if (typeof duration == 'undefined') {
+        if (duration == null) {
             duration = 350; // Default duration
         }
-        if (typeof delay == 'undefined') {
+        if (delay == null) {
             delay = 0; // Default delay
         }
         if (!this._setupDone) {
@@ -1604,7 +1605,7 @@ class ScrollmapWithZoom {
 
 
     zoomToFitAndScrollToCenter(custom_css_query ? : string, duration ? : number, delay ? : number,
-        x_extra_l: number = null, x_extra_r: number = null, y_extra_u: number = null, y_extra_d: number = null): {
+        x_extra_l: number = null, x_extra_r: number = null, y_extra_u: number = null, y_extra_d: number = null, cover_arrows: boolean = null): {
         x: number;y: number;
     } {
         if (x_extra_l != null) {
@@ -1613,7 +1614,7 @@ class ScrollmapWithZoom {
             this._y_extra_u = y_extra_u;
             this._y_extra_d = y_extra_d;
         }
-        this.zoomToFit(x_extra_l, x_extra_r, y_extra_u, y_extra_d);
+        this.zoomToFit(x_extra_l, x_extra_r, y_extra_u, y_extra_d, cover_arrows);
         return this.scrollToCenter(custom_css_query, duration, delay,
             x_extra_l, x_extra_r, y_extra_u, y_extra_d);
     }
@@ -1621,7 +1622,7 @@ class ScrollmapWithZoom {
     // Scroll map in order to center everything
     // By default, take all elements in movable_scrollmap
     //  you can also specify (optional) a custom CSS query to get all concerned DOM elements
-    scrollToCenter(custom_css_query ? : string, duration ? : number, delay ? : number,
+     scrollToCenter(custom_css_query ? : string, duration ? : number, delay ? : number,
         x_extra_l: number = null, x_extra_r: number = null, y_extra_u: number = null, y_extra_d: number = null): {
         x: number;y: number;
     } {
@@ -1759,7 +1760,7 @@ class ScrollmapWithZoom {
         return center;
     }
 
-    zoomToFit(x_extra_l: number = null, x_extra_r: number = null, y_extra_u: number = null, y_extra_d: number = null) {
+    zoomToFit(x_extra_l: number = null, x_extra_r: number = null, y_extra_u: number = null, y_extra_d: number = null, cover_arrows: boolean = null) {
         if (this._x_extra_l != null && x_extra_l == null) {
             x_extra_l = this._x_extra_l;
             x_extra_r = this._x_extra_r;
@@ -1772,15 +1773,25 @@ class ScrollmapWithZoom {
             y_extra_u = 0;
             y_extra_d = 0;
         }
+        if (cover_arrows !== null)
+            this._cover_arrows = cover_arrows;
+        else
+            cover_arrows = this._cover_arrows;
         const {
             min_x,
             max_x,
             min_y,
             max_y
         } = this.getMapLimits();
-        const newZoom = Math.min(this.container_div.clientWidth / (max_x - min_x + x_extra_l + x_extra_r),
-            this.container_div.clientHeight / (max_y - min_y + y_extra_u + y_extra_d));
-        debug("zoomToFit", newZoom, min_x, max_x, min_y, max_y, x_extra_l, x_extra_r, y_extra_u, y_extra_d);
+        var container_width = this.container_div.clientWidth;
+        if (cover_arrows === false)
+            container_width -= 2 * this._btnMoveLeft.clientWidth;
+        var container_height = this.container_div.clientHeight;
+        if (cover_arrows === false)
+            container_height -= 2 * this._btnMoveTop.clientHeight;
+        const newZoom = Math.min(container_width / (max_x - min_x + x_extra_l + x_extra_r),
+            container_height / (max_y - min_y + y_extra_u + y_extra_d));
+        debug("zoomToFit", newZoom, min_x, max_x, min_y, max_y, x_extra_l, x_extra_r, y_extra_u, y_extra_d, cover_arrows);
         this.setMapZoom(newZoom);
         if (!this._setupDone)
             this._zoomFitCalledDuringSetup = true;
