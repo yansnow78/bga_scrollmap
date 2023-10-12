@@ -746,8 +746,8 @@ class ScrollmapWithZoom {
                     text-align: center;
                 }
 
-                .scrollmap_container .enlargedisplay,
-                .scrollmap_container .reducedisplay {
+                .scrollmap_container .enlargedisplay:not(.scrollmap_icon),
+                .scrollmap_container .reducedisplay:not(.scrollmap_icon){
                     position: absolute;
                     background-color: rgba(255,255,255,0.5);
                     font-size: 110%;
@@ -1622,7 +1622,7 @@ class ScrollmapWithZoom {
     // Scroll map in order to center everything
     // By default, take all elements in movable_scrollmap
     //  you can also specify (optional) a custom CSS query to get all concerned DOM elements
-     scrollToCenter(custom_css_query ? : string, duration ? : number, delay ? : number,
+    scrollToCenter(custom_css_query ? : string, duration ? : number, delay ? : number,
         x_extra_l: number = null, x_extra_r: number = null, y_extra_u: number = null, y_extra_d: number = null): {
         x: number;y: number;
     } {

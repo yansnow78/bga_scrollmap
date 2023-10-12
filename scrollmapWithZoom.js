@@ -697,8 +697,8 @@ class ScrollmapWithZoom {
                     text-align: center;
                 }
 
-                .scrollmap_container .enlargedisplay,
-                .scrollmap_container .reducedisplay {
+                .scrollmap_container .enlargedisplay:not(.scrollmap_icon),
+                .scrollmap_container .reducedisplay:not(.scrollmap_icon){
                     position: absolute;
                     background-color: rgba(255,255,255,0.5);
                     font-size: 110%;
