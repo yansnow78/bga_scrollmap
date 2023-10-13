@@ -6,6 +6,7 @@ declare const $: Function;
 declare const dojo: any;
 declare const dijit: any;
 declare function _(str: string): string;
+declare function __(lanf: string, str: string): string;
 declare const g_gamethemeurl: string;
 declare const gameui: any;
 declare const toint: Function;
@@ -138,6 +139,7 @@ declare class ScrollmapWithZoom {
     protected _bIncrHeightBtnIsShort: boolean;
     protected _bIncrHeightBtnGroupedWithOthers: boolean;
     protected _bInfoBtnVisible: boolean;
+    protected _bBtnsVisible: boolean;
     protected _pointers: Map<number, any>;
     protected _classNameSuffix: string;
     protected _longPress: boolean;
@@ -268,8 +270,10 @@ declare class ScrollmapWithZoom {
     setMapZoom(zoom: number, x?: number, y?: number): void;
     protected _setScale(elemId: HTMLElement, scale: number): void;
     protected _getButton(btnNames: string, idSuffix?: string): HTMLElement;
+    protected _toggleButtonsVisiblity(): void;
     protected _hideButton(btnNames: string, idSuffix?: string): void;
     protected _showButton(btnNames: string, idSuffix?: string, display?: string): void;
+    protected _createButton(button_code: string): HTMLElement;
     protected _initButton(btnName: string, defaultButton: string, tooltip: string, onClick: Function, onLongPressedAnim?: Function, idSuffix?: string, display?: string): HTMLElement;
     protected _onButtonLongPress(onLongPressedAnim: Function, evt: Event): void;
     protected _onButtonLongPressEnd(evt: Event): void;

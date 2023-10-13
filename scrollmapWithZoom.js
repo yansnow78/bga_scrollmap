@@ -144,20 +144,19 @@ class ScrollmapWithZoom {
         return `<i class="enlargedisplay scrollmap_icon ${this.btnIncreaseHeightClasses} ${this._btnIncreaseHeightPosClasses()}"></i>`;
     }
     get _btnDecreaseHeightDefaultShort() {
-        var positionClasses;
         return `<i class="reducedisplay scrollmap_icon ${this.btnDecreaseHeightClasses} ${this._btnIncreaseHeightPosClasses()}"></i>`;
     }
     get _btnMoveLeftDefault() {
-        return `<i class="moveleft ${this.btnMoveLeftClasses} scrollmap_icon"></i>`;
+        return `<i class="moveleft ${this.btnMoveLeftClasses} scrollmap_icon scrollmap_icon_always_visible"></i>`;
     }
     get _btnMoveTopDefault() {
-        return `<i class="movetop ${this.btnMoveTopClasses} scrollmap_icon"></i>`;
+        return `<i class="movetop ${this.btnMoveTopClasses} scrollmap_icon scrollmap_icon_always_visible"></i>`;
     }
     get _btnMoveRightDefault() {
-        return `<i class="moveright ${this.btnMoveRightClasses} scrollmap_icon"></i>`;
+        return `<i class="moveright ${this.btnMoveRightClasses} scrollmap_icon scrollmap_icon_always_visible"></i>`;
     }
     get _btnMoveDownDefault() {
-        return `<i class="movedown ${this.btnMoveDownClasses} scrollmap_icon"></i>`;
+        return `<i class="movedown ${this.btnMoveDownClasses} scrollmap_icon scrollmap_icon_always_visible"></i>`;
     }
     get _btnZoomPlusDefault() {
         return `<i class="zoomplus ${this.btnZoomPlusClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
@@ -286,6 +285,7 @@ class ScrollmapWithZoom {
         this._bIncrHeightBtnIsShort = true;
         this._bIncrHeightBtnGroupedWithOthers = true;
         this._bInfoBtnVisible = true;
+        this._bBtnsVisible = true;
         this._pointers = new Map();
         this._classNameSuffix = '';
         this._longPress = false;
@@ -685,12 +685,14 @@ class ScrollmapWithZoom {
 
                 .scrollmap_container .reset.btn_pos_top_right,
                 .scrollmap_container .reset.btn_pos_top_left {
+                    --index_x: 0;
                     --index_y: 1;
                 }
 
                 .scrollmap_container .zoomtofit.btn_pos_top_right,
                 .scrollmap_container .zoomtofit.btn_pos_top_left {
-                    --index_y: 0;
+                    --index_x: 1;
+                    --index_y: 1;
                 }
 
                 .scrollmap_footer, .scrollmap_header {
@@ -718,12 +720,12 @@ class ScrollmapWithZoom {
 
                 .scrollmap_container .enlargedisplay.grouped_with_others{
                     --index_x: 1;
-                    --index_y: 2;
+                    --index_y: 3;
                 }
 
                 .scrollmap_container .reducedisplay.grouped_with_others{
                     --index_x: 1;
-                    --index_y: 1;
+                    --index_y: 2;
                 }
 
                 .scrollmap_container .enlargedisplay.opposite_to_others{
@@ -731,6 +733,11 @@ class ScrollmapWithZoom {
                 }
 
                 .scrollmap_container .reducedisplay.opposite_to_others{
+                    --index_y: 0;
+                }
+
+                .scrollmap_container .toogle_buttons_visibility {
+                    --index_x: 0;
                     --index_y: 0;
                 }
                 /**********************************
@@ -783,6 +790,9 @@ class ScrollmapWithZoom {
         document.addEventListener("touchend", _handleTouch, this._passiveEventListener);
         document.addEventListener("touchcancel", _handleTouch, this._passiveEventListener);
         this.setupKeys();
+        var btnToggleBtnsVisiblity = this._createButton(`<i class="toogle_buttons_visibility fa6-solid fa6-gear scrollmap_icon scrollmap_icon_always_visible ${this.btnsPositionClasses}"></i>`);
+        btnToggleBtnsVisiblity.onclick = this._toggleButtonsVisiblity.bind(this);
+        btnToggleBtnsVisiblity.style.display = 'block';
         this.setupOnScreenArrows(this.scrollDelta, this.bScrollDeltaAlignWithZoom);
         this.setupOnScreenZoomButtons(this.zoomDelta);
         if (!this._bEnableZooming)
@@ -1402,7 +1412,7 @@ class ScrollmapWithZoom {
     scrolltoObjectAndZoom(obj, zoom, duration, delay) {
         this.setMapZoom(zoom);
         this.scrolltoObject(obj, duration, delay);
-    };
+    }
     scrolltoObject(obj, duration, delay) {
         if (typeof obj == "string")
             obj = $(obj);
@@ -1720,6 +1730,16 @@ class ScrollmapWithZoom {
         debug(btnNames + " not found");
         return null;
     }
+    _toggleButtonsVisiblity() {
+        var visible = !this._bBtnsVisible;
+        this._bBtnsVisible = visible;
+        this.container_div.querySelectorAll(".scrollmap_icon:not(.scrollmap_icon_always_visible)").forEach((node) => {
+            if (visible)
+                node.style.display = 'block';
+            else
+                node.style.display = 'none';
+        });
+    }
     _hideButton(btnNames, idSuffix = "") {
         var $btn = this._getButton(btnNames, idSuffix);
         if ($btn !== null)
@@ -1730,14 +1750,19 @@ class ScrollmapWithZoom {
         if ($btn !== null)
             $btn.style.display = display;
     }
+    _createButton(button_code) {
+        if (this.clipped_div) {
+            this.clipped_div.insertAdjacentHTML("beforeend", button_code);
+            return this.clipped_div.lastElementChild;
+        } else {
+            this.container_div.insertAdjacentHTML("beforeend", button_code);
+            return this.container_div.lastElementChild;
+        }
+    }
     _initButton(btnName, defaultButton, tooltip, onClick, onLongPressedAnim = null, idSuffix = "", display = 'block') {
         var $btn = this._getButton(btnName, idSuffix);
         if ($btn === null && defaultButton !== null) {
-            if (this.clipped_div)
-                this.clipped_div.insertAdjacentHTML("beforeend", defaultButton);
-            else
-                this.container_div.insertAdjacentHTML("beforeend", defaultButton);
-            $btn = this._getButton(btnName, idSuffix);
+            $btn = this._createButton(defaultButton);
         }
         if (!$btn)
             return null;
@@ -2033,7 +2058,6 @@ class ScrollmapWithZoom {
         debug("setupOnScreenZoomButtons");
         this.zoomDelta = zoomDelta;
         if (!this._btnZoomPlus) {
-            var btnInfo = _("Zoom in");
             this._btnZoomPlus = this._initButton(this._btnZoomPlusNames, this._btnZoomPlusDefault, _("Zoom in"), this._onZoomIn, () => {
                 this.changeMapZoom(this.longPressZoom);
             });
@@ -2188,7 +2212,7 @@ class ScrollmapWithZoom {
             var $btn = this._getButton("info");
             if ($btn === null) {
                 var info_id = this.container_div.id + "_info";
-                var btnInfoDefault = `<i id=${info_id} class="info fa fa-question scrollmap_icon ${this.btnsPositionClasses}"></i>`;
+                var btnInfoDefault = `<i id=${info_id} class="info fa fa-question scrollmap_icon scrollmap_icon_always_visible ${this.btnsPositionClasses}"></i>`;
                 if (this.clipped_div)
                     this.clipped_div.insertAdjacentHTML("beforeend", btnInfoDefault);
                 else
@@ -2221,6 +2245,8 @@ class ScrollmapWithZoom {
         if (!this._btnInfo)
             return;
         var info = '<div class="scrollmap_tooltip">';
+        info += _('To show/hide controls click on the wheel');
+        info += '<BR>';
         info += _('To scroll/pan, do one of the folowing things:');
         info += '<ul>';
         info += '<li>' + _('maintain the mouse button or 2 fingers pressed and move.') + '</li>';
@@ -2292,7 +2318,7 @@ class ScrollmapWithZoom {
             case ScrollmapWithZoom.wheelZoomingKeys.Meta:
                 keystr = metastr;
                 return;
-        };
+        }
         return keystr;
     }
 }

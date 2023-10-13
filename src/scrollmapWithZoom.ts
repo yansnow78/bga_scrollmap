@@ -30,6 +30,7 @@ declare const $: Function;
 declare const dojo: any;
 declare const dijit: any;
 declare function _(str: string): string
+declare function __(lanf: string, str: string): string
 declare const g_gamethemeurl: string;
 declare const gameui: any;
 declare const toint: Function;
@@ -255,6 +256,7 @@ class ScrollmapWithZoom {
     protected _bIncrHeightBtnIsShort = true;
     protected _bIncrHeightBtnGroupedWithOthers = true;
     protected _bInfoBtnVisible: boolean = true;
+    protected _bBtnsVisible: boolean = true;
     protected _pointers: Map < number,
         any > = new Map();
     protected _classNameSuffix: string = '';
@@ -344,20 +346,19 @@ class ScrollmapWithZoom {
         return `<i class="enlargedisplay scrollmap_icon ${this.btnIncreaseHeightClasses} ${this._btnIncreaseHeightPosClasses()}"></i>`;
     }
     protected get _btnDecreaseHeightDefaultShort(): string {
-        var positionClasses;
         return `<i class="reducedisplay scrollmap_icon ${this.btnDecreaseHeightClasses} ${this._btnIncreaseHeightPosClasses()}"></i>`;
     }
     protected get _btnMoveLeftDefault(): string {
-        return `<i class="moveleft ${this.btnMoveLeftClasses} scrollmap_icon"></i>`;
+        return `<i class="moveleft ${this.btnMoveLeftClasses} scrollmap_icon scrollmap_icon_always_visible"></i>`;
     }
     protected get _btnMoveTopDefault(): string {
-        return `<i class="movetop ${this.btnMoveTopClasses} scrollmap_icon"></i>`;
+        return `<i class="movetop ${this.btnMoveTopClasses} scrollmap_icon scrollmap_icon_always_visible"></i>`;
     }
     protected get _btnMoveRightDefault(): string {
-        return `<i class="moveright ${this.btnMoveRightClasses} scrollmap_icon"></i>`;
+        return `<i class="moveright ${this.btnMoveRightClasses} scrollmap_icon scrollmap_icon_always_visible"></i>`;
     }
     protected get _btnMoveDownDefault(): string {
-        return `<i class="movedown ${this.btnMoveDownClasses} scrollmap_icon"></i>`;
+        return `<i class="movedown ${this.btnMoveDownClasses} scrollmap_icon scrollmap_icon_always_visible"></i>`;
     }
     protected get _btnZoomPlusDefault(): string {
         return `<i class="zoomplus ${this.btnZoomPlusClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
@@ -734,12 +735,14 @@ class ScrollmapWithZoom {
 
                 .scrollmap_container .reset.btn_pos_top_right,
                 .scrollmap_container .reset.btn_pos_top_left {
+                    --index_x: 0;
                     --index_y: 1;
                 }
 
                 .scrollmap_container .zoomtofit.btn_pos_top_right,
                 .scrollmap_container .zoomtofit.btn_pos_top_left {
-                    --index_y: 0;
+                    --index_x: 1;
+                    --index_y: 1;
                 }
 
                 .scrollmap_footer, .scrollmap_header {
@@ -767,12 +770,12 @@ class ScrollmapWithZoom {
 
                 .scrollmap_container .enlargedisplay.grouped_with_others{
                     --index_x: 1;
-                    --index_y: 2;
+                    --index_y: 3;
                 }
 
                 .scrollmap_container .reducedisplay.grouped_with_others{
                     --index_x: 1;
-                    --index_y: 1;
+                    --index_y: 2;
                 }
 
                 .scrollmap_container .enlargedisplay.opposite_to_others{
@@ -780,6 +783,11 @@ class ScrollmapWithZoom {
                 }
 
                 .scrollmap_container .reducedisplay.opposite_to_others{
+                    --index_y: 0;
+                }
+
+                .scrollmap_container .toogle_buttons_visibility {
+                    --index_x: 0;
                     --index_y: 0;
                 }
                 /**********************************
@@ -835,6 +843,9 @@ class ScrollmapWithZoom {
         document.addEventListener("touchcancel", _handleTouch, this._passiveEventListener);
 
         this.setupKeys();
+        var btnToggleBtnsVisiblity = this._createButton(`<i class="toogle_buttons_visibility fa6-solid fa6-gear scrollmap_icon scrollmap_icon_always_visible ${this.btnsPositionClasses}"></i>`);
+        btnToggleBtnsVisiblity.onclick = this._toggleButtonsVisiblity.bind(this);
+        btnToggleBtnsVisiblity.style.display = 'block';
         this.setupOnScreenArrows(this.scrollDelta, this.bScrollDeltaAlignWithZoom);
         this.setupOnScreenZoomButtons(this.zoomDelta);
         if (!this._bEnableZooming)
@@ -1509,7 +1520,7 @@ class ScrollmapWithZoom {
     scrolltoObjectAndZoom(obj: HTMLElement | string, zoom: number, duration ? : number, delay ? : number) {
         this.setMapZoom(zoom);
         this.scrolltoObject(obj, duration, delay);
-    };
+    }
 
     scrolltoObject(obj: HTMLElement | string, duration ? : number, delay ? : number) {
         if (typeof obj == "string")
@@ -1873,6 +1884,17 @@ class ScrollmapWithZoom {
         return null;
     }
 
+    protected _toggleButtonsVisiblity() {
+        var visible = !this._bBtnsVisible;
+        this._bBtnsVisible = visible;
+        this.container_div.querySelectorAll(".scrollmap_icon:not(.scrollmap_icon_always_visible)").forEach((node: HTMLElement) => {
+            if (visible)
+                node.style.display = 'block';
+            else
+                node.style.display = 'none';
+        });
+    }
+
     protected _hideButton(btnNames: string, idSuffix = "") {
         var $btn = this._getButton(btnNames, idSuffix);
         if ($btn !== null)
@@ -1883,17 +1905,22 @@ class ScrollmapWithZoom {
         var $btn = this._getButton(btnNames, idSuffix);
         if ($btn !== null)
             $btn.style.display = display;
+    }
 
+    protected _createButton(button_code: string): HTMLElement {
+        if (this.clipped_div) {
+            this.clipped_div.insertAdjacentHTML("beforeend", button_code);
+            return < HTMLElement > this.clipped_div.lastElementChild;
+        } else {
+            this.container_div.insertAdjacentHTML("beforeend", button_code);
+            return < HTMLElement > this.container_div.lastElementChild;
+        }
     }
 
     protected _initButton(btnName: string, defaultButton: string, tooltip: string, onClick: Function, onLongPressedAnim: Function = null, idSuffix = "", display = 'block'): HTMLElement {
         var $btn = this._getButton(btnName, idSuffix);
         if ($btn === null && defaultButton !== null) {
-            if (this.clipped_div)
-                this.clipped_div.insertAdjacentHTML("beforeend", defaultButton);
-            else
-                this.container_div.insertAdjacentHTML("beforeend", defaultButton);
-            $btn = this._getButton(btnName, idSuffix);
+            $btn = this._createButton(defaultButton);
         }
         if (!$btn)
             return null;
@@ -2215,7 +2242,6 @@ class ScrollmapWithZoom {
         debug("setupOnScreenZoomButtons");
         this.zoomDelta = zoomDelta;
         if (!this._btnZoomPlus) {
-            var btnInfo = _("Zoom in");
             this._btnZoomPlus = this._initButton(this._btnZoomPlusNames, this._btnZoomPlusDefault, _("Zoom in"), this._onZoomIn, () => {
                 this.changeMapZoom(this.longPressZoom);
             });
@@ -2394,7 +2420,7 @@ class ScrollmapWithZoom {
             var $btn = this._getButton("info");
             if ($btn === null) {
                 var info_id = this.container_div.id + "_info";
-                var btnInfoDefault = `<i id=${info_id} class="info fa fa-question scrollmap_icon ${this.btnsPositionClasses}"></i>`;
+                var btnInfoDefault = `<i id=${info_id} class="info fa fa-question scrollmap_icon scrollmap_icon_always_visible ${this.btnsPositionClasses}"></i>`;
                 if (this.clipped_div)
                     this.clipped_div.insertAdjacentHTML("beforeend", btnInfoDefault);
                 else
@@ -2430,6 +2456,8 @@ class ScrollmapWithZoom {
         if (!this._btnInfo)
             return;
         var info = '<div class="scrollmap_tooltip">';
+        info += _('To show/hide controls click on the wheel');
+        info += '<BR>';
         info += _('To scroll/pan, do one of the folowing things:');
         info += '<ul>';
         info += '<li>' + _('maintain the mouse button or 2 fingers pressed and move.') + '</li>';
@@ -2511,7 +2539,7 @@ class ScrollmapWithZoom {
                 keystr = metastr;
                 return;
 
-        };
+        }
         return keystr;
     }
 
