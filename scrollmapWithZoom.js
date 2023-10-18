@@ -704,9 +704,11 @@ class ScrollmapWithZoom {
 
                 .scrollmap_btns_flex {
                     display : flex;
+                    flex-shrink : 0;
                     flex-wrap: wrap;
                     --column_cnt : 2;
                     width: calc(var(--column_cnt) * (var(--icon_size_z) + 2 * var(--icon_around_size_z)));
+                    height: fit-content;
                 }
 
                 .reset.fa6-arrows-to-circle {
