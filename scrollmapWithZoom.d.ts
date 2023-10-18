@@ -115,6 +115,9 @@ declare class ScrollmapWithZoom {
     btnIncreaseHeightClasses: string;
     btnDecreaseHeightClasses: string;
     btnsDivClasses: string;
+    btnsDivOnMap: boolean;
+    btns2DivOnMap: boolean;
+    btnsDivPositionOutsideMap: string;
     btnsPositionClasses: string;
     btns2PositionClasses: string;
     btnsBackgroundColor: string;
@@ -350,5 +353,12 @@ declare namespace ScrollmapWithZoom {
         Scroll = 0,
         ScrollAndZoom = 1,
         ScrollAndZoomFit = 2
+    }
+    enum btnsDivPositionE {
+        Top = "scrollmap_btns_top",
+        Bottom = "scrollmap_btns_bottom",
+        Left = "scrollmap_btns_left",
+        Right = "scrollmap_btns_right",
+        Center = "scrollmap_btns_center"
     }
 }

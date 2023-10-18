@@ -272,6 +272,9 @@ class ScrollmapWithZoom {
         this.btnIncreaseHeightClasses = 'fa6-solid fa6-arrow-down';
         this.btnDecreaseHeightClasses = 'fa6-solid fa6-arrow-up';
         this.btnsDivClasses = 'scrollmap_btns_flex';
+        this.btnsDivOnMap = true;
+        this.btns2DivOnMap = true;
+        this.btnsDivPositionOutsideMap = ScrollmapWithZoom.btnsDivPositionE.Top;
         this.btnsPositionClasses = 'btn_pos_top_right';
         this.btns2PositionClasses = '';
         this.btnsBackgroundColor = 'rgba(255,255,255,0.5)';
@@ -448,7 +451,17 @@ class ScrollmapWithZoom {
         this._buttons_div = document.createElement('div');
         this._buttons_div.classList.add(this.btnsPositionClasses);
         this._buttons_div.classList.add(this.btnsDivClasses);
-        this.clipped_div.appendChild(this._buttons_div);
+        if (this.btnsDivOnMap)
+            this.clipped_div.appendChild(this._buttons_div);
+        else {
+            this.container_div.className += " " + this.btnsDivPositionOutsideMap;
+            // switch (this.btnsDivPositionOutsideMap) {
+            //     case ScrollmapWithZoom.btnsDivPositionE.Left:
+            //     case ScrollmapWithZoom.btnsDivPositionE.Right:
+            //         this._buttons_div.classList.add('flex_direction_column');
+            // }
+            this.container_div.insertBefore(this._buttons_div, this.clipped_div);
+        }
         this._buttons_div2 = document.createElement('div');
         if (!this.btns2PositionClasses) {
             if (this.btnsPositionClasses == 'btn_pos_top_right')
@@ -458,7 +471,11 @@ class ScrollmapWithZoom {
         }
         this._buttons_div2.classList.add(this.btns2PositionClasses);
         this._buttons_div2.classList.add(this.btnsDivClasses);
-        this.clipped_div.appendChild(this._buttons_div2);
+        if (this.btns2DivOnMap)
+            this.clipped_div.appendChild(this._buttons_div2);
+        else {
+            this.container_div.insertBefore(this._buttons_div2, this.clipped_div);
+        }
         var styleElt = document.createElement("style");
         var enl_xpos = "calc(50% + var(--icon_size_z)/2 + 16px)";
         if (!$("css-scrollmap")) {
@@ -503,7 +520,30 @@ class ScrollmapWithZoom {
                     touch-action: initial !important;
                     user-select:none;
                     ${this.clipped_div ? "overflow: visible;" : ""};
+                    display: flex;
+                    flex-direction: column;
                 }
+
+                .scrollmap_container.scrollmap_btns_left, .scrollmap_container .scrollmap_btns_left{
+                    flex-direction: row;
+                }
+            
+                .scrollmap_container.scrollmap_btns_top, .scrollmap_container .scrollmap_btns_top{
+                    flex-direction: column;
+                }
+
+                .scrollmap_container.scrollmap_btns_right, .scrollmap_container .scrollmap_btns_right{
+                    flex-direction: row-reverse;
+                }
+
+                .scrollmap_container.scrollmap_btns_bottom, .scrollmap_container .scrollmap_btns_bottom{
+                    flex-direction: column-reverse;
+                }
+
+                .scrollmap_container.scrollmap_btns_center{
+                    align-items: center;
+                }
+
 
                 .scrollmap_container *{
                     touch-action: unset !important;
@@ -565,6 +605,7 @@ class ScrollmapWithZoom {
                     font-size: 22px;
                     justify-content: center;
                     display: flex;
+                    flex-direction: row;
                     align-items: center;
                     padding: 15px;
                     position: absolute;
@@ -706,10 +747,39 @@ class ScrollmapWithZoom {
                     display : flex;
                     flex-shrink : 0;
                     flex-wrap: wrap;
-                    --column_cnt : 2;
-                    width: calc(var(--column_cnt) * (var(--icon_size_z) + 2 * var(--icon_around_size_z)));
+                    width: fit-content;
                     height: fit-content;
                 }
+                
+                div:not(.scrollmap_overflow_clipped) > .scrollmap_btns_flex {
+                    background-color: ${this.btnsBackgroundColor};
+                    border-radius: 5px;
+                    margin-bottom: 5px;
+                }
+
+                div:not(.scrollmap_overflow_clipped).scrollmap_btns_left > .scrollmap_btns_flex {
+                    flex-direction: column;
+                    margin-right: 5px;
+                }
+                div:not(.scrollmap_overflow_clipped).scrollmap_btns_right > .scrollmap_btns_flex {
+                    flex-direction: column;
+                    margin-left: 5px;
+                }
+                div:not(.scrollmap_overflow_clipped).scrollmap_btns_top > .scrollmap_btns_flex {
+                    flex-direction: row;
+                    margin-bottom: 5px;
+                }
+                div:not(.scrollmap_overflow_clipped).scrollmap_btns_bottom > .scrollmap_btns_flex {
+                    flex-direction: row;
+                    margin-top: 5px;
+                }
+
+                .scrollmap_overflow_clipped > .scrollmap_btns_flex {
+                    --column_cnt : 2;
+                    width: calc(var(--column_cnt) * (var(--icon_size_z) + 2 * var(--icon_around_size_z)));
+                }
+
+
 
                 .reset.fa6-arrows-to-circle {
                     font-size: 25px;
@@ -717,14 +787,14 @@ class ScrollmapWithZoom {
                 /**************************
                 * positioning of buttons  *
                 ***************************/
-                .scrollmap_container .btn_pos_top_right{
+                .scrollmap_overflow_clipped .btn_pos_top_right{
                     position : absolute;
                     top: var(--y_pos);
                     right: var(--x_pos);
                     left: unset;
                     bottom: unset;
                 }
-                .scrollmap_container .btn_pos_top_left{
+                .scrollmap_overflow_clipped .btn_pos_top_left{
                     position : absolute;
                     top: var(--y_pos);
                     left: var(--x_pos);
@@ -2475,6 +2545,14 @@ ScrollmapWithZoom._bEnableKeys = true;
         ResetMode[ResetMode["ScrollAndZoom"] = 1] = "ScrollAndZoom";
         ResetMode[ResetMode["ScrollAndZoomFit"] = 2] = "ScrollAndZoomFit";
     })(ResetMode = ScrollmapWithZoom.ResetMode || (ScrollmapWithZoom.ResetMode = {}));
+    let btnsDivPositionE;
+    (function(btnsDivPositionE) {
+        btnsDivPositionE["Top"] = "scrollmap_btns_top";
+        btnsDivPositionE["Bottom"] = "scrollmap_btns_bottom";
+        btnsDivPositionE["Left"] = "scrollmap_btns_left";
+        btnsDivPositionE["Right"] = "scrollmap_btns_right";
+        btnsDivPositionE["Center"] = "scrollmap_btns_center";
+    })(btnsDivPositionE = ScrollmapWithZoom.btnsDivPositionE || (ScrollmapWithZoom.btnsDivPositionE = {}));
 })(ScrollmapWithZoom || (ScrollmapWithZoom = {}));
 dojo.require("dojo.has");
 dojo.has.add('config-tlmSiblingOfDojo', 0, 0, 1);
