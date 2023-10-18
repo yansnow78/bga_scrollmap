@@ -114,7 +114,9 @@ declare class ScrollmapWithZoom {
     btnMaxHeightClasses: string;
     btnIncreaseHeightClasses: string;
     btnDecreaseHeightClasses: string;
+    btnsDivClasses: string;
     btnsPositionClasses: string;
+    btns2PositionClasses: string;
     btnsBackgroundColor: string;
     btnsMarginX: string;
     btnsMarginY: string;
@@ -184,6 +186,8 @@ declare class ScrollmapWithZoom {
     protected _btnDecreaseHeight: HTMLElement;
     protected _btnResetHeight: HTMLElement;
     protected _btnMaxHeight: HTMLElement;
+    protected _buttons_div: HTMLElement;
+    protected _buttons_div2: HTMLElement;
     protected _defaultHeight: number;
     protected _xPrev: number;
     protected _yPrev: number;
@@ -207,7 +211,6 @@ declare class ScrollmapWithZoom {
     protected _resetMode: ScrollmapWithZoom.ResetMode;
     protected get _btnIncreaseHeightDefault(): string;
     protected get _btnDecreaseHeightDefault(): string;
-    protected _btnIncreaseHeightPosClasses(): string;
     protected get _btnIncreaseHeightDefaultShort(): string;
     protected get _btnDecreaseHeightDefaultShort(): string;
     protected get _btnResetHeightDefault(): string;
@@ -278,12 +281,12 @@ declare class ScrollmapWithZoom {
     changeMapZoom(diff: number, x?: number, y?: number): void;
     setMapZoom(zoom: number, x?: number, y?: number): void;
     protected _setScale(elemId: HTMLElement, scale: number): void;
-    protected _getButton(btnNames: string, idSuffix?: string): HTMLElement;
-    protected _resetButtonsVisiblity(): void;
+    protected _getButton(btnNames: string[] | string, idSuffix?: string): HTMLElement;
+    protected _toggleButtonsVisiblity(): void;
     protected _hideButton(btnNames: string | HTMLElement, idSuffix?: string): void;
     protected _showButton(btnNames: string | HTMLElement, idSuffix?: string, display?: string): void;
     protected _createButton(button_code: string): HTMLElement;
-    protected _initButton(btnName: string, defaultButton: string, tooltip: string, onClick: Function, onLongPressedAnim?: Function, idSuffix?: string, display?: string): HTMLElement;
+    protected _initButton(btnNames: string, defaultButton: string, tooltip?: string, onClick?: Function, onLongPressedAnim?: Function, destDiv?: HTMLElement, idSuffix?: string, display?: string): HTMLElement;
     protected _onButtonLongPress(onLongPressedAnim: Function, evt: Event): void;
     protected _onButtonLongPressEnd(evt: Event): void;
     setupKeys(): void;
@@ -314,7 +317,7 @@ declare class ScrollmapWithZoom {
         idSuffix: string;
         display: string;
     };
-    protected _setupEnlargeReduceButtons(bInsideMap: boolean, bShort?: boolean, bGroupedWithOthers?: boolean): boolean;
+    protected _setupEnlargeReduceButtons(bInsideMap: boolean, bShort?: boolean, destDiv?: HTMLElement): boolean;
     setupEnlargeReduceButtons(incrHeightDelta: number, bIncrHeightKeepInPos?: boolean, minHeight?: number, bShort?: boolean, bGroupedWithOthers?: boolean): void;
     showEnlargeReduceButtons(): void;
     hideEnlargeReduceButtons(): void;

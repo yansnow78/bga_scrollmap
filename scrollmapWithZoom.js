@@ -41,7 +41,7 @@ class ScrollmapWithZoom {
         this.container_div.setAttribute("warning_touch", warning_touch);
         var keysStr = this.getWheelZoomingOptionTranslated();
         this.container_div.setAttribute("warning_scroll", dojo.string.substitute(_("Use ${keys} + Mouse Wheel to zoom the board"), { keys: keysStr }));
-        if (this._btnInfo && (this._btnInfo.style.display == 'block')) {
+        if (this._btnInfo && (this._btnInfo.style.display != 'none')) {
             this.setInfoButtonTooltip();
         }
     }
@@ -125,32 +125,32 @@ class ScrollmapWithZoom {
         }
     }
     get _btnIncreaseHeightDefault() {
-        return `<a class="enlargedisplay">↓  ${_("Enlarge")}  ↓</a>`;
+        return `<a class="enlargedisplay enlarge_or_reduce_as_text">↓  ${_("Enlarge")}  ↓</a>`;
     }
     get _btnDecreaseHeightDefault() {
-        return `<a class="reducedisplay">↑  ${_("Reduce")}  ↑</a>`;
+        return `<a class="reducedisplay enlarge_or_reduce_as_text">↑  ${_("Reduce")}  ↑</a>`;
     }
-    _btnIncreaseHeightPosClasses() {
-        var positionClasses;
-        if (this.bIncrHeightBtnGroupedWithOthers)
-            positionClasses = this.btnsPositionClasses + ' grouped_with_others';
-        else {
-            positionClasses = (this.btnsPositionClasses == 'btn_pos_top_right') ? 'btn_pos_top_left' : "btn_pos_top_right";
-            positionClasses += "opposite_to_others";
-        }
-        return positionClasses;
-    }
+    // protected _btnIncreaseHeightPosClasses(): string {
+    //     var positionClasses;
+    //     if (this.bIncrHeightBtnGroupedWithOthers)
+    //         positionClasses = this.btnsPositionClasses + ' grouped_with_others';
+    //     else {
+    //         positionClasses = (this.btnsPositionClasses == 'btn_pos_top_right') ? 'btn_pos_top_left' : "btn_pos_top_right";
+    //         positionClasses += "opposite_to_others";
+    //     }
+    //     return positionClasses;
+    // }
     get _btnIncreaseHeightDefaultShort() {
-        return `<i class="enlargedisplay scrollmap_icon ${this.btnIncreaseHeightClasses} ${this._btnIncreaseHeightPosClasses()}"></i>`;
+        return `<i class="enlargedisplay scrollmap_icon ${this.btnIncreaseHeightClasses}"></i>`;
     }
     get _btnDecreaseHeightDefaultShort() {
-        return `<i class="reducedisplay scrollmap_icon ${this.btnDecreaseHeightClasses} ${this._btnIncreaseHeightPosClasses()}"></i>`;
+        return `<i class="reducedisplay scrollmap_icon ${this.btnDecreaseHeightClasses}"></i>`;
     }
     get _btnResetHeightDefault() {
-        return `<i class="reset_height  ${this.btnResetHeightClasses} scrollmap_icon ${this._btnIncreaseHeightPosClasses()}"></i>`;
+        return `<i class="reset_height scrollmap_icon ${this.btnResetHeightClasses}"></i>`;
     }
     get _btnMaximizeHeightDefault() {
-        return `<svg class="maximize_height scrollmap_icon ${this._btnIncreaseHeightPosClasses()} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11 18.75" x="0px" y="0px">
+        return `<svg class="maximize_height scrollmap_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11 18.75" x="0px" y="0px">
             <title>${_("Maximize Height")}</title>
             <g><path d="M5.146,11.853a.518.518,0,0,0,.163.109.5.5,0,0,0,.382,0,.518.518,0,0,0,.163-.109l4-4a.5.5,0,0,0-.708-.708L6,10.293V.5a.5.5,0,0,0-1,0v9.793L1.854,7.146a.5.5,0,0,0-.708.708Z"/><path d="M10.5,14H.5a.5.5,0,0,0,0,1h10a.5.5,0,0,0,0-1Z"/></g>
             <text x="0" y="30" fill="#000000" font-size="5px" font-weight="bold" font-family="'Helvetica Neue', Helvetica, Arial-Unicode, Arial, Sans-serif">Created by syarip yunus</text>
@@ -170,16 +170,16 @@ class ScrollmapWithZoom {
         return `<i class="movedown ${this.btnMoveDownClasses} scrollmap_icon scrollmap_icon_always_visible"></i>`;
     }
     get _btnZoomPlusDefault() {
-        return `<i class="zoomplus ${this.btnZoomPlusClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
+        return `<i class="zoomplus ${this.btnZoomPlusClasses} scrollmap_icon"></i>`;
     }
     get _btnZoomMinusDefault() {
-        return `<i class="zoomminus  ${this.btnZoomMinusClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
+        return `<i class="zoomminus  ${this.btnZoomMinusClasses} scrollmap_icon"></i>`;
     }
     get _btnResetDefault() {
-        return `<i class="reset  ${this.btnResetClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
+        return `<i class="reset  ${this.btnResetClasses} scrollmap_icon"></i>`;
     }
     get _btnZoomToFitDefault() {
-        return `<i class="zoomtofit  ${this.btnZoomToFitClasses} scrollmap_icon ${this.btnsPositionClasses}"></i>`;
+        return `<i class="zoomtofit  ${this.btnZoomToFitClasses} scrollmap_icon"></i>`;
     }
     constructor() {
         // this.ControlPosition = {
@@ -271,7 +271,9 @@ class ScrollmapWithZoom {
         this.btnMaxHeightClasses = 'fa6-solid fa6-arrows-down-to-line';
         this.btnIncreaseHeightClasses = 'fa6-solid fa6-arrow-down';
         this.btnDecreaseHeightClasses = 'fa6-solid fa6-arrow-up';
+        this.btnsDivClasses = 'scrollmap_btns_flex';
         this.btnsPositionClasses = 'btn_pos_top_right';
+        this.btns2PositionClasses = '';
         this.btnsBackgroundColor = 'rgba(255,255,255,0.5)';
         this.btnsMarginX = '0px';
         this.btnsMarginY = '0px';
@@ -345,6 +347,8 @@ class ScrollmapWithZoom {
         this._btnDecreaseHeight = null;
         this._btnResetHeight = null;
         this._btnMaxHeight = null;
+        this._buttons_div = null;
+        this._buttons_div2 = null;
         // get LABEL_REDUCE_DISPLAY: string = _("Reduce"): string {
         //     return _("Reduce")`;
         // }
@@ -441,6 +445,20 @@ class ScrollmapWithZoom {
         this.onsurface_div = onsurface_div;
         this.clipped_div = clipped_div;
         this.animation_div = animation_div;
+        this._buttons_div = document.createElement('div');
+        this._buttons_div.classList.add(this.btnsPositionClasses);
+        this._buttons_div.classList.add(this.btnsDivClasses);
+        this.clipped_div.appendChild(this._buttons_div);
+        this._buttons_div2 = document.createElement('div');
+        if (!this.btns2PositionClasses) {
+            if (this.btnsPositionClasses == 'btn_pos_top_right')
+                this.btns2PositionClasses = 'btn_pos_top_left';
+            if (this.btnsPositionClasses == 'btn_pos_top_left')
+                this.btns2PositionClasses = 'btn_pos_top_right';
+        }
+        this._buttons_div2.classList.add(this.btns2PositionClasses);
+        this._buttons_div2.classList.add(this.btnsDivClasses);
+        this.clipped_div.appendChild(this._buttons_div2);
         var styleElt = document.createElement("style");
         var enl_xpos = "calc(50% + var(--icon_size_z)/2 + 16px)";
         if (!$("css-scrollmap")) {
@@ -477,6 +495,10 @@ class ScrollmapWithZoom {
                     --icon_size_z: calc(var(--icon_size)/var(--page_zoom));
                     --icon_font_size_z: calc(var(--icon_font_size)/var(--page_zoom));
                     --icon_around_size_z : calc(var(--icon_around_size)/var(--page_zoom));
+                    --btns_offset_x: ${this.btnsOffsetX};
+                    --btns_offset_y: ${this.btnsOffsetY};
+                    --y_pos: var(--btns_offset_y);
+                    --x_pos: var(--btns_offset_x);
                     z-index: var(--z_index_anim);
                     touch-action: initial !important;
                     user-select:none;
@@ -589,12 +611,18 @@ class ScrollmapWithZoom {
                     touch-action: pinch-zoom !important;
                 }
                 .scrollmap_btn_disabled {
-                    filter: brightness(70%);
+                    filter: unset;
                     opacity: 0.3;
                     cursor: not-allowed !important;
                     pointer-events: none;
                 }
+
+                .scrollmap_btn_nodisplay {
+                    display: none !important;
+                }
+
                 .scrollmap_container .movetop, .scrollmap_container #movetop {
+                    position: absolute;
                     top: 0px;
                     left: 50%;
                     margin-left: 0px;
@@ -602,6 +630,7 @@ class ScrollmapWithZoom {
                 }
 
                 .scrollmap_container .movedown, .scrollmap_container #movedown {
+                    position: absolute;
                     bottom: 0px;
                     left: 50%;
                     margin-left: 0px;
@@ -609,6 +638,7 @@ class ScrollmapWithZoom {
                 }
 
                 .scrollmap_container .moveleft, .scrollmap_container #moveleft {
+                    position: absolute;
                     left: 0px;
                     top: 50%;
                     margin-top: 0px;
@@ -616,6 +646,7 @@ class ScrollmapWithZoom {
                 }
 
                 .scrollmap_container .moveright, .scrollmap_container #moveright {
+                    position: absolute;
                     right: 0px;
                     top: 50%;
                     margin-top: 0px;
@@ -625,38 +656,43 @@ class ScrollmapWithZoom {
                 .scrollmap_container .scrollmap_icon {
                     --margin_x: ${this.btnsMarginX};
                     --margin_y: ${this.btnsMarginY};
-                    --offset_x: ${this.btnsOffsetX};
-                    --offset_y: ${this.btnsOffsetY};
                     --margin_x_z: calc(var(--margin_x)/var(--page_zoom));
                     --margin_y_z: calc(var(--margin_y)/var(--page_zoom));
-                    --offset_x_z: calc(var(--offset_x));
-                    --offset_y_z: calc(var(--offset_y));
                     --index_x: 0;
                     --index_y: 0;
-                    --y_pos: calc((var(--icon_size_z) + 2 * var(--icon_around_size_z) + var(--margin_y_z)) * var(--index_y) + var(--offset_y_z));
-                    --x_pos: calc((var(--icon_size_z) + 2 * var(--icon_around_size_z) + var(--margin_x_z)) * var(--index_x) + var(--offset_x_z));
-                    display: none;
-                    position: absolute;
-                    vertical-align: middle;
+                    --y_pos: calc((var(--icon_size_z) + 2 * var(--icon_around_size_z) + var(--margin_y_z)) * var(--index_y) + var(--btns_offset_y));
+                    --x_pos: calc((var(--icon_size_z) + 2 * var(--icon_around_size_z) + var(--margin_x_z)) * var(--index_x) + var(--btns_offset_x));
+                    display: block;
                     text-align: center;
                     /*overflow: hidden;*/
                     font-size: var(--icon_font_size_z);
                     line-height: var(--icon_size_z);
                     width: var(--icon_size_z);
                     height: var(--icon_size_z);
-                    margin : 0;
+                    position: static;
                 }
 
                 /*@media (pointer: coarse) {*/
-                    :is(.scrollmap_icon)::after {
+                    /*:is(.scrollmap_icon)::after {
                         content:'';
                         position:absolute;
                         top    : calc(-1 * var(--icon_around_size_z));
                         bottom : calc(-1 * var(--icon_around_size_z)); 
                         left   : calc(-1 * var(--icon_around_size_z));
                         right  : calc(-1 * var(--icon_around_size_z)); 
-                    }
+                    }*/
                 /*}*/
+                .scrollmap_button_wrapper {
+                    display: flex;
+                    --button_size : calc(var(--icon_size_z) + 2 * var(--icon_around_size_z));
+                    width : var(--button_size);
+                    height: var(--button_size);
+                }
+
+                .scrollmap_button_wrapper > * {
+                    position: static;
+                    margin: auto;
+                }
 
                 .scrollmap_icon {
                     z-index: var(--z_index_anim);
@@ -666,19 +702,28 @@ class ScrollmapWithZoom {
                     border-radius: 100%;
                 }
 
+                .scrollmap_btns_flex {
+                    display : flex;
+                    flex-wrap: wrap;
+                    --column_cnt : 2;
+                    width: calc(var(--column_cnt) * (var(--icon_size_z) + 2 * var(--icon_around_size_z)));
+                }
+
                 .reset.fa6-arrows-to-circle {
                     font-size: 25px;
                 }
                 /**************************
                 * positioning of buttons  *
                 ***************************/
-                .scrollmap_container .scrollmap_icon.btn_pos_top_right{
+                .scrollmap_container .btn_pos_top_right{
+                    position : absolute;
                     top: var(--y_pos);
                     right: var(--x_pos);
                     left: unset;
                     bottom: unset;
                 }
-                .scrollmap_container .scrollmap_icon.btn_pos_top_left{
+                .scrollmap_container .btn_pos_top_left{
+                    position : absolute;
                     top: var(--y_pos);
                     left: var(--x_pos);
                     right: unset;
@@ -717,8 +762,7 @@ class ScrollmapWithZoom {
                     text-align: center;
                 }
 
-                .scrollmap_container .enlargedisplay:not(.scrollmap_icon),
-                .scrollmap_container .reducedisplay:not(.scrollmap_icon){
+                .scrollmap_container .enlarge_or_reduce_as_text{
                     position: absolute;
                     background-color: rgba(255,255,255,0.5);
                     font-size: 110%;
@@ -774,6 +818,12 @@ class ScrollmapWithZoom {
                 .scrollmap_container .moveleft.fa,
                 .scrollmap_container .moveright.fa,
                 .scrollmap_container .movedown.fa{
+                    position: absolute;
+                }
+                .scrollmap_container .movetop.fa,
+                .scrollmap_container .moveleft.fa,
+                .scrollmap_container .moveright.fa,
+                .scrollmap_container .movedown.fa{
                     background-color: rgba(255,255,255,0.5);
                     border-radius: 100%;
                 }
@@ -817,22 +867,20 @@ class ScrollmapWithZoom {
         document.addEventListener("touchend", _handleTouch, this._passiveEventListener);
         document.addEventListener("touchcancel", _handleTouch, this._passiveEventListener);
         this.setupKeys();
-        var btnResetBtnsVisiblity = this._createButton(`<i class="toogle_buttons_visibility fa6-solid fa6-gear scrollmap_icon scrollmap_icon_always_visible ${this.btnsPositionClasses}"></i>`);
-        btnResetBtnsVisiblity.onclick = this._resetButtonsVisiblity.bind(this);
-        btnResetBtnsVisiblity.style.display = 'block';
+        this.setupInfoButton();
+        if (!this._bInfoBtnVisible)
+            this.hideInfoButton();
+        var btnResetBtnsVisiblity = this._initButton('toogle_buttons_visibility', `<i class="toogle_buttons_visibility fa6-solid fa6-gear scrollmap_icon scrollmap_icon_always_visible"></i>`, _('Hide buttons'), this._toggleButtonsVisiblity);
         this.setupOnScreenArrows(this.scrollDelta, this.bScrollDeltaAlignWithZoom);
         this.setupOnScreenZoomButtons(this.zoomDelta);
         if (!this._bEnableZooming)
             this.hideOnScreenZoomButtons();
         this.setupOnScreenResetButtons();
-        this.setupEnlargeReduceButtons(this.incrHeightDelta, this.bIncrHeightKeepInPos, this.minHeight, this.bIncrHeightBtnIsShort, this._bIncrHeightBtnGroupedWithOthers);
+        this.setupEnlargeReduceButtons(this.incrHeightDelta, this.bIncrHeightKeepInPos, this.minHeight, this.bIncrHeightBtnIsShort, this.bIncrHeightBtnGroupedWithOthers);
         if (!this._bIncrHeightBtnVisible)
             this.hideEnlargeReduceButtons();
         this.bIncrHeightGlobally = this._bIncrHeightGlobally;
         this._defaultHeight = parseFloat(window.getComputedStyle(this.container_div).height);
-        this.setupInfoButton();
-        if (!this._bInfoBtnVisible)
-            this.hideInfoButton();
         this.bEnableZooming = this._bEnableZooming;
         if (this.defaultZoom === null)
             this.defaultZoom = this.zoom;
@@ -1738,7 +1786,7 @@ class ScrollmapWithZoom {
         $(elemId).style.transform = 'scale(' + scale + ')';
     }
     _getButton(btnNames, idSuffix = "") {
-        var btnNamesL = btnNames.split(",");
+        var btnNamesL = (typeof btnNames === "string") ? btnNames.split(',') : btnNames;
         for (let i in btnNamesL) {
             let btnName = btnNamesL[i];
             var $btn = null;
@@ -1758,30 +1806,30 @@ class ScrollmapWithZoom {
                 return $btn;
             }
         }
-        debug(btnNames + " not found");
+        debug(btnNamesL.join(',') + " not found");
         return null;
     }
-    _resetButtonsVisiblity() {
+    _toggleButtonsVisiblity() {
         var visible = !this._bBtnsVisible;
         this._bBtnsVisible = visible;
-        this.container_div.querySelectorAll(".scrollmap_icon:not(.scrollmap_icon_always_visible)").forEach((node) => {
+        this.container_div.querySelectorAll(".scrollmap_button_wrapper").forEach((node) => {
             if (visible)
-                node.style.display = 'block';
-            else
-                node.style.display = 'none';
+                node.classList.remove("scrollmap_btn_nodisplay");
+            else if (!node.firstElementChild.classList.contains("scrollmap_icon_always_visible"))
+                node.classList.add("scrollmap_btn_nodisplay");
         });
     }
     _hideButton(btnNames, idSuffix = "") {
         debug("_hideButton", btnNames);
         var $btn = (typeof btnNames === "string") ? this._getButton(btnNames, idSuffix) : btnNames;
         if ($btn !== null)
-            $btn.style.display = 'none';
+            $btn.classList.add("scrollmap_btn_nodisplay");
     }
     _showButton(btnNames, idSuffix = "", display = 'block') {
         debug("_showButton", btnNames);
         var $btn = (typeof btnNames === "string") ? this._getButton(btnNames, idSuffix) : btnNames;
         if ($btn !== null)
-            $btn.style.display = display;
+            $btn.classList.remove("scrollmap_btn_nodisplay");
     }
     _createButton(button_code) {
         if (this.clipped_div) {
@@ -1792,8 +1840,9 @@ class ScrollmapWithZoom {
             return this.container_div.lastElementChild;
         }
     }
-    _initButton(btnName, defaultButton, tooltip, onClick, onLongPressedAnim = null, idSuffix = "", display = 'block') {
-        var $btn = this._getButton(btnName, idSuffix);
+    _initButton(btnNames, defaultButton, tooltip = '', onClick = null, onLongPressedAnim = null, destDiv = undefined, idSuffix = "", display = 'block') {
+        var btnNamesL = btnNames.split(",");
+        var $btn = this._getButton(btnNamesL, idSuffix);
         if ($btn === null && defaultButton !== null) {
             $btn = this._createButton(defaultButton);
         }
@@ -1805,13 +1854,27 @@ class ScrollmapWithZoom {
             }
             //gameui.addTooltip($btn.id, tooltip)
         }
-        onClick = onClick.bind(this);
-        $btn.addEventListener('click', (e) => {
-            onClick(e);
-            e.stopPropagation();
-        }, true);
+        if ((typeof destDiv === 'undefined') || (destDiv != null)) {
+            var btnWrapper = document.createElement('div');
+            var btnName = btnNamesL[0];
+            // btnWrapper.id = this.container_div.id + "_" + btnName + "_wrapper";
+            btnWrapper.appendChild($btn);
+            btnWrapper.classList.add(btnName);
+            btnWrapper.classList.add('scrollmap_button_wrapper');
+            if (typeof destDiv === 'undefined')
+                destDiv = this._buttons_div;
+            destDiv.appendChild(btnWrapper);
+            $btn = btnWrapper;
+        }
+        if (onClick) {
+            onClick = onClick.bind(this);
+            $btn.addEventListener('click', (e) => {
+                onClick(e);
+                e.stopPropagation();
+            }, true);
+        }
         $btn.style.cursor = 'pointer';
-        $btn.style.display = display;
+        // $btn.style.display = display;
         if (this.bEnableLongPress && onLongPressedAnim != null) {
             $btn.removeAttribute("href");
             $btn.setAttribute("data-long-press-delay", "500");
@@ -2007,19 +2070,19 @@ class ScrollmapWithZoom {
         if (!this._btnMoveTop)
             this._btnMoveTop = this._initButton('movetop', this._btnMoveTopDefault, _btnsMoveHelp, this._onMoveTop, () => {
                 this.scroll(0, this.longPressScroll, 0, 0);
-            });
+            }, null);
         if (!this._btnMoveDown)
             this._btnMoveDown = this._initButton('movedown', this._btnMoveDownDefault, _btnsMoveHelp, this._onMoveDown, () => {
                 this.scroll(0, -this.longPressScroll, 0, 0);
-            });
+            }, null);
         if (!this._btnMoveLeft)
             this._btnMoveLeft = this._initButton('moveleft', this._btnMoveLeftDefault, _btnsMoveHelp, this._onMoveLeft, () => {
                 this.scroll(this.longPressScroll, 0, 0, 0);
-            });
+            }, null);
         if (!this._btnMoveRight)
             this._btnMoveRight = this._initButton('moveright', this._btnMoveRightDefault, _btnsMoveHelp, this._onMoveRight, () => {
                 this.scroll(-this.longPressScroll, 0, 0, 0);
-            });
+            }, null);
     }
     showOnScreenArrows() {
         this._showButton('movetop');
@@ -2163,18 +2226,18 @@ class ScrollmapWithZoom {
             display
         };
     }
-    _setupEnlargeReduceButtons(bInsideMap, bShort = true, bGroupedWithOthers = true) {
-        this._bIncrHeightBtnIsShort = bShort;
-        this._bIncrHeightBtnGroupedWithOthers = bGroupedWithOthers;
+    _setupEnlargeReduceButtons(bInsideMap, bShort = true, destDiv = null) {
+        // this._bIncrHeightBtnIsShort = bShort;
+        // this._bIncrHeightBtnGroupedWithOthers = bGroupedWithOthers;
         var btnsProps = this._getEnlargeReduceButtonsProps(bInsideMap);
         if (!this._btnIncreaseHeight)
             this._btnIncreaseHeight = this._initButton(this._btnIncreaseHeightNames, bInsideMap ? (bShort ? this._btnIncreaseHeightDefaultShort : this._btnIncreaseHeightDefault) : null, _('Increase height'), this._onIncreaseDisplayHeight, () => {
                 this.changeDisplayHeight(5);
-            }, btnsProps.idSuffix, btnsProps.display);
+            }, bShort ? destDiv : null, btnsProps.idSuffix, btnsProps.display);
         if (!this._btnDecreaseHeight)
             this._btnDecreaseHeight = this._initButton(this._btnDecreaseHeightNames, bInsideMap ? (bShort ? this._btnDecreaseHeightDefaultShort : this._btnDecreaseHeightDefault) : null, _('Decrease height'), this._onDecreaseDisplayHeight, () => {
                 this.changeDisplayHeight(-5);
-            }, btnsProps.idSuffix, btnsProps.display);
+            }, bShort ? destDiv : null, btnsProps.idSuffix, btnsProps.display);
         if (this._btnDecreaseHeight || this._btnIncreaseHeight) {
             this._bEnlargeReduceButtonsInsideMap = bInsideMap;
             return true;
@@ -2183,14 +2246,19 @@ class ScrollmapWithZoom {
     }
     setupEnlargeReduceButtons(incrHeightDelta, bIncrHeightKeepInPos = true, minHeight = null, bShort = true, bGroupedWithOthers = true) {
         debug("setupEnlargeReduceButtons");
+        var buttonsDiv;
+        if (!bGroupedWithOthers && this.btns2PositionClasses != null) {
+            buttonsDiv = this._buttons_div2;
+            buttonsDiv.style.setProperty('--column_cnt', '1');
+        } else {
+            buttonsDiv = this._buttons_div;
+        }
         if (!this._setupEnlargeReduceButtons(false)) {
-            this._setupEnlargeReduceButtons(true, bShort, bGroupedWithOthers);
+            this._setupEnlargeReduceButtons(true, bShort, buttonsDiv);
         }
-        if (bShort) {
-            this._btnResetHeight = this._initButton("reset_height", this._btnResetHeightDefault, _("Reset Height"), this._onResetHeight);
-            this._hideButton("reset_height");
-            this._btnMaxHeight = this._initButton("maximize_height", this._btnMaximizeHeightDefault, _("Maximize Height"), this._onMaximizeHeight);
-        }
+        this._btnResetHeight = this._initButton("reset_height", this._btnResetHeightDefault, _("Reset Height"), this._onResetHeight, null, buttonsDiv);
+        this._hideButton("reset_height");
+        this._btnMaxHeight = this._initButton("maximize_height", this._btnMaximizeHeightDefault, _("Maximize Height"), this._onMaximizeHeight, null, buttonsDiv);
         this.incrHeightDelta = incrHeightDelta;
         this.bIncrHeightKeepInPos = bIncrHeightKeepInPos;
         this.minHeight = minHeight;
@@ -2277,19 +2345,15 @@ class ScrollmapWithZoom {
         if (!this._btnInfo) {
             var $btn = this._getButton("info");
             if ($btn === null) {
-                var info_id = this.container_div.id + "_info";
-                var btnInfoDefault = `<i id=${info_id} class="info fa fa-question scrollmap_icon scrollmap_icon_always_visible ${this.btnsPositionClasses}"></i>`;
-                if (this.clipped_div)
-                    this.clipped_div.insertAdjacentHTML("beforeend", btnInfoDefault);
-                else
-                    this.container_div.insertAdjacentHTML("beforeend", btnInfoDefault);
-                $btn = this._getButton("info");
+                var btnInfoDefault = `<i class="info fa fa-question scrollmap_icon scrollmap_icon_always_visible"></i>`;
+                $btn = this._initButton('info', btnInfoDefault);
+                $btn.id = this.container_div.id + "_info";
             }
             this._btnInfo = $btn;
         }
         debug("setupInfoButton");
-        this._btnInfo.style.cursor = 'pointer';
-        this._btnInfo.style.display = 'block';
+        // this._btnInfo.style.cursor = 'pointer';
+        // this._btnInfo.style.display = 'block';
         this._bConfigurableInUserPreference = bConfigurableInUserPreference;
         // if (!this._onClickBtnInfo){
         //     this._onClickBtnInfo = (e) => {
