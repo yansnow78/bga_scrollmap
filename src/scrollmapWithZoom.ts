@@ -998,7 +998,8 @@ class ScrollmapWithZoom {
         this.setupInfoButton();
         if (!this._bInfoBtnVisible)
             this.hideInfoButton();
-        var btnResetBtnsVisiblity = this._initButton('toogle_buttons_visibility', `<i class="toogle_buttons_visibility fa6-solid fa6-gear scrollmap_icon scrollmap_icon_always_visible"></i>`, _('Hide buttons'), this._toggleButtonsVisiblity);
+        if (this.btnsDivOnMap)
+            this._initButton('toogle_buttons_visibility', `<i class="toogle_buttons_visibility fa6-solid fa6-gear scrollmap_icon scrollmap_icon_always_visible"></i>`, _('Hide buttons'), this._toggleButtonsVisiblity);
         this.setupOnScreenArrows(this.scrollDelta, this.bScrollDeltaAlignWithZoom);
         this.setupOnScreenZoomButtons(this.zoomDelta);
         if (!this._bEnableZooming)
@@ -1287,7 +1288,7 @@ class ScrollmapWithZoom {
         if ((gameui !== null) && (typeof gameui.calcNewLocation === "function")) {
             [, , x, y] = gameui.calcNewLocation(this.surface_div, null, clientX / pageZoom, clientY / pageZoom, false, true);
         } else {
-            const containerRect = this.container_div.getBoundingClientRect();
+            const containerRect = this.clipped_div.getBoundingClientRect();
             x = (clientX / pageZoom - containerRect.x - containerRect.width / 2);
             y = (clientY / pageZoom - containerRect.y - containerRect.height / 2);
         }
@@ -1709,7 +1710,7 @@ class ScrollmapWithZoom {
             duration = 0;
             delay = 0;
         }
-        const s = window.getComputedStyle(this.container_div);
+        const s = window.getComputedStyle(this.clipped_div);
         const width = parseFloat(s.width);
         const height = parseFloat(s.height);
 
@@ -1949,10 +1950,10 @@ class ScrollmapWithZoom {
             min_y,
             max_y
         } = this.getMapLimits();
-        var container_width = this.container_div.clientWidth;
+        var container_width = this.clipped_div.clientWidth;
         if (cover_arrows === false)
             container_width -= 2 * this._btnMoveLeft.clientWidth;
-        var container_height = this.container_div.clientHeight;
+        var container_height = this.clipped_div.clientHeight;
         if (cover_arrows === false)
             container_height -= 2 * this._btnMoveTop.clientHeight;
         const newZoom = Math.min(container_width / (max_x - min_x + x_extra_l + x_extra_r),
@@ -2378,7 +2379,7 @@ class ScrollmapWithZoom {
     isVisible(x: number, y: number) {
         x = x * this.zoom;
         y = y * this.zoom;
-        const s = window.getComputedStyle(this.container_div);
+        const s = window.getComputedStyle(this.clipped_div);
         const width = parseFloat(s.width);
         const height = parseFloat(s.height);
 
