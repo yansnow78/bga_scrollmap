@@ -238,7 +238,7 @@ class ScrollmapWithZoom {
             x: 0,
             y: 0
         };
-        this.centerCalcUseAlsoOnsurface = false;
+        this.centerCalcUseAlsoOnsurface = true;
         /**
          * resizing properties
          */
@@ -2072,6 +2072,7 @@ class ScrollmapWithZoom {
             default:
                 handled = false;
         }
+        return handled;
     }
     _onKeyUp(e) {
         if (!ScrollmapWithZoom.bEnableKeys || ScrollmapWithZoom.count != 1)

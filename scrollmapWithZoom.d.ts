@@ -295,7 +295,7 @@ declare class ScrollmapWithZoom {
     setupKeys(): void;
     protected _onKeyDown(e: KeyboardEvent): void;
     protected _onKeyLongPress(key: string): boolean;
-    protected _onKeyLongPressAnim(key: string): void;
+    protected _onKeyLongPressAnim(key: string): boolean;
     protected _onKeyUp(e: KeyboardEvent): void;
     setupOnScreenArrows(scrollDelta: number, bScrollDeltaAlignWithZoom?: boolean): void;
     showOnScreenArrows(): void;

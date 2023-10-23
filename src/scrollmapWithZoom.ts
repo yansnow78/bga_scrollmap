@@ -114,7 +114,7 @@ class ScrollmapWithZoom {
         x: 0,
         y: 0
     };
-    centerCalcUseAlsoOnsurface: boolean = false;
+    centerCalcUseAlsoOnsurface: boolean = true;
 
     /** 
      * resizing properties
@@ -2244,6 +2244,7 @@ class ScrollmapWithZoom {
             default:
                 handled = false;
         }
+        return handled;
     }
 
     protected _onKeyUp(e: KeyboardEvent) {
