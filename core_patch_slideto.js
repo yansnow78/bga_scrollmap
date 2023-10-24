@@ -1,4 +1,6 @@
-// e board game core stuff
+var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
+var debug = isDebug ? console.info.bind(window.console) : function() {};
+var error = console.error.bind(window.console);
 define([
         "dojo", "dojo/_base/declare",
         "dojo/fx",
@@ -8,7 +10,7 @@ define([
 
         return declare("ebg.core.core_patch_slideto", null, {
             constructor: function () {
-                console.log('ebg.core.core_patch constructor');
+                debug('ebg.core.core_patch constructor');
             },
 
             calcScale: function (element) {
@@ -78,7 +80,7 @@ define([
                     vector_abs.x += (tgt.w - src.w) / 2;
                     vector_abs.y += (tgt.h - src.h) / 2;
                 } else if (bRelPos) {
-                    console.log("relative positioning");
+                    debug("relative positioning");
                     var target_matrix = this.calcTransform(target_obj);
                     var target_v = new DOMPoint(toint(target_x), toint(target_y));
                     if (target_matrix !== null) {
@@ -119,13 +121,13 @@ define([
             },
 
             _placeOnObject: function (mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter, bToCenter) {
-                //console.log( 'placeOnObject' );
+                //debug( 'placeOnObject' );
 
                 if (mobile_obj === null) {
-                    console.error('placeOnObject: mobile obj is null');
+                    error('placeOnObject: mobile obj is null');
                 }
                 if (target_obj === null && target_x === null) {
-                    console.error('placeOnObject: target obj is null');
+                    error('placeOnObject: target obj is null');
                 }
                 if (typeof mobile_obj == 'string')
                     mobile_obj = $(mobile_obj);
@@ -161,10 +163,10 @@ define([
             // Return an animation that is moving (slide) a DOM object over another one
             _slideToObject: function (mobile_obj, target_obj, target_x, target_y, bRelPos, duration, delay, bFromCenter, bToCenter) {
                 if (mobile_obj === null) {
-                    console.error('slideToObject: mobile obj is null');
+                    error('slideToObject: mobile obj is null');
                 }
                 if (target_obj === null) {
-                    console.error('slideToObject: target obj is null');
+                    error('slideToObject: target obj is null');
                 }
                 if (typeof mobile_obj == 'string')
                     mobile_obj = $(mobile_obj);
@@ -262,7 +264,7 @@ define([
             // Attach mobile_obj to a new parent, keeping its absolute position in the screen constant.
             // !! mobile_obj is no longer valid after that (a new corresponding mobile_obj is returned)
             attachToNewParent: function (mobile_obj, new_parent, position, bDontPreserveRotation) {
-                //console.log( "attachToNewParent" );
+                //debug( "attachToNewParent" );
 
                 if (typeof mobile_obj == 'string') {
                     mobile_obj = $(mobile_obj);
@@ -275,10 +277,10 @@ define([
                 }
 
                 if (mobile_obj === null) {
-                    console.error('attachToNewParent: mobile obj is null');
+                    error('attachToNewParent: mobile obj is null');
                 }
                 if (new_parent === null) {
-                    console.error('attachToNewParent: new_parent is null');
+                    error('attachToNewParent: new_parent is null');
                 }
 
                 var disabled3d = this.disable3dIfNeeded();
@@ -304,7 +306,7 @@ define([
 
             // Create a temporary object and slide it from a point to another one, then destroy it
             slideTemporaryObject: function (mobile_obj_html, mobile_obj_parent, from, to, duration, delay, scale) {
-                console.log('slideTemporaryObject');
+                debug('slideTemporaryObject');
                 var obj = dojo.place(mobile_obj_html, mobile_obj_parent);
                 dojo.style(obj, 'position', 'absolute');
                 dojo.style(obj, 'left', '0px');
@@ -328,8 +330,8 @@ define([
 
                 var anim = this.slideToObject(obj, to, duration, delay);
                 var destroyOnEnd = function (node) {
-                    console.log("destroying");
-                    console.log(node);
+                    debug("destroying");
+                    debug(node);
                     dojo.destroy(node);
                 };
                 dojo.connect(anim, 'onEnd', destroyOnEnd);
