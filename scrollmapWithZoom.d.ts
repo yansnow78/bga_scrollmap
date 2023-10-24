@@ -319,6 +319,8 @@ declare class ScrollmapWithZoom {
     protected _toggleButtonsVisiblity(): void;
     protected _hideButton($btn: HTMLElement, idSuffix?: string): void;
     protected _showButton($btn: HTMLElement, idSuffix?: string, display?: string): void;
+    protected _enableButton($btn: HTMLElement, idSuffix?: string): void;
+    protected _disableButton($btn: HTMLElement, idSuffix?: string, display?: string): void;
     protected _createButton(button_code: string): HTMLElement;
     protected _initButton(btnNames: string, defaultButton: string, tooltip?: string, onClick?: Function, onLongPressedAnim?: Function, destDiv?: HTMLElement, idSuffix?: string, display?: string): HTMLElement;
     protected _onButtonLongPress(onLongPressedAnim: Function, evt: Event): void;

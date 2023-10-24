@@ -729,6 +729,9 @@ class ScrollmapWithZoom {
                     filter: unset;
                     opacity: 0.3;
                     cursor: not-allowed !important;
+                }
+
+                .scrollmap_btn_disabled:active {
                     pointer-events: none;
                 }
 
@@ -1899,17 +1902,15 @@ class ScrollmapWithZoom {
     setMapZoom(zoom, x = 0, y = 0) {
         if (zoom >= this.maxZoom) {
             zoom = this.maxZoom;
-            if (this._btnZoomPlus)
-                this._btnZoomPlus.classList.add("scrollmap_btn_disabled");
+            this._disableButton(this._btnZoomPlus);
         } else if (zoom <= this.minZoom) {
             zoom = this.minZoom;
-            if (this._btnZoomMinus)
-                this._btnZoomMinus.classList.add("scrollmap_btn_disabled");
+            this._disableButton(this._btnZoomMinus);
         } else {
             if (this._btnZoomMinus && (this._prevZoom <= this.minZoom))
-                this._btnZoomMinus.classList.remove("scrollmap_btn_disabled");
+                this._enableButton(this._btnZoomMinus);
             if (this._btnZoomPlus && (this._prevZoom >= this.maxZoom))
-                this._btnZoomPlus.classList.remove("scrollmap_btn_disabled");
+                this._enableButton(this._btnZoomPlus);
         }
         this.zoom = zoom;
         if (this.bScrollDeltaAlignWithZoom)
@@ -1981,6 +1982,16 @@ class ScrollmapWithZoom {
         debug("_showButton", $btn);
         if ($btn !== null)
             $btn.classList.remove("scrollmap_btn_nodisplay");
+    }
+    _enableButton($btn, idSuffix = "") {
+        debug("_enableButton", $btn);
+        if ($btn !== null)
+            $btn.classList.remove("scrollmap_btn_disabled");
+    }
+    _disableButton($btn, idSuffix = "", display = 'block') {
+        debug("_disableButton", $btn);
+        if ($btn !== null)
+            $btn.classList.add("scrollmap_btn_disabled");
     }
     _createButton(button_code) {
         if (this.clipped_div) {
@@ -2421,8 +2432,14 @@ class ScrollmapWithZoom {
         // }
         this._setupEnlargeReduceButtons(true, bShort, buttonsDiv);
         this._btnResetHeight = this._initButton("reset_height", this._btnResetHeightDefault, _("Reset Height"), this._onResetHeight, null, buttonsDiv);
-        this._hideButton(this._btnResetHeight);
         this._btnMaximizeHeight = this._initButton("maximize_height", this._btnMaximizeHeightDefault, _("Maximize Height"), this._onMaximizeHeight, null, buttonsDiv);
+        if (this._bMaxHeight) {
+            this._enableButton(this._btnResetHeight);
+            this._disableButton(this._btnMaximizeHeight);
+        } else if (!this._bHeightChanged) {
+            this._disableButton(this._btnResetHeight);
+            this._enableButton(this._btnMaximizeHeight);
+        }
         this.incrHeightDelta = incrHeightDelta;
         this.bIncrHeightKeepInPos = bIncrHeightKeepInPos;
         this.minHeight = minHeight;
@@ -2431,6 +2448,15 @@ class ScrollmapWithZoom {
         var btnsProps = this._getEnlargeReduceButtonsProps(this._bEnlargeReduceButtonsInsideMap);
         this._showButton(this._btnIncreaseHeight, btnsProps.idSuffix, btnsProps.display);
         this._showButton(this._btnDecreaseHeight, btnsProps.idSuffix, btnsProps.display);
+        this._showButton(this._btnResetHeight);
+        this._showButton(this._btnMaximizeHeight);
+        if (this._bMaxHeight) {
+            this._enableButton(this._btnResetHeight);
+            this._disableButton(this._btnMaximizeHeight);
+        } else if (!this._bHeightChanged) {
+            this._disableButton(this._btnResetHeight);
+            this._enableButton(this._btnMaximizeHeight);
+        }
         this._showButton(this._bMaxHeight ? this._btnResetHeight : this._btnMaximizeHeight);
     }
     hideEnlargeReduceButtons() {
@@ -2470,7 +2496,6 @@ class ScrollmapWithZoom {
         return this.setDisplayHeight(current_height + delta);
     }
     setDisplayHeight(new_height, dispatch = true) {
-        var _a, _b, _c, _d;
         var screen_height = document.documentElement.clientHeight ||
             document.body.clientHeight || window.innerHeight;
         var pageZoom = this._getPageZoom();
@@ -2488,14 +2513,14 @@ class ScrollmapWithZoom {
             }
         }
         if (new_height == maxHeight) {
-            this._hideButton(this._btnMaximizeHeight);
-            this._showButton(this._btnResetHeight);
-            (_a = this._btnIncreaseHeight) === null || _a === void 0 ? void 0 : _a.classList.add("scrollmap_btn_disabled");
+            this._disableButton(this._btnMaximizeHeight);
+            this._enableButton(this._btnResetHeight);
+            this._disableButton(this._btnIncreaseHeight);
         } else if (new_height == this.minHeight) {
-            (_b = this._btnDecreaseHeight) === null || _b === void 0 ? void 0 : _b.classList.add("scrollmap_btn_disabled");
+            this._disableButton(this._btnDecreaseHeight);
         } else {
-            (_c = this._btnIncreaseHeight) === null || _c === void 0 ? void 0 : _c.classList.remove("scrollmap_btn_disabled");
-            (_d = this._btnDecreaseHeight) === null || _d === void 0 ? void 0 : _d.classList.remove("scrollmap_btn_disabled");
+            this._enableButton(this._btnIncreaseHeight);
+            this._enableButton(this._btnDecreaseHeight);
         }
         return (new_height == maxHeight);
     }
