@@ -514,8 +514,13 @@ class ScrollmapWithZoom {
             clipped_div = document.createElement('div');
             container_div.insertBefore(clipped_div, animation_div);
         }
-        clipped_div.appendChild(surface_div);
         clipped_div.classList.add("scrollmap_overflow_clipped");
+        Array.from(container_div.children).forEach((child) => {
+            //let child = children[i]; //second console o
+            if (!child.classList.contains("scrollmap_anim") && !child.classList.contains("scrollmap_overflow_clipped"))
+                clipped_div.appendChild(child);
+        });
+        // clipped_div.appendChild(surface_div);
         this.container_div = container_div;
         this.scrollable_div = scrollable_div;
         this.surface_div = surface_div;
