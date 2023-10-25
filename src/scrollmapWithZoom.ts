@@ -1776,7 +1776,7 @@ class ScrollmapWithZoom {
     }
 
     // Scroll the board to make it centered on given position
-    _scrollto(x: number, y: number, duration ? : number, delay ? : number) {
+    protected _scrollto(x: number, y: number, duration ? : number, delay ? : number) {
         if (this._setupDone)
             this._scrolled = true;
         // debug("scrollto", this.board_x, this.board_y);
@@ -1895,6 +1895,31 @@ class ScrollmapWithZoom {
             y: center.y
         };
     }
+
+
+    isObjVisible(obj: HTMLElement) {
+        return this._intersectRect(this.clipped_div.getBoundingClientRect(), obj.getBoundingClientRect());
+    }
+
+    makeObjVisible(obj: HTMLElement, centerOnObj: boolean = true) {
+        if (!this.isObjVisible(obj)) {
+            /*if (centerOnObj) */
+            this.scrolltoObject(obj);
+        }
+    }
+
+    isVisible(x: number, y: number, w: number = 0, h: number = 0) {
+        const s = window.getComputedStyle(this.clipped_div);
+        const width = parseFloat(s.width);
+        const height = parseFloat(s.height);
+
+        const obj_rect = new DOMRect(x * this.zoom, y * this.zoom, w * this.zoom, h * this.zoom);
+        const board_rect = new DOMRect(-this.board_x - width / 2, -this.board_y - height / 2, width, height);
+        return this._intersectRect(board_rect, obj_rect);
+
+    }
+
+
 
     getMapLimits(custom_css_query: string = null): {
         min_x: number;max_x: number;min_y: number;max_y: number;
@@ -2476,20 +2501,11 @@ class ScrollmapWithZoom {
         this.scroll(0, -this._scrollDeltaAlignWithZoom);
     }
 
-    isVisible(x: number, y: number) {
-        x = x * this.zoom;
-        y = y * this.zoom;
-        const s = window.getComputedStyle(this.clipped_div);
-        const width = parseFloat(s.width);
-        const height = parseFloat(s.height);
-
-        if (x >= (-this.board_x - width / 2) && x <= (-this.board_x + width / 2)) {
-            if (y >= (-this.board_y - height / 2) && y < (-this.board_y + height / 2)) {
-                return true;
-            }
-        }
-
-        return false;
+    protected _intersectRect(r1: DOMRect, r2: DOMRect) {
+        return !(r2.x > r1.x + r1.width ||
+            r2.x + r2.width < r1.x ||
+            r2.y > r1.y + r1.height ||
+            r2.y + r2.height < r1.y);
     }
 
     ///////////////////////////////////////////////////

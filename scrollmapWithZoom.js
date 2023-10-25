@@ -1774,6 +1774,23 @@ class ScrollmapWithZoom {
             y: center.y
         };
     }
+    isObjVisible(obj) {
+        return this._intersectRect(this.clipped_div.getBoundingClientRect(), obj.getBoundingClientRect());
+    }
+    makeObjVisible(obj, centerOnObj = true) {
+        if (!this.isObjVisible(obj)) {
+            /*if (centerOnObj) */
+            this.scrolltoObject(obj);
+        }
+    }
+    isVisible(x, y, w = 0, h = 0) {
+        const s = window.getComputedStyle(this.clipped_div);
+        const width = parseFloat(s.width);
+        const height = parseFloat(s.height);
+        const obj_rect = new DOMRect(x * this.zoom, y * this.zoom, w * this.zoom, h * this.zoom);
+        const board_rect = new DOMRect(-this.board_x - width / 2, -this.board_y - height / 2, width, height);
+        return this._intersectRect(board_rect, obj_rect);
+    }
     getMapLimits(custom_css_query = null) {
         if (custom_css_query)
             this._custom_css_query = custom_css_query;
@@ -2299,18 +2316,11 @@ class ScrollmapWithZoom {
             evt.preventDefault();
         this.scroll(0, -this._scrollDeltaAlignWithZoom);
     }
-    isVisible(x, y) {
-        x = x * this.zoom;
-        y = y * this.zoom;
-        const s = window.getComputedStyle(this.clipped_div);
-        const width = parseFloat(s.width);
-        const height = parseFloat(s.height);
-        if (x >= (-this.board_x - width / 2) && x <= (-this.board_x + width / 2)) {
-            if (y >= (-this.board_y - height / 2) && y < (-this.board_y + height / 2)) {
-                return true;
-            }
-        }
-        return false;
+    _intersectRect(r1, r2) {
+        return !(r2.x > r1.x + r1.width ||
+            r2.x + r2.width < r1.x ||
+            r2.y > r1.y + r1.height ||
+            r2.y + r2.height < r1.y);
     }
     ///////////////////////////////////////////////////
     ///// Enable / disable scrolling
