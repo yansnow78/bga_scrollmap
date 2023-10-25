@@ -1791,6 +1791,12 @@ class ScrollmapWithZoom {
         const board_rect = new DOMRect(-this.board_x - width / 2, -this.board_y - height / 2, width, height);
         return this._intersectRect(board_rect, obj_rect);
     }
+    makeVisible(x, y, w = 0, h = 0, centerOnIt = true) {
+        if (!this.isVisible(x, y, w, h)) {
+            /*if (centerOnIt) */
+            this.scrollto(-x, -y);
+        }
+    }
     getMapLimits(custom_css_query = null) {
         if (custom_css_query)
             this._custom_css_query = custom_css_query;

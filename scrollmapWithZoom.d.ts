@@ -304,6 +304,7 @@ declare class ScrollmapWithZoom {
     isObjVisible(obj: HTMLElement): boolean;
     makeObjVisible(obj: HTMLElement, centerOnObj?: boolean): void;
     isVisible(x: number, y: number, w?: number, h?: number): boolean;
+    makeVisible(x: number, y: number, w?: number, h?: number, centerOnIt?: boolean): void;
     getMapLimits(custom_css_query?: string): {
         min_x: number;
         max_x: number;
