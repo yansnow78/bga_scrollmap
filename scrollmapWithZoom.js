@@ -1794,7 +1794,7 @@ class ScrollmapWithZoom {
     makeVisible(x, y, w = 0, h = 0, centerOnIt = true) {
         if (!this.isVisible(x, y, w, h)) {
             /*if (centerOnIt) */
-            this.scrollto(-x, -y);
+            this.scrollto(-x - w / 2, -y - h / 2);
         }
     }
     getMapLimits(custom_css_query = null) {

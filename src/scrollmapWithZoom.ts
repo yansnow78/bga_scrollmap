@@ -1922,7 +1922,7 @@ class ScrollmapWithZoom {
     makeVisible(x: number, y: number, w: number = 0, h: number = 0, centerOnIt: boolean = true) {
         if (!this.isVisible(x, y, w, h)) {
             /*if (centerOnIt) */
-            this.scrollto(-x, -y);
+            this.scrollto(-x - w / 2, -y - h / 2);
         }
     }
 
