@@ -2478,13 +2478,13 @@ class ScrollmapWithZoom {
             this._adaptHeight(null);
         else
             this.setDisplayHeight(this._defaultHeight);
-        this._hideButton(this._btnResetHeight);
-        this._showButton(this._btnMaximizeHeight);
+        this._disableButton(this._btnResetHeight);
+        this._enableButton(this._btnMaximizeHeight);
     }
     _onMaximizeHeight(evt) {
         this._bMaxHeight = this.changeDisplayHeight(5000);
-        this._hideButton(this._btnMaximizeHeight);
-        this._showButton(this._btnResetHeight);
+        this._disableButton(this._btnMaximizeHeight);
+        this._enableButton(this._btnResetHeight);
     }
     _onIncreaseDisplayHeight(evt) {
         evt.preventDefault();
