@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom version-x.x.x: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.24.4: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements

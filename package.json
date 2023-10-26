@@ -9,8 +9,8 @@
     "postbuild:ts": "js-beautify -o scrollmapWithZoom.js",
     "build:scss": "sass --no-source-map src/scrollmapWithZoom.scss build/scrollmapWithZoom.css",
     "addversionnr": "cross-var replace-in-file \"version-x.x.x\" \"$npm_package_version\" scrollmapWithZoom.js",
-    "preversion": "npm run build:ts && git add .",
-    "version": "npm run addversionnr",
+    "preversion": "npm run build:ts",
+    "version": "npm run addversionnr && git add .",
     "postversion": "git push && git push --tag"
   },
   "author": "",
