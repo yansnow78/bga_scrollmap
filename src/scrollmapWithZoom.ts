@@ -1280,6 +1280,9 @@ class ScrollmapWithZoom {
             }
             if (settings.height_changed != null) {
                 this._bHeightChanged = settings.height_changed;
+                if (this._bHeightChanged) {
+                    this._enableButton(this._btnResetHeight);
+                }
             }
             this.setMapZoom(settings.zoom);
             if (settings.board_x != null && settings.board_y != null) {
@@ -2786,6 +2789,10 @@ class ScrollmapWithZoom {
         if (new_height == maxHeight) {
             this._disableButton(this._btnMaximizeHeight);
             this._enableButton(this._btnResetHeight);
+        } else {
+            this._enableButton(this._btnMaximizeHeight);
+        }
+        if (new_height == maxHeight) {
             this._disableButton(this._btnIncreaseHeight);
         } else if (new_height == this.minHeight) {
             this._disableButton(this._btnDecreaseHeight);
