@@ -301,8 +301,13 @@ declare class ScrollmapWithZoom {
         x: number;
         y: number;
     };
+    protected _isRectInside(outerRect: DOMRect, innerRect: DOMRect): boolean;
+    protected _adjustToContain(outerRect: DOMRect, innerRect: DOMRect): {
+        deltaX: number;
+        deltaY: number;
+    };
     isObjVisible(obj: HTMLElement): boolean;
-    makeObjVisible(obj: HTMLElement, centerOnObj?: boolean): void;
+    makeObjVisible(obj: HTMLElement, centerOnIt?: boolean): void;
     isVisible(x: number, y: number, w?: number, h?: number): boolean;
     makeVisible(x: number, y: number, w?: number, h?: number, centerOnIt?: boolean): void;
     getMapLimits(custom_css_query?: string): {
@@ -341,7 +346,6 @@ declare class ScrollmapWithZoom {
     protected _onMoveLeft(evt?: Event): void;
     protected _onMoveRight(evt?: Event): void;
     protected _onMoveDown(evt?: Event): void;
-    protected _intersectRect(r1: DOMRect, r2: DOMRect): boolean;
     enableScrolling(): void;
     disableScrolling(): void;
     setupOnScreenZoomButtons(zoomDelta?: number): void;
