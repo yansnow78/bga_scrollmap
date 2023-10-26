@@ -1,13 +1,17 @@
 {
   "name": "scrollmap-with-zoom",
-  "version": "1.24.2",
+  "version": "1.24.3",
   "description": "",
   "main": "scrollmapWithZoom.js",
   "scripts": {
     "prebuild:ts": "js-beautify -o src/scrollmapWithZoom.ts",
     "build:ts": "tsc",
     "postbuild:ts": "js-beautify -o scrollmapWithZoom.js",
-    "build:scss": "sass --no-source-map src/scrollmapWithZoom.scss build/scrollmapWithZoom.css"
+    "build:scss": "sass --no-source-map src/scrollmapWithZoom.scss build/scrollmapWithZoom.css",
+    "addversionnr": "cross-var replace-in-file \"version-x.x.x\" \"$npm_package_version\" scrollmapWithZoom.js",
+    "preversion": "npm run build:ts",
+    "version": "npm run addversionnr",
+    "postversion": "git push && git push --tag"
   },
   "author": "",
   "license": "ISC",
@@ -15,5 +19,9 @@
     "dojo-typings": "^1.11.11",
     "sass": "^1.32.6",
     "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "cross-var": "^1.1.0",
+    "replace-in-file": "^7.0.1"
   }
 }
