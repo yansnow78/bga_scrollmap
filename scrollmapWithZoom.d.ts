@@ -1,5 +1,6 @@
 declare var isDebug: boolean;
 declare var debug: any;
+declare var error: any;
 declare const define: Function;
 declare const ebg: any;
 declare const $: Function;
@@ -303,14 +304,15 @@ declare class ScrollmapWithZoom {
     };
     protected _isRectInside(outerRect: DOMRectReadOnly, innerRect: DOMRectReadOnly): boolean;
     protected _intersect(rect1: DOMRectReadOnly, rect2: DOMRectReadOnly): boolean;
-    protected _adjustToContain(outerRect: DOMRectReadOnly, innerRect: DOMRectReadOnly, margin?: number): {
+    protected _adjustToContain(outerRect: DOMRect, innerRect: DOMRect, margin?: number): {
         x: number;
         y: number;
     };
     isObjVisible(obj: HTMLElement): boolean;
-    makeObjVisible(obj: HTMLElement, centerOnIt?: boolean): void;
     isVisible(x: number, y: number, w?: number, h?: number): boolean;
-    makeVisible(x: number, y: number, w?: number, h?: number, centerOnIt?: boolean, exclude_width?: number, exclude_height?: number, pos?: "topleft" | "topright" | "bottomleft" | "bottomright"): void;
+    _makeRectVisible(obj_rect: DOMRect, board_rect: DOMRect, centerOnIt?: boolean, excl_width?: number, excl_height?: number, pos?: "topleft" | "topright" | "bottomleft" | "bottomright"): void;
+    makeObjVisible(obj: HTMLElement, centerOnIt?: boolean, excl_width?: number, excl_height?: number, pos?: "topleft" | "topright" | "bottomleft" | "bottomright"): void;
+    makeVisible(x: number, y: number, w?: number, h?: number, centerOnIt?: boolean, excl_width?: number, excl_height?: number, pos?: "topleft" | "topright" | "bottomleft" | "bottomright"): void;
     getMapLimits(custom_css_query?: string): {
         min_x: number;
         max_x: number;

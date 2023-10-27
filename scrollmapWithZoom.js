@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.24.5: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.24.6: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -28,6 +28,7 @@ https://github.com/yansnow78/bga_scrollmap.git
 /*global gameui, dojo, dijit*/
 var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
 var debug = isDebug ? console.info.bind(window.console) : function() {};
+var error = isDebug ? console.error.bind(window.console) : function() {};
 class ScrollmapWithZoom {
     get bEnableZooming() {
         return this._bEnableZooming;
@@ -1818,17 +1819,6 @@ class ScrollmapWithZoom {
     isObjVisible(obj) {
         return this._isRectInside(this.clipped_div.getBoundingClientRect(), obj.getBoundingClientRect());
     }
-    makeObjVisible(obj, centerOnIt = true) {
-        let board_rect = this.clipped_div.getBoundingClientRect();
-        let obj_rect = obj.getBoundingClientRect();
-        if (centerOnIt && !this._isRectInside(board_rect, obj_rect)) {
-            this.scrolltoObject(obj);
-        } else {
-            let delta = this._adjustToContain(board_rect, obj_rect);
-            if (delta.x != 0 || delta.y != 0)
-                this.scroll(delta.x, delta.y);
-        }
-    }
     isVisible(x, y, w = 0, h = 0) {
         const s = window.getComputedStyle(this.clipped_div);
         const width = parseFloat(s.width);
@@ -1837,25 +1827,59 @@ class ScrollmapWithZoom {
         const board_rect = new DOMRect(-this.board_x - width / 2, -this.board_y - height / 2, width, height);
         return this._isRectInside(board_rect, obj_rect);
     }
-    makeVisible(x, y, w = 0, h = 0, centerOnIt = true, exclude_width = 0, exclude_height = 0, pos = "topleft") {
-        const s = window.getComputedStyle(this.clipped_div);
-        const width = parseFloat(s.width);
-        const height = parseFloat(s.height);
-        var obj_rect = new DOMRect(x * this.zoom, y * this.zoom, w * this.zoom, h * this.zoom);
-        var board_rect = new DOMRect(-this.board_x - width / 2, -this.board_y - height / 2, width, height);
+    _makeRectVisible(obj_rect, board_rect, centerOnIt = true, excl_width = 0, excl_height = 0, pos = "topleft") {
         if (centerOnIt) {
-            if (!this._isRectInside(board_rect, obj_rect))
-                this.scrollto(-x - w / 2, -y - h / 2);
+            if (!this._isRectInside(board_rect, obj_rect)) {
+                const { x, y, width, height } = obj_rect;
+                this.scrollto(-x - width / 2, -y - height / 2);
+            }
         } else {
             let delta = this._adjustToContain(board_rect, obj_rect);
-            if ((exclude_width != 0 || exclude_height != 0)) {
-                const exclude_rect = new DOMRect(board_rect.x, board_rect.y, exclude_width, exclude_height);
+            if ((excl_width != 0 || excl_height != 0)) {
+                const { left: b_left, right: b_right, top: b_top, bottom: b_bottom, width: b_width, height: b_height } = board_rect;
+                let excl_rect;
+                switch (pos) {
+                    case "topright":
+                        excl_rect = new DOMRect(b_right - excl_width, b_top, excl_width, excl_height);
+                        break;
+                    case "bottomleft":
+                        excl_rect = new DOMRect(b_left, b_bottom - excl_height, excl_width, excl_height);
+                        break;
+                    case "bottomright":
+                        excl_rect = new DOMRect(b_right - excl_width, b_bottom - excl_height, excl_width, excl_height);
+                        break;
+                    case "topleft":
+                        excl_rect = new DOMRect(b_left, b_top, excl_width, excl_height);
+                        break;
+                    default:
+                        excl_rect = null;
+                        error("_makeRectVisible: wrong 'pos' argument value");
+                        break;
+                }
                 obj_rect.x += delta.x;
                 obj_rect.y += delta.y;
-                if (this._intersect(exclude_rect, obj_rect)) {
-                    let board_rect1 = new DOMRect(board_rect.x + exclude_width, board_rect.y, board_rect.width - exclude_width, board_rect.height);
+                if (excl_rect && this._intersect(excl_rect, obj_rect)) {
+                    let board_rect1;
+                    let board_rect2;
+                    switch (pos) {
+                        case "topright":
+                            board_rect1 = new DOMRect(b_left, b_top, b_width - excl_width, b_height);
+                            board_rect2 = new DOMRect(b_left, b_top + excl_height, b_width, b_height - excl_height);
+                            break;
+                        case "bottomleft":
+                            board_rect1 = new DOMRect(b_left + excl_width, b_top, b_width - excl_width, b_height);
+                            board_rect2 = new DOMRect(b_left, b_top, b_width, b_height - excl_height);
+                            break;
+                        case "bottomright":
+                            board_rect1 = new DOMRect(b_left, b_top, b_width - excl_width, b_height);
+                            board_rect2 = new DOMRect(b_left, b_top, b_width, b_height - excl_height);
+                            break;
+                        default:
+                            board_rect1 = new DOMRect(b_left + excl_width, b_top, b_width - excl_width, b_height);
+                            board_rect2 = new DOMRect(b_left, b_top + excl_height, b_width, b_height - excl_height);
+                            break;
+                    }
                     let delta1 = this._adjustToContain(board_rect1, obj_rect);
-                    let board_rect2 = new DOMRect(board_rect.x, board_rect.y + exclude_height, board_rect.width, board_rect.height - exclude_height);
                     let delta2 = this._adjustToContain(board_rect2, obj_rect);
                     if (Math.hypot(delta.x + delta1.x, delta.y + delta1.y) < Math.hypot(delta.x + delta2.x, delta.y + delta2.y)) {
                         delta.x += delta1.x;
@@ -1869,6 +1893,19 @@ class ScrollmapWithZoom {
             if (delta.x != 0 || delta.y != 0)
                 this.scroll(delta.x, delta.y);
         }
+    }
+    makeObjVisible(obj, centerOnIt = true, excl_width = 0, excl_height = 0, pos = "topleft") {
+        let board_rect = this.clipped_div.getBoundingClientRect();
+        let obj_rect = obj.getBoundingClientRect();
+        this._makeRectVisible(obj_rect, board_rect, centerOnIt, excl_width, excl_height, pos);
+    }
+    makeVisible(x, y, w = 0, h = 0, centerOnIt = true, excl_width = 0, excl_height = 0, pos = "topleft") {
+        const s = window.getComputedStyle(this.clipped_div);
+        const width = parseFloat(s.width);
+        const height = parseFloat(s.height);
+        var obj_rect = new DOMRect(x * this.zoom, y * this.zoom, w * this.zoom, h * this.zoom);
+        var board_rect = new DOMRect(-this.board_x - width / 2, -this.board_y - height / 2, width, height);
+        this._makeRectVisible(obj_rect, board_rect, centerOnIt, excl_width, excl_height, pos);
     }
     getMapLimits(custom_css_query = null) {
         if (custom_css_query)
