@@ -1904,7 +1904,7 @@ class ScrollmapWithZoom {
         };
     }
 
-    protected _isRectInside(outerRect: DOMRect, innerRect: DOMRect): boolean {
+    protected _isRectInside(outerRect: DOMRectReadOnly, innerRect: DOMRectReadOnly): boolean {
         return !(
             innerRect.left < outerRect.left ||
             innerRect.top < outerRect.top ||
@@ -1913,23 +1913,40 @@ class ScrollmapWithZoom {
         );
     }
 
-    protected _adjustToContain(outerRect: DOMRect, innerRect: DOMRect): { deltaX: number, deltaY: number } {
+    protected _intersect(rect1: DOMRectReadOnly, rect2: DOMRectReadOnly): boolean {
+        // Vérifier si rect1 est à gauche de rect2
+        const isLeft = rect1.right < rect2.left;
+
+        // Vérifier si rect1 est à droite de rect2
+        const isRight = rect1.left > rect2.right;
+
+        // Vérifier si rect1 est au-dessus de rect2
+        const isAbove = rect1.bottom < rect2.top;
+
+        // Vérifier si rect1 est en dessous de rect2
+        const isBelow = rect1.top > rect2.bottom;
+
+        // Si l'une de ces conditions est vraie, les rectangles ne s'intersectent pas
+        return !(isLeft || isRight || isAbove || isBelow);
+    }
+
+    protected _adjustToContain(outerRect: DOMRectReadOnly, innerRect: DOMRectReadOnly, margin: number = 40): { x: number, y: number } {
         let deltaX = 0;
         let deltaY = 0;
 
         if (innerRect.left < outerRect.left) {
-            deltaX = outerRect.left - innerRect.left;
+            deltaX = outerRect.left - innerRect.left + margin;
         } else if (innerRect.right > outerRect.right) {
-            deltaX = outerRect.right - innerRect.right;
+            deltaX = outerRect.right - innerRect.right - margin;
         }
 
         if (innerRect.top < outerRect.top) {
-            deltaY = outerRect.top - innerRect.top;
+            deltaY = outerRect.top - innerRect.top + margin;
         } else if (innerRect.bottom > outerRect.bottom) {
-            deltaY = outerRect.bottom - innerRect.bottom;
+            deltaY = outerRect.bottom - innerRect.bottom - margin;
         }
 
-        return { deltaX, deltaY };
+        return { x: deltaX, y: deltaY };
     }
 
     isObjVisible(obj: HTMLElement) {
@@ -1942,9 +1959,9 @@ class ScrollmapWithZoom {
         if (centerOnIt && !this._isRectInside(board_rect, obj_rect)) {
             this.scrolltoObject(obj);
         } else {
-            let { deltaX, deltaY } = this._adjustToContain(board_rect, obj_rect);
-            if (deltaX != 0 || deltaY != 0)
-                this.scroll(-deltaX, -deltaY);
+            let delta = this._adjustToContain(board_rect, obj_rect);
+            if (delta.x != 0 || delta.y != 0)
+                this.scroll(delta.x, delta.y);
         }
     }
 
@@ -1959,19 +1976,38 @@ class ScrollmapWithZoom {
 
     }
 
-    makeVisible(x: number, y: number, w: number = 0, h: number = 0, centerOnIt: boolean = true) {
+    makeVisible(x: number, y: number, w: number = 0, h: number = 0, centerOnIt: boolean = true, exclude_width: number = 0, exclude_height: number = 0, pos: "topleft" | "topright" | "bottomleft" | "bottomright" = "topleft") {
         const s = window.getComputedStyle(this.clipped_div);
         const width = parseFloat(s.width);
         const height = parseFloat(s.height);
-        const obj_rect = new DOMRect(x * this.zoom, y * this.zoom, w * this.zoom, h * this.zoom);
-        const board_rect = new DOMRect(-this.board_x - width / 2, -this.board_y - height / 2, width, height);
+        var obj_rect = new DOMRect(x * this.zoom, y * this.zoom, w * this.zoom, h * this.zoom);
+        var board_rect = new DOMRect(-this.board_x - width / 2, -this.board_y - height / 2, width, height);
 
-        if (centerOnIt && !this._isRectInside(board_rect, obj_rect)) {
-            this.scrollto(-x - w / 2, -y - h / 2);
+        if (centerOnIt) {
+            if (!this._isRectInside(board_rect, obj_rect))
+                this.scrollto(-x - w / 2, -y - h / 2);
         } else {
-            let { deltaX, deltaY } = this._adjustToContain(board_rect, obj_rect);
-            if (deltaX != 0 || deltaY != 0)
-                this.scroll(deltaX, deltaY);
+            let delta = this._adjustToContain(board_rect, obj_rect);
+            if ((exclude_width != 0 || exclude_height != 0)) {
+                const exclude_rect = new DOMRect(board_rect.x, board_rect.y, exclude_width, exclude_height);
+                obj_rect.x += delta.x;
+                obj_rect.y += delta.y;
+                if (this._intersect(exclude_rect, obj_rect)) {
+                    let board_rect1 = new DOMRect(board_rect.x + exclude_width, board_rect.y, board_rect.width - exclude_width, board_rect.height);
+                    let delta1 = this._adjustToContain(board_rect1, obj_rect);
+                    let board_rect2 = new DOMRect(board_rect.x, board_rect.y + exclude_height, board_rect.width, board_rect.height - exclude_height);
+                    let delta2 = this._adjustToContain(board_rect2, obj_rect);
+                    if (Math.hypot(delta.x + delta1.x, delta.y + delta1.y) < Math.hypot(delta.x + delta2.x, delta.y + delta2.y)) {
+                        delta.x += delta1.x;
+                        delta.y += delta1.y;
+                    } else {
+                        delta.x += delta2.x;
+                        delta.y += delta2.y;
+                    }
+                }
+            }
+            if (delta.x != 0 || delta.y != 0)
+                this.scroll(delta.x, delta.y);
         }
     }
 
