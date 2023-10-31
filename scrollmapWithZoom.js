@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.25.0: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom version-x.x.x: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -789,7 +789,7 @@ class ScrollmapWithZoom {
                     width: calc(var(--column_cnt) * (var(--icon_size_z) + 2 * var(--icon_around_size_z)));
                 }
 
-                .scrollmap_form {
+                /*.scrollmap_form {
                     position: fixed;
                     margin: auto;
                     display: none;
@@ -801,36 +801,49 @@ class ScrollmapWithZoom {
                     background-color: white;
                     z-index: calc(var(--z_index_anim) + 1);
                     border: 2px solid black;
+                }*/
+
+                /*.scrollmap_dialog {
+                    min-width: 50%;
+                    min-height: 50%;
+                }*/
+
+                .scrollmap_dialog button {
+                    width: fit-content;
+                    padding: 5px;
+                    border: 1px solid;
+                    border-radius: 5px;
+                    appearance: auto;
                 }
 
-                .scrollmap_form > * {
+                .scrollmap_form > div:first-of-type  {
+                    margin-top: 25px;
+                    position : relative;
+                }
+                .scrollmap_form > div {
                     margin-bottom: 10px;
                     position : relative;
-                   /*width: auto;*/
                 }
 
-                .scrollmap_form > div :first-child {
+                /*.scrollmap_form > div :first-child {
                     margin-left: 10px;
-                }
+                }*/
 
-                .scrollmap_form > div:has([name="close"]) {
+                /*.scrollmap_form > div:has([name="close"]) {
                     background-color: darkblue;
                     width: 100%;
                     height: 30px;
-                }
+                }*/
                 .scrollmap_form [name="close"]{
+                    /*float: right;*/
                     position: absolute;
-                    width: fit-content;
-                    right: 0px;
-                    padding: 5px;
+                    right: 5px;
+                    top: 5px;
+                    appearance: none;
                 }
 
                 .scrollmap_form [ type="submit"]{
-                  width: fit-content;
-                  right: 0px;
                   background-color: lightblue;
-                  border-radius: 5px;
-                  padding: 5px;
                 }
 
                 .scrollmap_form select{
@@ -1087,18 +1100,25 @@ class ScrollmapWithZoom {
     _init() {}
     _createForm() {
         var formTmpl = String.raw `
-            <form class="scrollmap_form">
-                <div><button name="close" aria-label="close">X</button></div>
-                <div>
-                    <input type="checkbox" name="wheelZooming" value="true">
-                    <label for="wheelZooming">Zoom with mouse wheel + </label>
-                    <select name="wheelZoomingKey"></select>
-                </div>
-                <div><button type="submit">Confirm</button></div>
-            </form>
+            <dialog class="scrollmap_dialog">
+                <form class="scrollmap_form">
+                    <button name="close" aria-label="close">X</button>
+                    <div>
+                        <input type="checkbox" name="wheelZooming" value="true">
+                        <label for="wheelZooming">Zoom with mouse wheel + </label>
+                        <select name="wheelZoomingKey"></select>
+                    </div>
+                    <div>
+                        <button name="close2">Cancel</button>
+                        <button type="submit">Confirm</button>
+                    </div>
+                </form>
+            </dialog>
         `;
         this.container_div.insertAdjacentHTML("beforeend", formTmpl);
-        this._form = this.container_div.lastElementChild;
+        this._formDialog = this.container_div.lastElementChild;
+        this._form = this._formDialog.firstElementChild;
+        //this._form = < HTMLFormElement > this.container_div.lastElementChild;
         this._form.onsubmit = this._submitForm.bind(this);
         var inputs = this._form.elements;
         var keys = new Map([
@@ -1115,9 +1135,11 @@ class ScrollmapWithZoom {
             inputs.namedItem("wheelZoomingKey").appendChild(option);
         }
         inputs.namedItem("close").onclick = this._closeForm.bind(this);
+        inputs.namedItem("close2").onclick = this._closeForm.bind(this);
     }
     _showForm() {
-        this._form.style.display = "block";
+        this._formDialog.showModal();
+        //this._form.style.display = "block";
         // interface HTMLCollectionOf2<T extends Element>  {
         //     readonly length: number;
         //     item(index: number): T | null;
@@ -1148,11 +1170,13 @@ class ScrollmapWithZoom {
             this.zoomingOptions.wheelZooming = wheelZooming;
             this._optionsChanged.wheelZooming = wheelZooming;
         }
-        this._form.style.display = "none";
+        this._formDialog.close();
+        //this._form.style.display = "none";
         return false;
     }
     _closeForm() {
-        this._form.style.display = "none";
+        this._formDialog.close();
+        // this._form.style.display = "none";
         return false;
     }
     _adaptHeight(entries) {
