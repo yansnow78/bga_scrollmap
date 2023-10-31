@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom version-x.x.x: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.25.1: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -788,26 +788,7 @@ class ScrollmapWithZoom {
                     --column_cnt : 2;
                     width: calc(var(--column_cnt) * (var(--icon_size_z) + 2 * var(--icon_around_size_z)));
                 }
-
-                /*.scrollmap_form {
-                    position: fixed;
-                    margin: auto;
-                    display: none;
-                    top: 50%;
-                    left: 50%;
-                    min-width: 50%;
-                    min-height: 50%;
-                    transform: translate(-50%, -50%);
-                    background-color: white;
-                    z-index: calc(var(--z_index_anim) + 1);
-                    border: 2px solid black;
-                }*/
-
-                /*.scrollmap_dialog {
-                    min-width: 50%;
-                    min-height: 50%;
-                }*/
-
+                
                 .scrollmap_dialog button {
                     width: fit-content;
                     padding: 5px;
@@ -825,15 +806,6 @@ class ScrollmapWithZoom {
                     position : relative;
                 }
 
-                /*.scrollmap_form > div :first-child {
-                    margin-left: 10px;
-                }*/
-
-                /*.scrollmap_form > div:has([name="close"]) {
-                    background-color: darkblue;
-                    width: 100%;
-                    height: 30px;
-                }*/
                 .scrollmap_form [name="close"]{
                     /*float: right;*/
                     position: absolute;
