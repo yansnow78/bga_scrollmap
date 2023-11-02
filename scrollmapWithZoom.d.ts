@@ -155,6 +155,7 @@ declare class ScrollmapWithZoom {
     protected _optionsChanged: {
         bWheelZooming: boolean;
         wheelZooming: number;
+        pinchZooming: boolean;
     };
     protected _form: HTMLFormElement;
     protected _formDialog: HTMLDialogElement;

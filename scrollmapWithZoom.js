@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.25.3: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.25.4: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -256,7 +256,8 @@ class ScrollmapWithZoom {
         this.longPressZoom = 0.01;
         this._optionsChanged = {
             bWheelZooming: null,
-            wheelZooming: null
+            wheelZooming: null,
+            pinchZooming: null
         };
         this._cover_arrows = null;
         this._x_extra_l = null;
@@ -817,6 +818,7 @@ class ScrollmapWithZoom {
 
                 .scrollmap_form select{
                     border: solid blue;
+                    font-size: 16px;
                 }
 
                 .reset.fa6-arrows-to-circle {
@@ -1031,12 +1033,16 @@ class ScrollmapWithZoom {
                     <button name="close" aria-label="close">X</button>
                     <div>
                         <input type="checkbox" name="wheelZooming" value="true">
-                        <label for="wheelZooming">Zoom with mouse wheel + </label>
+                        <label for="wheelZooming">${__("lang_mainsite", "Zoom with mouse wheel + ")}</label>
                         <select name="wheelZoomingKey"></select>
                     </div>
                     <div>
-                        <button name="close2">Cancel</button>
-                        <button type="submit">Confirm</button>
+                        <input type="checkbox" name="pinchZooming" value="true">
+                        <label for="pinchZooming">${__("lang_mainsite", "Pinch fingers to zoom")}</label>
+                    </div>
+                    <div>
+                        <button name="close2">${__("lang_mainsite", "Cancel")}</button>
+                        <button type="submit">${__("lang_mainsite", "Confirm")}</button>
                     </div>
                 </form>
             </dialog>
@@ -1083,6 +1089,7 @@ class ScrollmapWithZoom {
         var inputs = this._form.elements;
         inputs.namedItem("wheelZooming").checked = this.zoomingOptions.bWheelZooming;
         inputs.namedItem("wheelZoomingKey").value = '' + this.zoomingOptions.wheelZooming;
+        inputs.namedItem("pinchZooming").checked = this.zoomingOptions.pinchZooming;
     }
     _submitForm() {
         var inputs = this._form.elements;
@@ -1095,6 +1102,11 @@ class ScrollmapWithZoom {
         if (this.zoomingOptions.wheelZooming != wheelZooming) {
             this.zoomingOptions.wheelZooming = wheelZooming;
             this._optionsChanged.wheelZooming = wheelZooming;
+        }
+        var pinchZooming = inputs.namedItem("pinchZooming").checked;
+        if (this.zoomingOptions.pinchZooming != pinchZooming) {
+            this.zoomingOptions.pinchZooming = pinchZooming;
+            this._optionsChanged.pinchZooming = pinchZooming;
         }
         this._formDialog.close();
         //this._form.style.display = "none";
