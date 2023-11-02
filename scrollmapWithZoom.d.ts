@@ -85,7 +85,7 @@ declare class ScrollmapWithZoom {
     adaptHeightCorr: number;
     get bInfoBtnVisible(): boolean;
     /**
-     * enable/disble long press on buttons
+     * enable/disble keys
      */
     static get bEnableKeys(): boolean;
     static set bEnableKeys(value: boolean);
@@ -363,10 +363,11 @@ declare class ScrollmapWithZoom {
     setDisplayHeight(new_height: number, dispatch?: boolean): boolean;
     static updateHeight(new_height: number, incrHeightGlobalKey: string): void;
     getDisplayHeight(): number;
-    setupInfoButton(bConfigurableInUserPreference?: boolean): string;
+    setupInfoButton(bConfigurableInUserPreference?: boolean): void;
     showInfoButton(): void;
     hideInfoButton(): void;
-    setInfoButtonTooltip(): string;
+    getInfoButtonTooltip(): string;
+    setInfoButtonTooltip(): void;
     getWheelZoomingOptionTranslated(): string;
 }
 declare namespace ScrollmapWithZoom {

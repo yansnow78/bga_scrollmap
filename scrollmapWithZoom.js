@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.25.2: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.25.3: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -47,9 +47,6 @@ class ScrollmapWithZoom {
         this.container_div.setAttribute("warning_touch", warning_touch);
         var keysStr = this.getWheelZoomingOptionTranslated();
         this.container_div.setAttribute("warning_scroll", dojo.string.substitute(__("lang_mainsite", "Use ${keys} + Mouse Wheel to zoom the board"), { keys: keysStr }));
-        if (this._btnInfo && (this._btnInfo.style.display != 'none')) {
-            this.setInfoButtonTooltip();
-        }
     }
     get bAdaptHeightAuto() {
         return this._bAdaptHeightAuto;
@@ -108,7 +105,7 @@ class ScrollmapWithZoom {
         return this._bInfoBtnVisible;
     }
     /**
-     * enable/disble long press on buttons
+     * enable/disble keys
      */
     static get bEnableKeys() {
         return ScrollmapWithZoom._bEnableKeys;
@@ -255,8 +252,8 @@ class ScrollmapWithZoom {
         this.btnsSize = '20px';
         this.btnsFontSize = '20px';
         this.btnsAroundSize = '6px';
-        this.longPressScroll = 5;
-        this.longPressZoom = 0.02;
+        this.longPressScroll = 3;
+        this.longPressZoom = 0.01;
         this._optionsChanged = {
             bWheelZooming: null,
             wheelZooming: null
@@ -2697,9 +2694,7 @@ class ScrollmapWithZoom {
     hideInfoButton() {
         this._hideButton(this._btnInfo);
     }
-    setInfoButtonTooltip() {
-        if (!this._btnInfo)
-            return;
+    getInfoButtonTooltip() {
         var info = '<div class="scrollmap_tooltip">';
         info += __("lang_mainsite", 'To show/hide controls click on the wheel');
         info += '<BR>';
@@ -2733,11 +2728,16 @@ class ScrollmapWithZoom {
         if (this._bConfigurableInUserPreference)
             info += __("lang_mainsite", 'This is configurable in user preference.');
         info += '</div>';
+        return info;
+    }
+    setInfoButtonTooltip() {
+        if (!this._btnInfo)
+            return;
         if (gameui != null) {
-            gameui.addTooltipHtml(this._btnInfo.id, info, 10);
+            gameui.addTooltipHtml(this._btnInfo.id, '', 10);
             gameui.tooltips[this._btnInfo.id].bForceOpening = true;
-        } else
-            return info;
+            gameui.tooltips[this._btnInfo.id].getContent = () => { return this.getInfoButtonTooltip(); };
+        }
     }
     getWheelZoomingOptionTranslated() {
         var keystr = "";

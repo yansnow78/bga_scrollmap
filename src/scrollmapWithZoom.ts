@@ -100,9 +100,6 @@ class ScrollmapWithZoom {
         this.container_div.setAttribute("warning_touch", warning_touch);
         var keysStr = this.getWheelZoomingOptionTranslated();
         this.container_div.setAttribute("warning_scroll", dojo.string.substitute(__("lang_mainsite", "Use ${keys} + Mouse Wheel to zoom the board"), { keys: keysStr }));
-        if (this._btnInfo && (this._btnInfo.style.display != 'none')) {
-            this.setInfoButtonTooltip();
-        }
     }
 
     /** 
@@ -191,7 +188,7 @@ class ScrollmapWithZoom {
     }
 
     /**
-     * enable/disble long press on buttons
+     * enable/disble keys
      */
     public static get bEnableKeys(): boolean {
         return ScrollmapWithZoom._bEnableKeys;
@@ -274,8 +271,8 @@ class ScrollmapWithZoom {
     btnsSize: string = '20px';
     btnsFontSize: string = '20px';
     btnsAroundSize: string = '6px';
-    longPressScroll: number = 5;
-    longPressZoom: number = 0.02;
+    longPressScroll: number = 3;
+    longPressZoom: number = 0.01;
 
     protected _optionsChanged = {
         bWheelZooming: < boolean > null,
@@ -2939,9 +2936,7 @@ class ScrollmapWithZoom {
         this._hideButton(this._btnInfo);
     }
 
-    setInfoButtonTooltip() {
-        if (!this._btnInfo)
-            return;
+    getInfoButtonTooltip() {
         var info = '<div class="scrollmap_tooltip">';
         info += __("lang_mainsite", 'To show/hide controls click on the wheel');
         info += '<BR>';
@@ -2975,11 +2970,17 @@ class ScrollmapWithZoom {
         if (this._bConfigurableInUserPreference)
             info += __("lang_mainsite", 'This is configurable in user preference.');
         info += '</div>';
+        return info;
+    }
+
+    setInfoButtonTooltip() {
+        if (!this._btnInfo)
+            return;
         if (gameui != null) {
-            gameui.addTooltipHtml(this._btnInfo.id, info, 10);
+            gameui.addTooltipHtml(this._btnInfo.id, '', 10);
             gameui.tooltips[this._btnInfo.id].bForceOpening = true;
-        } else
-            return info;
+            gameui.tooltips[this._btnInfo.id].getContent = () => { return this.getInfoButtonTooltip(); };
+        }
     }
 
     getWheelZoomingOptionTranslated() {
