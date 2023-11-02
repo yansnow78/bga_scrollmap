@@ -1318,10 +1318,12 @@ class ScrollmapWithZoom {
             let optionsChanged = settings.optionsChanged;
             if (optionsChanged != null) {
                 this._optionsChanged = optionsChanged;
-                if (optionsChanged.bWheelZooming)
+                if (optionsChanged.bWheelZooming !== null)
                     this.zoomingOptions.bWheelZooming = optionsChanged.bWheelZooming;
-                if (optionsChanged.wheelZooming)
+                if (optionsChanged.wheelZooming !== null)
                     this.zoomingOptions.wheelZooming = optionsChanged.wheelZooming;
+                if (optionsChanged.pinchZooming !== null)
+                    this.zoomingOptions.pinchZooming = optionsChanged.pinchZooming;
             }
         }
         return scrolled;

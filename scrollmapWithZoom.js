@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.25.4: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.25.5: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1240,10 +1240,12 @@ class ScrollmapWithZoom {
             let optionsChanged = settings.optionsChanged;
             if (optionsChanged != null) {
                 this._optionsChanged = optionsChanged;
-                if (optionsChanged.bWheelZooming)
+                if (optionsChanged.bWheelZooming !== null)
                     this.zoomingOptions.bWheelZooming = optionsChanged.bWheelZooming;
-                if (optionsChanged.wheelZooming)
+                if (optionsChanged.wheelZooming !== null)
                     this.zoomingOptions.wheelZooming = optionsChanged.wheelZooming;
+                if (optionsChanged.pinchZooming !== null)
+                    this.zoomingOptions.pinchZooming = optionsChanged.pinchZooming;
             }
         }
         return scrolled;
