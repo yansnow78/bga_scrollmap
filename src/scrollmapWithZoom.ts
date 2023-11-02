@@ -846,7 +846,7 @@ class ScrollmapWithZoom {
                     --column_cnt : 2;
                     width: calc(var(--column_cnt) * (var(--icon_size_z) + 2 * var(--icon_around_size_z)));
                 }
-                
+
                 .scrollmap_dialog button {
                     width: fit-content;
                     padding: 5px;
@@ -901,33 +901,21 @@ class ScrollmapWithZoom {
                     bottom: unset;
                 }
 
-                .scrollmap_container .zoomminus.btn_pos_top_right,
-                .scrollmap_container .zoomminus.btn_pos_top_left {
-                    --index_y: 3;
+
+                .scrollmap_overflow_clipped .btn_pos_top_left > .show_settings{
+                    top: 0px;
+                    position: absolute;
+                    right: 0px;
+                    left: calc(2 * var(--button_size));
                 }
 
-                .scrollmap_container .zoomplus.btn_pos_top_right,
-                .scrollmap_container .zoomplus.btn_pos_top_left {
-                    --index_y: 2;
+                .scrollmap_overflow_clipped .btn_pos_top_right > .show_settings{
+                    top: 0px;
+                    position: absolute;
+                    right: 0px;
+                    right: calc(2 * var(--button_size));
                 }
 
-                .scrollmap_container .info.btn_pos_top_right,
-                .scrollmap_container .info.btn_pos_top_left {
-                    --index_x: 1;
-                    --index_y: 0;
-                }
-
-                .scrollmap_container .reset.btn_pos_top_right,
-                .scrollmap_container .reset.btn_pos_top_left {
-                    --index_x: 0;
-                    --index_y: 1;
-                }
-
-                .scrollmap_container .zoomtofit.btn_pos_top_right,
-                .scrollmap_container .zoomtofit.btn_pos_top_left {
-                    --index_x: 1;
-                    --index_y: 1;
-                }
 
                 .scrollmap_footer, .scrollmap_header {
                     text-align: center;
@@ -951,37 +939,6 @@ class ScrollmapWithZoom {
                     top: 0px;
                 }
 
-                .scrollmap_container .enlargedisplay.grouped_with_others{
-                    --index_x: 1;
-                    --index_y: 3;
-                }
-
-                .scrollmap_container .reducedisplay.grouped_with_others{
-                    --index_x: 1;
-                    --index_y: 2;
-                }
-
-                .scrollmap_container .reset_height.grouped_with_others, .scrollmap_container .maximize_height.grouped_with_others{
-                    --index_x: 1;
-                    --index_y: 4;
-                }
-
-                .scrollmap_container .enlargedisplay.opposite_to_others{
-                    --index_y: 1;
-                }
-
-                .scrollmap_container .reducedisplay.opposite_to_others{
-                    --index_y: 0;
-                }
-
-                .scrollmap_container .reset_height.opposite_to_others,  .scrollmap_container .maximize_height.opposite_to_others{
-                    --index_y: 2;
-                }
-
-                .scrollmap_container .toogle_buttons_visibility {
-                    --index_x: 0;
-                    --index_y: 0;
-                }
                 /**********************************
                 * positioning of fontAwesome icon *
                 ***********************************/
