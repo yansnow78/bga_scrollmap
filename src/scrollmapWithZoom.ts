@@ -262,7 +262,7 @@ class ScrollmapWithZoom {
 
     btnsDivOnMap: boolean = true;
     btns2DivOnMap: boolean = true;
-    btnsDivPositionOutsideMap: string = ScrollmapWithZoom.btnsDivPositionE.Top;
+    btnsDivPositionOutsideMap: string = ScrollmapWithZoom.btnsDivPositionE.Right;
     btnsPositionClasses: string = 'btn_pos_top_right';
     btns2PositionClasses: string = '';
     btnsBackgroundColor: string = 'rgba(255,255,255,0.5)';
@@ -270,6 +270,8 @@ class ScrollmapWithZoom {
     btnsMarginY: string = '0px';
     btnsOffsetX: string = '8px';
     btnsOffsetY: string = '8px';
+    btnsOutsideMapOffsetX: string = '8px';
+    btnsOutsideMapOffsetY: string = '8px';
     btnsSize: string = '20px';
     btnsFontSize: string = '20px';
     btnsAroundSize: string = '6px';
@@ -1088,9 +1090,11 @@ class ScrollmapWithZoom {
     protected _init() {}
 
     protected _RepositionButtonsDiv(prevPosition: string) {
-        if (this.btnsDivOnMap)
+        if (this.btnsDivOnMap) {
             this.clipped_div.appendChild(this._buttons_div);
-        else {
+            this.container_div.style.setProperty('--btns_offset_x', this.btnsOffsetX);
+            this.container_div.style.setProperty('--btns_offset_y', this.btnsOffsetY);
+        } else {
             var classList = prevPosition.split(' ');
             for (const posClass of classList) {
                 if (posClass)
@@ -1107,6 +1111,8 @@ class ScrollmapWithZoom {
             //         this._buttons_div.classList.add('flex_direction_column');
             // }
             this.container_div.insertBefore(this._buttons_div, this.clipped_div);
+            this.container_div.style.setProperty('--btns_offset_x', this.btnsOutsideMapOffsetX);
+            this.container_div.style.setProperty('--btns_offset_y', this.btnsOutsideMapOffsetY);
         }
     }
 
@@ -1160,9 +1166,9 @@ class ScrollmapWithZoom {
             }
 
             var keys2 = new Map([
-                [ScrollmapWithZoom.btnsDivPositionE.Top, __("lang_mainsite", "top")],
+                [ScrollmapWithZoom.btnsDivPositionE.Right, __("lang_mainsite", "right")],
                 [ScrollmapWithZoom.btnsDivPositionE.Left, __("lang_mainsite", "left")],
-                [ScrollmapWithZoom.btnsDivPositionE.Right, __("lang_mainsite", "right")]
+                [ScrollmapWithZoom.btnsDivPositionE.Top, __("lang_mainsite", "top")],
             ]);
             var btnsDivPositionsSel = inputs.namedItem("btnsDivPositionOutsideMap");
             for (const [key, value] of keys2.entries()) {

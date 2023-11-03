@@ -149,6 +149,8 @@ declare class ScrollmapWithZoom {
     btnsMarginY: string;
     btnsOffsetX: string;
     btnsOffsetY: string;
+    btnsOutsideMapOffsetX: string;
+    btnsOutsideMapOffsetY: string;
     btnsSize: string;
     btnsFontSize: string;
     btnsAroundSize: string;

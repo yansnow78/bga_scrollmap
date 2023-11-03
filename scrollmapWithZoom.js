@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.26.0: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.26.1: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -241,7 +241,7 @@ class ScrollmapWithZoom {
         this.btnSettingsHtml = null;
         this.btnsDivOnMap = true;
         this.btns2DivOnMap = true;
-        this.btnsDivPositionOutsideMap = ScrollmapWithZoom.btnsDivPositionE.Top;
+        this.btnsDivPositionOutsideMap = ScrollmapWithZoom.btnsDivPositionE.Right;
         this.btnsPositionClasses = 'btn_pos_top_right';
         this.btns2PositionClasses = '';
         this.btnsBackgroundColor = 'rgba(255,255,255,0.5)';
@@ -249,6 +249,8 @@ class ScrollmapWithZoom {
         this.btnsMarginY = '0px';
         this.btnsOffsetX = '8px';
         this.btnsOffsetY = '8px';
+        this.btnsOutsideMapOffsetX = '8px';
+        this.btnsOutsideMapOffsetY = '8px';
         this.btnsSize = '20px';
         this.btnsFontSize = '20px';
         this.btnsAroundSize = '6px';
@@ -1019,9 +1021,11 @@ class ScrollmapWithZoom {
     }
     _init() {}
     _RepositionButtonsDiv(prevPosition) {
-        if (this.btnsDivOnMap)
+        if (this.btnsDivOnMap) {
             this.clipped_div.appendChild(this._buttons_div);
-        else {
+            this.container_div.style.setProperty('--btns_offset_x', this.btnsOffsetX);
+            this.container_div.style.setProperty('--btns_offset_y', this.btnsOffsetY);
+        } else {
             var classList = prevPosition.split(' ');
             for (const posClass of classList) {
                 if (posClass)
@@ -1038,6 +1042,8 @@ class ScrollmapWithZoom {
             //         this._buttons_div.classList.add('flex_direction_column');
             // }
             this.container_div.insertBefore(this._buttons_div, this.clipped_div);
+            this.container_div.style.setProperty('--btns_offset_x', this.btnsOutsideMapOffsetX);
+            this.container_div.style.setProperty('--btns_offset_y', this.btnsOutsideMapOffsetY);
         }
     }
     _createForm() {
@@ -1089,9 +1095,9 @@ class ScrollmapWithZoom {
                 wheelZoomingKeySel.appendChild(option);
             }
             var keys2 = new Map([
-                [ScrollmapWithZoom.btnsDivPositionE.Top, __("lang_mainsite", "top")],
+                [ScrollmapWithZoom.btnsDivPositionE.Right, __("lang_mainsite", "right")],
                 [ScrollmapWithZoom.btnsDivPositionE.Left, __("lang_mainsite", "left")],
-                [ScrollmapWithZoom.btnsDivPositionE.Right, __("lang_mainsite", "right")]
+                [ScrollmapWithZoom.btnsDivPositionE.Top, __("lang_mainsite", "top")],
             ]);
             var btnsDivPositionsSel = inputs.namedItem("btnsDivPositionOutsideMap");
             for (const [key, value] of keys2.entries()) {
