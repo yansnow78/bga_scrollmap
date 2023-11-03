@@ -49,6 +49,8 @@ interface Position {
 class ScrollmapWithZoom {
     private static count: number = 0;
     private static instances: Map < string, ScrollmapWithZoom > = new Map < string, ScrollmapWithZoom > ();
+    private static _form: HTMLFormElement;
+    private static _formDialog: HTMLDialogElement;
     /**
      * board properties
      */
@@ -279,8 +281,6 @@ class ScrollmapWithZoom {
         wheelZooming: < number > null,
         pinchZooming: < boolean > null
     };
-    protected _form: HTMLFormElement;
-    protected _formDialog: HTMLDialogElement;
     protected _cover_arrows: boolean = null;
     protected _x_extra_l: number = null;
     protected _x_extra_r: number = null;
@@ -1096,51 +1096,58 @@ class ScrollmapWithZoom {
     protected _init() {}
 
     protected _createForm() {
-        var formTmpl = String.raw`
-            <dialog class="scrollmap_dialog">
-                <form class="scrollmap_form">
-                    <button name="close" aria-label="close">X</button>
-                    <div>
-                        <input type="checkbox" name="wheelZooming" value="true">
-                        <label for="wheelZooming">${__("lang_mainsite", "Zoom with mouse wheel + ")}</label>
-                        <select name="wheelZoomingKey"></select>
-                    </div>
-                    <div>
-                        <input type="checkbox" name="pinchZooming" value="true">
-                        <label for="pinchZooming">${__("lang_mainsite", "Pinch fingers to zoom")}</label>
-                    </div>
-                    <div>
-                        <button name="close2">${__("lang_mainsite", "Cancel")}</button>
-                        <button type="submit">${__("lang_mainsite", "Confirm")}</button>
-                    </div>
-                </form>
-            </dialog>
-        `;
-        this.container_div.insertAdjacentHTML("beforeend", formTmpl);
-        this._formDialog = < HTMLDialogElement > this.container_div.lastElementChild;
-        this._form = < HTMLFormElement > this._formDialog.firstElementChild;
-        //this._form = < HTMLFormElement > this.container_div.lastElementChild;
-        this._form.onsubmit = this._submitForm.bind(this);
-        var inputs = < HTMLCollectionOf < HTMLInputElement > /*  & { [index: string]: string } */ > this._form.elements;
-        var keys = new Map([
-            [8, __("lang_mainsite", "alt")],
-            [4, __("lang_mainsite", "ctrl")],
-            [16, __("lang_mainsite", "shift")],
-            [32, __("lang_mainsite", "meta")],
-            [2, __("lang_mainsite", "no keys")]
-        ]);
-        for (const [key, value] of keys.entries()) {
-            var option = document.createElement("option");
-            option.value = '' + key;
-            option.text = value;
-            inputs.namedItem("wheelZoomingKey").appendChild(option);
+        var inputs = null;
+        if (!ScrollmapWithZoom._formDialog) {
+            var formTmpl = String.raw`
+                <dialog class="scrollmap_dialog">
+                    <form class="scrollmap_form">
+                        <button name="close" aria-label="close">X</button>
+                        <div>
+                            <input type="checkbox" name="wheelZooming" value="true">
+                            <label for="wheelZooming">${__("lang_mainsite", "Zoom with mouse wheel + ")}</label>
+                            <select name="wheelZoomingKey"></select>
+                        </div>
+                        <div>
+                            <input type="checkbox" name="pinchZooming" value="true">
+                            <label for="pinchZooming">${__("lang_mainsite", "Pinch fingers to zoom")}</label>
+                        </div>
+                        <div>
+                            <button name="close2">${__("lang_mainsite", "Cancel")}</button>
+                            <button type="submit" name="confirm">${__("lang_mainsite", "Confirm")}</button>
+                        </div>
+                    </form>
+                </dialog>
+            `;
+            document.body.insertAdjacentHTML("beforeend", formTmpl);
+            ScrollmapWithZoom._formDialog = < HTMLDialogElement > document.body.lastElementChild;
+            ScrollmapWithZoom._form = < HTMLFormElement > ScrollmapWithZoom._formDialog.firstElementChild;
+            //this._form = < HTMLFormElement > this.container_div.lastElementChild;
+            inputs = < HTMLCollectionOf < HTMLInputElement > /*  & { [index: string]: string } */ > ScrollmapWithZoom._form.elements;
+            ScrollmapWithZoom._form.onsubmit = () => { return false; };
+            var keys = new Map([
+                [8, __("lang_mainsite", "alt")],
+                [4, __("lang_mainsite", "ctrl")],
+                [16, __("lang_mainsite", "shift")],
+                [32, __("lang_mainsite", "meta")],
+                [2, __("lang_mainsite", "no keys")]
+            ]);
+            for (const [key, value] of keys.entries()) {
+                var option = document.createElement("option");
+                option.value = '' + key;
+                option.text = value;
+                inputs.namedItem("wheelZoomingKey").appendChild(option);
+            }
         }
-        inputs.namedItem("close").onclick = this._closeForm.bind(this);
-        inputs.namedItem("close2").onclick = this._closeForm.bind(this);
+        if (!inputs)
+            inputs = < HTMLCollectionOf < HTMLInputElement > /*  & { [index: string]: string } */ > ScrollmapWithZoom._form.elements;
+        inputs.namedItem("confirm").addEventListener("click", this._submitForm.bind(this));
+        var closeFctBind = this._closeForm.bind(this);
+        inputs.namedItem("close").addEventListener("click", closeFctBind);
+        inputs.namedItem("close2").addEventListener("click", closeFctBind);
     }
 
     protected _showForm() {
-        this._formDialog.showModal();
+        ScrollmapWithZoom._formDialog.showModal();
         //this._form.style.display = "block";
         // interface HTMLCollectionOf2<T extends Element>  {
         //     readonly length: number;
@@ -1156,14 +1163,14 @@ class ScrollmapWithZoom {
         // interface HTMLFormElemnts extends HTMLFormControlsCollection {
         //     [key: string | number]: HTMLElement;
         //   }
-        var inputs = < HTMLCollectionOf < HTMLInputElement > /*  & { [index: string]: string } */ > this._form.elements;
+        var inputs = < HTMLCollectionOf < HTMLInputElement > /*  & { [index: string]: string } */ > ScrollmapWithZoom._form.elements;
         inputs.namedItem("wheelZooming").checked = this.zoomingOptions.bWheelZooming;
         inputs.namedItem("wheelZoomingKey").value = '' + this.zoomingOptions.wheelZooming;
         inputs.namedItem("pinchZooming").checked = this.zoomingOptions.pinchZooming;
     }
 
     protected _submitForm() {
-        var inputs = < HTMLCollectionOf < HTMLInputElement >> this._form.elements;
+        var inputs = < HTMLCollectionOf < HTMLInputElement >> ScrollmapWithZoom._form.elements;
         var bWheelZooming = inputs.namedItem("wheelZooming").checked;
         if (this.zoomingOptions.bWheelZooming != bWheelZooming) {
             this.zoomingOptions.bWheelZooming = bWheelZooming;
@@ -1179,13 +1186,13 @@ class ScrollmapWithZoom {
             this.zoomingOptions.pinchZooming = pinchZooming;
             this._optionsChanged.pinchZooming = pinchZooming;
         }
-        this._formDialog.close();
+        ScrollmapWithZoom._formDialog.close();
         //this._form.style.display = "none";
         return false;
     }
 
     protected _closeForm() {
-        this._formDialog.close();
+        ScrollmapWithZoom._formDialog.close();
         // this._form.style.display = "none";
         return false;
     }
@@ -1760,7 +1767,7 @@ class ScrollmapWithZoom {
 
                 case ScrollmapWithZoom.wheelZoomingKeys.Meta:
                     wheelZoom = evt.metaKey;
-                    return;
+                    break;
             }
         }
 
@@ -2951,7 +2958,7 @@ class ScrollmapWithZoom {
     }
 
     getInfoButtonTooltip() {
-        var canbemodfied = __("lang_mainsite", " ( can be modified in parameters )");
+        var canbemodfied = __("lang_mainsite", " ( modifiable in scrollmap settings )");
         var info = '<div class="scrollmap_tooltip">';
         info += __("lang_mainsite", 'To show/hide controls click on the wheel');
         info += '<BR>';

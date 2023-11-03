@@ -19,6 +19,8 @@ interface Position {
 declare class ScrollmapWithZoom {
     private static count;
     private static instances;
+    private static _form;
+    private static _formDialog;
     /**
      * board properties
      */
@@ -157,8 +159,6 @@ declare class ScrollmapWithZoom {
         wheelZooming: number;
         pinchZooming: boolean;
     };
-    protected _form: HTMLFormElement;
-    protected _formDialog: HTMLDialogElement;
     protected _cover_arrows: boolean;
     protected _x_extra_l: number;
     protected _x_extra_r: number;
