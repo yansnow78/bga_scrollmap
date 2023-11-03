@@ -215,6 +215,7 @@ declare class ScrollmapWithZoom {
     protected _btnDecreaseHeight: HTMLElement;
     protected _btnResetHeight: HTMLElement;
     protected _btnMaximizeHeight: HTMLElement;
+    protected _btnToggleButtonsVisiblity: HTMLElement;
     protected _btnZoomPlusNames: string;
     protected _btnZoomMinusNames: string;
     protected _btnResetNames: string;
@@ -251,7 +252,10 @@ declare class ScrollmapWithZoom {
     create(container_div: HTMLElement, scrollable_div: HTMLElement, surface_div: HTMLElement, onsurface_div: HTMLElement, clipped_div?: HTMLElement, animation_div?: HTMLElement, page?: object, create_extra?: Function): void;
     createCompletely(container_div: HTMLElement, page?: object, create_extra?: Function, bEnlargeReduceButtonsInsideMap?: boolean): void;
     protected _init(): void;
-    protected _RepositionButtonsDiv(prevPosition: string): void;
+    protected _RepositionButtonsDiv(options?: {
+        btnsDivOnMap?: boolean;
+        btnsDivPositionOutsideMap?: string;
+    }): void;
     protected _createForm(): void;
     protected _showForm(): void;
     protected _submitForm(): boolean;
@@ -261,6 +265,7 @@ declare class ScrollmapWithZoom {
     protected _clearOldSettings(): void;
     protected _loadSettings(): boolean;
     protected _saveSettings(): void;
+    protected _saveGameSettings(): void;
     protected _onvisibilty_changehandler(e: Event): void;
     protected _onbeforeunload_handler(e: Event): void;
     protected _updatePointers(event: PointerEvent | TouchEvent | MouseEvent): any;
@@ -322,6 +327,7 @@ declare class ScrollmapWithZoom {
     protected _setScale(elemId: HTMLElement, scale: number): void;
     protected _getButton(btnNames: string[] | string, idSuffix?: string): HTMLElement;
     protected _toggleButtonsVisiblity(): void;
+    protected _setButtonsVisiblity(visible: boolean): void;
     protected _hideButton($btn: HTMLElement, idSuffix?: string): void;
     protected _showButton($btn: HTMLElement, idSuffix?: string, display?: string): void;
     protected _enableButton($btn: HTMLElement, idSuffix?: string): void;

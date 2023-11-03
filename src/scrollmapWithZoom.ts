@@ -279,11 +279,11 @@ class ScrollmapWithZoom {
     longPressZoom: number = 0.01;
 
     protected _optionsChanged = {
-        bWheelZooming: < boolean > null,
-        wheelZooming: < number > null,
-        pinchZooming: < boolean > null,
-        btnsDivOnMap: < boolean > null,
-        btnsDivPositionOutsideMap: < string > null,
+        bWheelZooming: < boolean > undefined,
+        wheelZooming: < number > undefined,
+        pinchZooming: < boolean > undefined,
+        btnsDivOnMap: < boolean > undefined,
+        btnsDivPositionOutsideMap: < string > undefined,
     };
     protected _cover_arrows: boolean = null;
     protected _x_extra_l: number = null;
@@ -344,6 +344,7 @@ class ScrollmapWithZoom {
     protected _btnDecreaseHeight: HTMLElement = null;
     protected _btnResetHeight: HTMLElement = null;
     protected _btnMaximizeHeight: HTMLElement = null;
+    protected _btnToggleButtonsVisiblity: HTMLElement = null;
     protected _btnZoomPlusNames: string = 'zoomplus,zoom_plus,zoomin,zoom_in';
     protected _btnZoomMinusNames: string = 'zoomminus,zoom_minus,zoomout,zoom_out';
     protected _btnResetNames: string = 'reset,back_to_center,reset_map,map_reset,center';
@@ -513,7 +514,6 @@ class ScrollmapWithZoom {
         this._buttons_div = document.createElement('div');
         this._buttons_div.classList.add(this.btnsPositionClasses);
         this._buttons_div.classList.add(this.btnsDivClasses);
-        this._RepositionButtonsDiv('');
         this._buttons_div2 = document.createElement('div');
         if (!this.btns2PositionClasses) {
             if (this.btnsPositionClasses == 'btn_pos_top_right')
@@ -995,9 +995,9 @@ class ScrollmapWithZoom {
         this.setupInfoButton();
         if (!this._bInfoBtnVisible)
             this.hideInfoButton();
+        this._btnToggleButtonsVisiblity = this._initButton('toogle_buttons_visibility', this.btnToggleButtonsVisibilityHtml, __("lang_mainsite", 'Hide buttons'), this._toggleButtonsVisiblity);
         if (this.btnsDivOnMap) {
-            var btn = this._initButton('toogle_buttons_visibility', this.btnToggleButtonsVisibilityHtml, __("lang_mainsite", 'Hide buttons'), this._toggleButtonsVisiblity);
-            btn.classList.add("scrollmap_icon_always_visible");
+            this._btnToggleButtonsVisiblity.classList.add("scrollmap_icon_always_visible");
         }
         var btn = this._initButton('show_settings', this.btnSettingsHtml, __("lang_mainsite", 'Settings'), this._showForm);
         btn.classList.add("scrollmap_icon_always_visible");
@@ -1009,6 +1009,9 @@ class ScrollmapWithZoom {
         this.setupEnlargeReduceButtons(this.incrHeightDelta, this.bIncrHeightKeepInPos, this.minHeight, this.bIncrHeightBtnIsShort, this.bIncrHeightBtnGroupedWithOthers);
         if (!this._bIncrHeightBtnVisible)
             this.hideEnlargeReduceButtons();
+
+        this._RepositionButtonsDiv();
+
         this.bIncrHeightGlobally = this._bIncrHeightGlobally;
         this._defaultHeight = parseFloat(window.getComputedStyle(this.container_div).height);
         this.bEnableZooming = this._bEnableZooming;
@@ -1090,13 +1093,19 @@ class ScrollmapWithZoom {
 
     protected _init() {}
 
-    protected _RepositionButtonsDiv(prevPosition: string) {
+    protected _RepositionButtonsDiv(options: { btnsDivOnMap ? : boolean, btnsDivPositionOutsideMap ? : string } = { btnsDivOnMap: undefined, btnsDivPositionOutsideMap: undefined }) {
+        var btnsDivOnMapPrev = this.btnsDivOnMap;
+        var btnsDivPositionOutsideMapPrev = this.btnsDivPositionOutsideMap;
+        if (options.btnsDivOnMap)
+            this.btnsDivOnMap = options.btnsDivOnMap;
+        if (options.btnsDivPositionOutsideMap)
+            this.btnsDivPositionOutsideMap = options.btnsDivPositionOutsideMap;
         if (this.btnsDivOnMap) {
             this.clipped_div.appendChild(this._buttons_div);
             this.container_div.style.setProperty('--btns_offset_x', this.btnsOffsetX);
             this.container_div.style.setProperty('--btns_offset_y', this.btnsOffsetY);
         } else {
-            var classList = prevPosition.split(' ');
+            var classList = btnsDivPositionOutsideMapPrev.split(' ');
             for (const posClass of classList) {
                 if (posClass)
                     this.container_div.classList.remove(posClass);
@@ -1114,6 +1123,13 @@ class ScrollmapWithZoom {
             this.container_div.insertBefore(this._buttons_div, this.clipped_div);
             this.container_div.style.setProperty('--btns_offset_x', this.btnsOutsideMapOffsetX);
             this.container_div.style.setProperty('--btns_offset_y', this.btnsOutsideMapOffsetY);
+
+            if (this.btnsDivOnMap) {
+                this._btnToggleButtonsVisiblity.classList.add("scrollmap_icon_always_visible");
+                this._setButtonsVisiblity(true);
+            } else {
+                this._btnToggleButtonsVisiblity.classList.add("scrollmap_btn_nodisplay");
+            }
         }
     }
 
@@ -1231,18 +1247,15 @@ class ScrollmapWithZoom {
         }
         var btnsDivOnMap = !inputs.namedItem("btnsDivOutsideMap").checked;
         if (this.btnsDivOnMap != btnsDivOnMap) {
-            this.btnsDivOnMap = btnsDivOnMap;
             this._optionsChanged.btnsDivOnMap = btnsDivOnMap;
         }
         var btnsDivPositionOutsideMap = inputs.namedItem("btnsDivPositionOutsideMap").value;
-        var btnsDivPositionOutsideMapPrev = this.btnsDivPositionOutsideMap;
         if (this.btnsDivPositionOutsideMap != btnsDivPositionOutsideMap) {
-            this.btnsDivPositionOutsideMap = btnsDivPositionOutsideMap;
             this._optionsChanged.btnsDivPositionOutsideMap = btnsDivPositionOutsideMap;
         }
-
-        this._RepositionButtonsDiv(btnsDivPositionOutsideMapPrev);
-
+        this._RepositionButtonsDiv(this._optionsChanged);
+        if (this == ScrollmapWithZoom.instances.values().next().value)
+            this._saveGameSettings();
 
         ScrollmapWithZoom._formDialog.close();
         //this._form.style.display = "none";
@@ -1380,29 +1393,22 @@ class ScrollmapWithZoom {
         settingsStr = localStorage.getItem(this._localStorageGameKey);
         if (settingsStr != null) {
             let settings = JSON.parse(settingsStr);
-            if (settings.optionsChanged != null) {
+            if (settings.optionsChanged != undefined) {
                 this._optionsChanged = settings.optionsChanged;
                 var optionsChanged = this._optionsChanged;
-                if (optionsChanged.bWheelZooming !== null)
+                if (optionsChanged.bWheelZooming != undefined)
                     this.zoomingOptions.bWheelZooming = optionsChanged.bWheelZooming;
-                if (optionsChanged.wheelZooming !== null)
+                if (optionsChanged.wheelZooming != undefined)
                     this.zoomingOptions.wheelZooming = optionsChanged.wheelZooming;
-                if (optionsChanged.pinchZooming !== null)
+                if (optionsChanged.pinchZooming != undefined)
                     this.zoomingOptions.pinchZooming = optionsChanged.pinchZooming;
-                if (optionsChanged.btnsDivOnMap !== null)
-                    this.btnsDivOnMap = optionsChanged.btnsDivOnMap;
-                var btnsDivPositionOutsideMapPrev = this.btnsDivPositionOutsideMap;
-                if (optionsChanged.btnsDivPositionOutsideMap !== null) {
-                    this.btnsDivPositionOutsideMap = optionsChanged.btnsDivPositionOutsideMap;
-                }
-                if (optionsChanged.btnsDivOnMap || optionsChanged.btnsDivPositionOutsideMap)
-                    this._RepositionButtonsDiv(btnsDivPositionOutsideMapPrev);
+                this._RepositionButtonsDiv(optionsChanged);
             }
         }
         return scrolled;
     }
     protected _saveSettings() {
-        debug("_saveSettings", this.board_x, this.board_y);
+        debug("_saveSettings");
         let settings = {
             time: Date.now(),
             zoom: this.zoom,
@@ -1412,6 +1418,9 @@ class ScrollmapWithZoom {
             height_changed: this._bHeightChanged
         };
         localStorage.setItem(this._localStorageKey, JSON.stringify(settings));
+    }
+    protected _saveGameSettings() {
+        debug("_saveGameSettings");
         let gameSettings = {
             time: Date.now(),
             optionsChanged: this._optionsChanged
@@ -2385,7 +2394,10 @@ class ScrollmapWithZoom {
     }
 
     protected _toggleButtonsVisiblity() {
-        var visible = !this._bBtnsVisible;
+        this._setButtonsVisiblity(!this._bBtnsVisible);
+    }
+
+    protected _setButtonsVisiblity(visible: boolean) {
         this._bBtnsVisible = visible;
         this.container_div.querySelectorAll(".scrollmap_button_wrapper").forEach((node: HTMLElement) => {
             if (visible)
