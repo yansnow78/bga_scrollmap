@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.26.1: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.26.2: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1054,16 +1054,16 @@ class ScrollmapWithZoom {
                     <form class="scrollmap_form">
                         <button name="close" aria-label="close">X</button>
                         <div>
-                            <input type="checkbox" name="wheelZooming" value="true">
+                            <input type="checkbox" id="wheelZooming" value="true">
                             <label for="wheelZooming">${__("lang_mainsite", "Zoom with mouse wheel + ")}</label>
                             <select name="wheelZoomingKey"></select>
                         </div>
                         <div>
-                            <input type="checkbox" name="pinchZooming" value="true">
+                            <input type="checkbox" id="pinchZooming" value="true">
                             <label for="pinchZooming">${__("lang_mainsite", "Pinch fingers to zoom")}</label>
                         </div>
                         <div>
-                            <input type="checkbox" name="btnsDivOutsideMap" value="true">
+                            <input type="checkbox" id="btnsDivOutsideMap" value="true">
                             <label for="btnsDivOutsideMap">${__("lang_mainsite", "Place buttons outside scrollmap on ")}</label>
                             <select name="btnsDivPositionOutsideMap"></select>
                         </div>
