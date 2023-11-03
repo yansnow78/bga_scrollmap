@@ -2951,6 +2951,7 @@ class ScrollmapWithZoom {
     }
 
     getInfoButtonTooltip() {
+        var canbemodfied = __("lang_mainsite", " ( can be modified in parameters )");
         var info = '<div class="scrollmap_tooltip">';
         info += __("lang_mainsite", 'To show/hide controls click on the wheel');
         info += '<BR>';
@@ -2966,8 +2967,11 @@ class ScrollmapWithZoom {
             info += __("lang_mainsite", 'To zoom, do one of the folowing things:');
             info += '<ul>';
             var keysStr = this.getWheelZoomingOptionTranslated();
-            info += '<li>' + dojo.string.substitute(__("lang_mainsite", "use the mouse wheel with ${keys}"), { keys: keysStr }) + '</li>';
-            info += '<li>' + __("lang_mainsite", "pinch fingers.") + '</li>';
+            info += '<li>';
+            info += `<span style="${this.zoomingOptions.bWheelZooming ? "" : "text-decoration: line-through;"}">` + dojo.string.substitute(__("lang_mainsite", "use the mouse wheel with ${keys}"), { keys: keysStr }) + '</span>';
+            info += canbemodfied;
+            info += '</li>';
+            info += '<li>' + `<span style="${this.zoomingOptions.pinchZooming ? "" : "text-decoration: line-through;"}">` + __("lang_mainsite", "pinch fingers.") + '</span>' + canbemodfied + '</li>';
             info += '<li>' + __("lang_mainsite", 'press the zoom buttons (long press : continious zoom).') + '</li>';
             if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysPlusMinus)
                 info += '<li>' + __("lang_mainsite", 'press the +/- keys (long press : continious zoom).') + '</li>';
