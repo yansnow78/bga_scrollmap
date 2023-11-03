@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.25.7: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.26.0: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -257,7 +257,9 @@ class ScrollmapWithZoom {
         this._optionsChanged = {
             bWheelZooming: null,
             wheelZooming: null,
-            pinchZooming: null
+            pinchZooming: null,
+            btnsDivOnMap: null,
+            btnsDivPositionOutsideMap: null,
         };
         this._cover_arrows = null;
         this._x_extra_l = null;
@@ -452,17 +454,7 @@ class ScrollmapWithZoom {
         this._buttons_div = document.createElement('div');
         this._buttons_div.classList.add(this.btnsPositionClasses);
         this._buttons_div.classList.add(this.btnsDivClasses);
-        if (this.btnsDivOnMap)
-            this.clipped_div.appendChild(this._buttons_div);
-        else {
-            this.container_div.className += " " + this.btnsDivPositionOutsideMap;
-            // switch (this.btnsDivPositionOutsideMap) {
-            //     case ScrollmapWithZoom.btnsDivPositionE.Left:
-            //     case ScrollmapWithZoom.btnsDivPositionE.Right:
-            //         this._buttons_div.classList.add('flex_direction_column');
-            // }
-            this.container_div.insertBefore(this._buttons_div, this.clipped_div);
-        }
+        this._RepositionButtonsDiv('');
         this._buttons_div2 = document.createElement('div');
         if (!this.btns2PositionClasses) {
             if (this.btnsPositionClasses == 'btn_pos_top_right')
@@ -1026,6 +1018,28 @@ class ScrollmapWithZoom {
         this.create(container_div, scrollable_div, surface_div, onsurface_div, clipped_div, animation_div, page, create_extra);
     }
     _init() {}
+    _RepositionButtonsDiv(prevPosition) {
+        if (this.btnsDivOnMap)
+            this.clipped_div.appendChild(this._buttons_div);
+        else {
+            var classList = prevPosition.split(' ');
+            for (const posClass of classList) {
+                if (posClass)
+                    this.container_div.classList.remove(posClass);
+            }
+            var classList = this.btnsDivPositionOutsideMap.split(' ');
+            for (const posClass of classList) {
+                if (posClass)
+                    this.container_div.classList.add(posClass);
+            }
+            // switch (this.btnsDivPositionOutsideMap) {
+            //     case ScrollmapWithZoom.btnsDivPositionE.Left:
+            //     case ScrollmapWithZoom.btnsDivPositionE.Right:
+            //         this._buttons_div.classList.add('flex_direction_column');
+            // }
+            this.container_div.insertBefore(this._buttons_div, this.clipped_div);
+        }
+    }
     _createForm() {
         var inputs = null;
         if (!ScrollmapWithZoom._formDialog) {
@@ -1043,6 +1057,11 @@ class ScrollmapWithZoom {
                             <label for="pinchZooming">${__("lang_mainsite", "Pinch fingers to zoom")}</label>
                         </div>
                         <div>
+                            <input type="checkbox" name="btnsDivOutsideMap" value="true">
+                            <label for="btnsDivOutsideMap">${__("lang_mainsite", "Place buttons outside scrollmap on ")}</label>
+                            <select name="btnsDivPositionOutsideMap"></select>
+                        </div>
+                        <div>
                             <button name="close2">${__("lang_mainsite", "Cancel")}</button>
                             <button type="submit" name="confirm">${__("lang_mainsite", "Confirm")}</button>
                         </div>
@@ -1056,17 +1075,30 @@ class ScrollmapWithZoom {
             inputs = ScrollmapWithZoom._form.elements;
             ScrollmapWithZoom._form.onsubmit = () => { return false; };
             var keys = new Map([
-                [8, __("lang_mainsite", "alt")],
-                [4, __("lang_mainsite", "ctrl")],
-                [16, __("lang_mainsite", "shift")],
-                [32, __("lang_mainsite", "meta")],
-                [2, __("lang_mainsite", "no keys")]
+                [ScrollmapWithZoom.wheelZoomingKeys.Alt, __("lang_mainsite", "alt")],
+                [ScrollmapWithZoom.wheelZoomingKeys.Ctrl, __("lang_mainsite", "ctrl")],
+                [ScrollmapWithZoom.wheelZoomingKeys.Shift, __("lang_mainsite", "shift")],
+                [ScrollmapWithZoom.wheelZoomingKeys.Meta, __("lang_mainsite", "meta")],
+                [ScrollmapWithZoom.wheelZoomingKeys.None, __("lang_mainsite", "no keys")]
             ]);
+            var wheelZoomingKeySel = inputs.namedItem("wheelZoomingKey");
             for (const [key, value] of keys.entries()) {
                 var option = document.createElement("option");
                 option.value = '' + key;
                 option.text = value;
-                inputs.namedItem("wheelZoomingKey").appendChild(option);
+                wheelZoomingKeySel.appendChild(option);
+            }
+            var keys2 = new Map([
+                [ScrollmapWithZoom.btnsDivPositionE.Top, __("lang_mainsite", "top")],
+                [ScrollmapWithZoom.btnsDivPositionE.Left, __("lang_mainsite", "left")],
+                [ScrollmapWithZoom.btnsDivPositionE.Right, __("lang_mainsite", "right")]
+            ]);
+            var btnsDivPositionsSel = inputs.namedItem("btnsDivPositionOutsideMap");
+            for (const [key, value] of keys2.entries()) {
+                var option = document.createElement("option");
+                option.value = '' + key;
+                option.text = value;
+                btnsDivPositionsSel.appendChild(option);
             }
         }
         if (!inputs)
@@ -1097,6 +1129,8 @@ class ScrollmapWithZoom {
         inputs.namedItem("wheelZooming").checked = this.zoomingOptions.bWheelZooming;
         inputs.namedItem("wheelZoomingKey").value = '' + this.zoomingOptions.wheelZooming;
         inputs.namedItem("pinchZooming").checked = this.zoomingOptions.pinchZooming;
+        inputs.namedItem("btnsDivOutsideMap").checked = !this.btnsDivOnMap;
+        inputs.namedItem("btnsDivPositionOutsideMap").value = this.btnsDivPositionOutsideMap;
     }
     _submitForm() {
         var inputs = ScrollmapWithZoom._form.elements;
@@ -1115,6 +1149,18 @@ class ScrollmapWithZoom {
             this.zoomingOptions.pinchZooming = pinchZooming;
             this._optionsChanged.pinchZooming = pinchZooming;
         }
+        var btnsDivOnMap = !inputs.namedItem("btnsDivOutsideMap").checked;
+        if (this.btnsDivOnMap != btnsDivOnMap) {
+            this.btnsDivOnMap = btnsDivOnMap;
+            this._optionsChanged.btnsDivOnMap = btnsDivOnMap;
+        }
+        var btnsDivPositionOutsideMap = inputs.namedItem("btnsDivPositionOutsideMap").value;
+        var btnsDivPositionOutsideMapPrev = this.btnsDivPositionOutsideMap;
+        if (this.btnsDivPositionOutsideMap != btnsDivPositionOutsideMap) {
+            this.btnsDivPositionOutsideMap = btnsDivPositionOutsideMap;
+            this._optionsChanged.btnsDivPositionOutsideMap = btnsDivPositionOutsideMap;
+        }
+        this._RepositionButtonsDiv(btnsDivPositionOutsideMapPrev);
         ScrollmapWithZoom._formDialog.close();
         //this._form.style.display = "none";
         return false;
@@ -1244,15 +1290,19 @@ class ScrollmapWithZoom {
         settingsStr = localStorage.getItem(this._localStorageGameKey);
         if (settingsStr != null) {
             let settings = JSON.parse(settingsStr);
-            let optionsChanged = settings.optionsChanged;
             if (optionsChanged != null) {
-                this._optionsChanged = optionsChanged;
+                this._optionsChanged = settings.optionsChanged;
+                var optionsChanged = this._optionsChanged;
                 if (optionsChanged.bWheelZooming !== null)
                     this.zoomingOptions.bWheelZooming = optionsChanged.bWheelZooming;
                 if (optionsChanged.wheelZooming !== null)
                     this.zoomingOptions.wheelZooming = optionsChanged.wheelZooming;
                 if (optionsChanged.pinchZooming !== null)
                     this.zoomingOptions.pinchZooming = optionsChanged.pinchZooming;
+                if (optionsChanged.btnsDivOnMap !== null)
+                    this.btnsDivOnMap = optionsChanged.btnsDivOnMap;
+                if (optionsChanged.btnsDivPositionOutsideMap !== null)
+                    this.btnsDivPositionOutsideMap = optionsChanged.btnsDivPositionOutsideMap;
             }
         }
         return scrolled;

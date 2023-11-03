@@ -158,6 +158,8 @@ declare class ScrollmapWithZoom {
         bWheelZooming: boolean;
         wheelZooming: number;
         pinchZooming: boolean;
+        btnsDivOnMap: boolean;
+        btnsDivPositionOutsideMap: string;
     };
     protected _cover_arrows: boolean;
     protected _x_extra_l: number;
@@ -247,6 +249,7 @@ declare class ScrollmapWithZoom {
     create(container_div: HTMLElement, scrollable_div: HTMLElement, surface_div: HTMLElement, onsurface_div: HTMLElement, clipped_div?: HTMLElement, animation_div?: HTMLElement, page?: object, create_extra?: Function): void;
     createCompletely(container_div: HTMLElement, page?: object, create_extra?: Function, bEnlargeReduceButtonsInsideMap?: boolean): void;
     protected _init(): void;
+    protected _RepositionButtonsDiv(prevPosition: string): void;
     protected _createForm(): void;
     protected _showForm(): void;
     protected _submitForm(): boolean;
