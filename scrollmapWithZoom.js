@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.26.2: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.26.3: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -2003,6 +2003,8 @@ class ScrollmapWithZoom {
         var scales = new Map();
 
         function calcMaxMin(node, top_div) {
+            if (node.offsetParent == null) // element not displayed
+                return;
             // debug(node);
             let s = window.getComputedStyle(node);
             if (s.left == "auto" /*  && s.position == "absolute" */ ) {

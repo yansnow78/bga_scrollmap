@@ -2169,6 +2169,8 @@ class ScrollmapWithZoom {
         var scales = new Map();
 
         function calcMaxMin(node: HTMLElement, top_div: HTMLElement) {
+            if (node.offsetParent == null) // element not displayed
+                return;
             // debug(node);
             let s = window.getComputedStyle(node);
             if (s.left == "auto" /*  && s.position == "absolute" */ ) {
