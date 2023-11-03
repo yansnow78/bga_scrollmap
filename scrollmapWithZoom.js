@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.26.3: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.26.4: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1296,7 +1296,7 @@ class ScrollmapWithZoom {
         settingsStr = localStorage.getItem(this._localStorageGameKey);
         if (settingsStr != null) {
             let settings = JSON.parse(settingsStr);
-            if (optionsChanged != null) {
+            if (settings.optionsChanged != null) {
                 this._optionsChanged = settings.optionsChanged;
                 var optionsChanged = this._optionsChanged;
                 if (optionsChanged.bWheelZooming !== null)
@@ -1307,8 +1307,12 @@ class ScrollmapWithZoom {
                     this.zoomingOptions.pinchZooming = optionsChanged.pinchZooming;
                 if (optionsChanged.btnsDivOnMap !== null)
                     this.btnsDivOnMap = optionsChanged.btnsDivOnMap;
-                if (optionsChanged.btnsDivPositionOutsideMap !== null)
+                var btnsDivPositionOutsideMapPrev = this.btnsDivPositionOutsideMap;
+                if (optionsChanged.btnsDivPositionOutsideMap !== null) {
                     this.btnsDivPositionOutsideMap = optionsChanged.btnsDivPositionOutsideMap;
+                }
+                if (optionsChanged.btnsDivOnMap || optionsChanged.btnsDivPositionOutsideMap)
+                    this._RepositionButtonsDiv(btnsDivPositionOutsideMapPrev);
             }
         }
         return scrolled;
