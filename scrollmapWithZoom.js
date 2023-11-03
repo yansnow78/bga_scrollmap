@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.26.6: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.26.7: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1025,14 +1025,16 @@ class ScrollmapWithZoom {
     _RepositionButtonsDiv(options = { btnsDivOnMap: undefined, btnsDivPositionOutsideMap: undefined }) {
         var btnsDivOnMapPrev = this.btnsDivOnMap;
         var btnsDivPositionOutsideMapPrev = this.btnsDivPositionOutsideMap;
-        if (options.btnsDivOnMap)
+        if (options.btnsDivOnMap != undefined)
             this.btnsDivOnMap = options.btnsDivOnMap;
-        if (options.btnsDivPositionOutsideMap)
+        if (options.btnsDivPositionOutsideMap != undefined)
             this.btnsDivPositionOutsideMap = options.btnsDivPositionOutsideMap;
         if (this.btnsDivOnMap) {
             this.clipped_div.appendChild(this._buttons_div);
             this.container_div.style.setProperty('--btns_offset_x', this.btnsOffsetX);
             this.container_div.style.setProperty('--btns_offset_y', this.btnsOffsetY);
+            this._btnToggleButtonsVisiblity.classList.add("scrollmap_icon_always_visible");
+            this._btnToggleButtonsVisiblity.classList.remove("scrollmap_btn_nodisplay");
         } else {
             var classList = btnsDivPositionOutsideMapPrev.split(' ');
             for (const posClass of classList) {
@@ -1052,12 +1054,8 @@ class ScrollmapWithZoom {
             this.container_div.insertBefore(this._buttons_div, this.clipped_div);
             this.container_div.style.setProperty('--btns_offset_x', this.btnsOutsideMapOffsetX);
             this.container_div.style.setProperty('--btns_offset_y', this.btnsOutsideMapOffsetY);
-            if (this.btnsDivOnMap) {
-                this._btnToggleButtonsVisiblity.classList.add("scrollmap_icon_always_visible");
-                this._setButtonsVisiblity(true);
-            } else {
-                this._btnToggleButtonsVisiblity.classList.add("scrollmap_btn_nodisplay");
-            }
+            this._setButtonsVisiblity(true);
+            this._btnToggleButtonsVisiblity.classList.add("scrollmap_btn_nodisplay");
         }
     }
     _createForm() {
@@ -2741,10 +2739,10 @@ class ScrollmapWithZoom {
         }
         if (new_height == maxHeight) {
             this._disableButton(this._btnMaximizeHeight);
-            this._enableButton(this._btnResetHeight);
         } else {
             this._enableButton(this._btnMaximizeHeight);
         }
+        this._enableButton(this._btnResetHeight);
         if (new_height == maxHeight) {
             this._disableButton(this._btnIncreaseHeight);
         } else if (new_height == this.minHeight) {
