@@ -234,7 +234,7 @@ class ScrollmapWithZoom {
     btnResetClasses: string = 'fa6-solid fa6-arrows-to-dot';
     btnZoomToFitClasses: string = 'fa6-solid fa6-maximize';
     btnResetHeightClasses: string = 'fa6-solid fa6-arrows-up-down';
-    btnMaximizeHeightClasses: string = 'fa6-solid fa6-arrows-down-to-line';
+    btnMaximizeHeightClasses: string = '';
     btnIncreaseHeightClasses: string = 'fa6-solid fa6-arrow-down';
     btnDecreaseHeightClasses: string = 'fa6-solid fa6-arrow-up';
     btnToggleButtonsVisibilityClasses: string = "fa6-solid fa6-gear";
@@ -490,8 +490,9 @@ class ScrollmapWithZoom {
         this.btnDecreaseHeightHtml ??= `<a class="reducedisplay enlarge_or_reduce_as_text">↑  ${__("lang_mainsite", "Reduce")}  ↑</a>`
         this.btnIncreaseHeightShortHtml ??= `<i class="enlargedisplay scrollmap_icon ${this.btnIncreaseHeightClasses}"></i>`;
         this.btnDecreaseHeightShortHtml ??= `<i class="reducedisplay scrollmap_icon ${this.btnDecreaseHeightClasses}"></i>`
-        this.btnResetHeightHtml ??= `<i class="reset_height scrollmap_icon ${this.btnMaximizeHeightClasses}"></i>`
-        this.btnMaximizeHeightHtml ??= `<svg class="maximize_height scrollmap_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11 18.75" x="0px" y="0px">
+        this.btnResetHeightHtml ??= `<i class="reset_height scrollmap_icon ${this.btnResetHeightClasses}"></i>`
+        this.btnMaximizeHeightHtml ??= this.btnMaximizeHeightClasses ? `<i class="maximize_height scrollmap_icon ${this.btnMaximizeHeightClasses}"></i>` :
+            `<svg class="maximize_height scrollmap_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11 18.75" x="0px" y="0px">
             <title>${__("lang_mainsite", "Maximize Height")}</title>
             <g><path d="M5.146,11.853a.518.518,0,0,0,.163.109.5.5,0,0,0,.382,0,.518.518,0,0,0,.163-.109l4-4a.5.5,0,0,0-.708-.708L6,10.293V.5a.5.5,0,0,0-1,0v9.793L1.854,7.146a.5.5,0,0,0-.708.708Z"/><path d="M10.5,14H.5a.5.5,0,0,0,0,1h10a.5.5,0,0,0,0-1Z"/></g>
             <text x="0" y="30" fill="#000000" font-size="5px" font-weight="bold" font-family="'Helvetica Neue', Helvetica, Arial-Unicode, Arial, Sans-serif">Created by syarip yunus</text>

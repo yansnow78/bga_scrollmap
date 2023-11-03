@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.26.4: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.26.5: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -215,7 +215,7 @@ class ScrollmapWithZoom {
         this.btnResetClasses = 'fa6-solid fa6-arrows-to-dot';
         this.btnZoomToFitClasses = 'fa6-solid fa6-maximize';
         this.btnResetHeightClasses = 'fa6-solid fa6-arrows-up-down';
-        this.btnMaximizeHeightClasses = 'fa6-solid fa6-arrows-down-to-line';
+        this.btnMaximizeHeightClasses = '';
         this.btnIncreaseHeightClasses = 'fa6-solid fa6-arrow-down';
         this.btnDecreaseHeightClasses = 'fa6-solid fa6-arrow-up';
         this.btnToggleButtonsVisibilityClasses = "fa6-solid fa6-gear";
@@ -435,8 +435,9 @@ class ScrollmapWithZoom {
         (_b = this.btnDecreaseHeightHtml) !== null && _b !== void 0 ? _b : (this.btnDecreaseHeightHtml = `<a class="reducedisplay enlarge_or_reduce_as_text">↑  ${__("lang_mainsite", "Reduce")}  ↑</a>`);
         (_c = this.btnIncreaseHeightShortHtml) !== null && _c !== void 0 ? _c : (this.btnIncreaseHeightShortHtml = `<i class="enlargedisplay scrollmap_icon ${this.btnIncreaseHeightClasses}"></i>`);
         (_d = this.btnDecreaseHeightShortHtml) !== null && _d !== void 0 ? _d : (this.btnDecreaseHeightShortHtml = `<i class="reducedisplay scrollmap_icon ${this.btnDecreaseHeightClasses}"></i>`);
-        (_e = this.btnResetHeightHtml) !== null && _e !== void 0 ? _e : (this.btnResetHeightHtml = `<i class="reset_height scrollmap_icon ${this.btnMaximizeHeightClasses}"></i>`);
-        (_f = this.btnMaximizeHeightHtml) !== null && _f !== void 0 ? _f : (this.btnMaximizeHeightHtml = `<svg class="maximize_height scrollmap_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11 18.75" x="0px" y="0px">
+        (_e = this.btnResetHeightHtml) !== null && _e !== void 0 ? _e : (this.btnResetHeightHtml = `<i class="reset_height scrollmap_icon ${this.btnResetHeightClasses}"></i>`);
+        (_f = this.btnMaximizeHeightHtml) !== null && _f !== void 0 ? _f : (this.btnMaximizeHeightHtml = this.btnMaximizeHeightClasses ? `<i class="maximize_height scrollmap_icon ${this.btnMaximizeHeightClasses}"></i>` :
+            `<svg class="maximize_height scrollmap_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11 18.75" x="0px" y="0px">
             <title>${__("lang_mainsite", "Maximize Height")}</title>
             <g><path d="M5.146,11.853a.518.518,0,0,0,.163.109.5.5,0,0,0,.382,0,.518.518,0,0,0,.163-.109l4-4a.5.5,0,0,0-.708-.708L6,10.293V.5a.5.5,0,0,0-1,0v9.793L1.854,7.146a.5.5,0,0,0-.708.708Z"/><path d="M10.5,14H.5a.5.5,0,0,0,0,1h10a.5.5,0,0,0,0-1Z"/></g>
             <text x="0" y="30" fill="#000000" font-size="5px" font-weight="bold" font-family="'Helvetica Neue', Helvetica, Arial-Unicode, Arial, Sans-serif">Created by syarip yunus</text>
