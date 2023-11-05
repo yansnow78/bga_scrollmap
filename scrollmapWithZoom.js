@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.26.7: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.26.8: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -256,13 +256,6 @@ class ScrollmapWithZoom {
         this.btnsAroundSize = '6px';
         this.longPressScroll = 3;
         this.longPressZoom = 0.01;
-        this._optionsChanged = {
-            bWheelZooming: undefined,
-            wheelZooming: undefined,
-            pinchZooming: undefined,
-            btnsDivOnMap: undefined,
-            btnsDivPositionOutsideMap: undefined,
-        };
         this._cover_arrows = null;
         this._x_extra_l = null;
         this._x_extra_r = null;
@@ -934,7 +927,7 @@ class ScrollmapWithZoom {
         this.setupInfoButton();
         if (!this._bInfoBtnVisible)
             this.hideInfoButton();
-        this._btnToggleButtonsVisiblity = this._initButton('toogle_buttons_visibility', this.btnToggleButtonsVisibilityHtml, __("lang_mainsite", 'Hide buttons'), this._toggleButtonsVisiblity);
+        this._btnToggleButtonsVisiblity = this._initButton('toogle_buttons_visibility', this.btnToggleButtonsVisibilityHtml, __("lang_mainsite", 'Hide buttons'), ScrollmapWithZoom._toggleButtonsVisiblity);
         if (this.btnsDivOnMap) {
             this._btnToggleButtonsVisiblity.classList.add("scrollmap_icon_always_visible");
         }
@@ -964,7 +957,8 @@ class ScrollmapWithZoom {
             this._resizeHeadersObserver.observe($('after-page-title'));
         }
         this._localStorageKey = 'scrollmap_' + gameui.table_id + '_' + gameui.player_id + '_' + this.container_div.id;
-        this._localStorageGameKey = 'scrollmap_settings_' + gameui.game_id;
+        if (!ScrollmapWithZoom._localStorageGameKey)
+            ScrollmapWithZoom._localStorageGameKey = 'scrollmap_settings_' + gameui.game_id;
         this._localStorageOldKey = 'scrollmap_' + gameui.table_id + '_' + this.container_div.id;
         window.addEventListener('pagehide', (e) => {
             this._onbeforeunload_handler(e);
@@ -1054,7 +1048,7 @@ class ScrollmapWithZoom {
             this.container_div.insertBefore(this._buttons_div, this.clipped_div);
             this.container_div.style.setProperty('--btns_offset_x', this.btnsOutsideMapOffsetX);
             this.container_div.style.setProperty('--btns_offset_y', this.btnsOutsideMapOffsetY);
-            this._setButtonsVisiblity(true);
+            this._setButtonsVisiblity(true, false);
             this._btnToggleButtonsVisiblity.classList.add("scrollmap_btn_nodisplay");
         }
     }
@@ -1155,29 +1149,29 @@ class ScrollmapWithZoom {
         var bWheelZooming = inputs.namedItem("wheelZooming").checked;
         if (this.zoomingOptions.bWheelZooming != bWheelZooming) {
             this.zoomingOptions.bWheelZooming = bWheelZooming;
-            this._optionsChanged.bWheelZooming = bWheelZooming;
+            ScrollmapWithZoom._optionsChanged.bWheelZooming = bWheelZooming;
         }
         var wheelZooming = toint(inputs.namedItem("wheelZoomingKey").value);
         if (this.zoomingOptions.wheelZooming != wheelZooming) {
             this.zoomingOptions.wheelZooming = wheelZooming;
-            this._optionsChanged.wheelZooming = wheelZooming;
+            ScrollmapWithZoom._optionsChanged.wheelZooming = wheelZooming;
         }
         var pinchZooming = inputs.namedItem("pinchZooming").checked;
         if (this.zoomingOptions.pinchZooming != pinchZooming) {
             this.zoomingOptions.pinchZooming = pinchZooming;
-            this._optionsChanged.pinchZooming = pinchZooming;
+            ScrollmapWithZoom._optionsChanged.pinchZooming = pinchZooming;
         }
         var btnsDivOnMap = !inputs.namedItem("btnsDivOutsideMap").checked;
         if (this.btnsDivOnMap != btnsDivOnMap) {
-            this._optionsChanged.btnsDivOnMap = btnsDivOnMap;
+            ScrollmapWithZoom._optionsChanged.btnsDivOnMap = btnsDivOnMap;
         }
         var btnsDivPositionOutsideMap = inputs.namedItem("btnsDivPositionOutsideMap").value;
         if (this.btnsDivPositionOutsideMap != btnsDivPositionOutsideMap) {
-            this._optionsChanged.btnsDivPositionOutsideMap = btnsDivPositionOutsideMap;
+            ScrollmapWithZoom._optionsChanged.btnsDivPositionOutsideMap = btnsDivPositionOutsideMap;
         }
-        this._RepositionButtonsDiv(this._optionsChanged);
+        this._RepositionButtonsDiv(ScrollmapWithZoom._optionsChanged);
         if (this == ScrollmapWithZoom.instances.values().next().value)
-            this._saveGameSettings();
+            ScrollmapWithZoom._saveGameSettings();
         ScrollmapWithZoom._formDialog.close();
         //this._form.style.display = "none";
         return false;
@@ -1304,18 +1298,21 @@ class ScrollmapWithZoom {
             if ((this.bAdaptHeightAuto && !this._bHeightChanged) || !this.bIncrHeightBtnVisible)
                 this.setDisplayHeight(height);
         }
-        settingsStr = localStorage.getItem(this._localStorageGameKey);
+        settingsStr = localStorage.getItem(ScrollmapWithZoom._localStorageGameKey);
         if (settingsStr != null) {
             let settings = JSON.parse(settingsStr);
             if (settings.optionsChanged != undefined) {
-                this._optionsChanged = settings.optionsChanged;
-                var optionsChanged = this._optionsChanged;
+                var optionsChanged = settings.optionsChanged;
+                ScrollmapWithZoom._optionsChanged = optionsChanged;
                 if (optionsChanged.bWheelZooming != undefined)
                     this.zoomingOptions.bWheelZooming = optionsChanged.bWheelZooming;
                 if (optionsChanged.wheelZooming != undefined)
                     this.zoomingOptions.wheelZooming = optionsChanged.wheelZooming;
                 if (optionsChanged.pinchZooming != undefined)
                     this.zoomingOptions.pinchZooming = optionsChanged.pinchZooming;
+                if (optionsChanged.btns_visible != null) {
+                    this._setButtonsVisiblity(settings.btns_visible);
+                }
                 this._RepositionButtonsDiv(optionsChanged);
             }
         }
@@ -1329,17 +1326,18 @@ class ScrollmapWithZoom {
             board_x: this._scrolled ? this.board_x : null,
             board_y: this._scrolled ? this.board_y : null,
             height: this.getDisplayHeight(),
-            height_changed: this._bHeightChanged
+            height_changed: this._bHeightChanged,
+            btns_visible: this._bBtnsVisible
         };
         localStorage.setItem(this._localStorageKey, JSON.stringify(settings));
     }
-    _saveGameSettings() {
+    static _saveGameSettings() {
         debug("_saveGameSettings");
         let gameSettings = {
             time: Date.now(),
             optionsChanged: this._optionsChanged
         };
-        localStorage.setItem(this._localStorageGameKey, JSON.stringify(gameSettings));
+        localStorage.setItem(ScrollmapWithZoom._localStorageGameKey, JSON.stringify(gameSettings));
     }
     _onvisibilty_changehandler(e) {
         if (document.visibilityState === "hidden") {
@@ -2202,14 +2200,21 @@ class ScrollmapWithZoom {
     _toggleButtonsVisiblity() {
         this._setButtonsVisiblity(!this._bBtnsVisible);
     }
-    _setButtonsVisiblity(visible) {
+    _setButtonsVisiblity(visible, dispatch = true) {
         this._bBtnsVisible = visible;
+        if (!visible && !this.btnsDivOnMap)
+            return;
         this.container_div.querySelectorAll(".scrollmap_button_wrapper").forEach((node) => {
             if (visible)
                 node.classList.remove("scrollmap_btn_nodisplay");
             else if (!node.classList.contains("scrollmap_icon_always_visible"))
                 node.classList.add("scrollmap_btn_nodisplay");
         });
+    }
+    static _toggleButtonsVisiblity() {
+        for (let inst of ScrollmapWithZoom.instances.values()) {
+            inst._toggleButtonsVisiblity();
+        }
     }
     _hideButton($btn, idSuffix = "") {
         debug("_hideButton", $btn);

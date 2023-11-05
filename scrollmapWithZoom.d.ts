@@ -156,12 +156,13 @@ declare class ScrollmapWithZoom {
     btnsAroundSize: string;
     longPressScroll: number;
     longPressZoom: number;
-    protected _optionsChanged: {
-        bWheelZooming: boolean;
-        wheelZooming: number;
-        pinchZooming: boolean;
-        btnsDivOnMap: boolean;
-        btnsDivPositionOutsideMap: string;
+    protected static _optionsChanged: {
+        bWheelZooming?: boolean;
+        wheelZooming?: number;
+        pinchZooming?: boolean;
+        btnsDivOnMap?: boolean;
+        btnsDivPositionOutsideMap?: string;
+        btns_visible?: boolean;
     };
     protected _cover_arrows: boolean;
     protected _x_extra_l: number;
@@ -236,7 +237,7 @@ declare class ScrollmapWithZoom {
     protected _passiveEventListener: {};
     protected _notPassiveEventListener: {};
     protected _loadedSettings: boolean;
-    protected _localStorageGameKey: string;
+    private static _localStorageGameKey;
     protected _localStorageKey: string;
     protected _localStorageOldKey: string;
     protected _scrolled: boolean;
@@ -265,7 +266,7 @@ declare class ScrollmapWithZoom {
     protected _clearOldSettings(): void;
     protected _loadSettings(): boolean;
     protected _saveSettings(): void;
-    protected _saveGameSettings(): void;
+    protected static _saveGameSettings(): void;
     protected _onvisibilty_changehandler(e: Event): void;
     protected _onbeforeunload_handler(e: Event): void;
     protected _updatePointers(event: PointerEvent | TouchEvent | MouseEvent): any;
@@ -327,7 +328,8 @@ declare class ScrollmapWithZoom {
     protected _setScale(elemId: HTMLElement, scale: number): void;
     protected _getButton(btnNames: string[] | string, idSuffix?: string): HTMLElement;
     protected _toggleButtonsVisiblity(): void;
-    protected _setButtonsVisiblity(visible: boolean): void;
+    protected _setButtonsVisiblity(visible: boolean, dispatch?: boolean): void;
+    private static _toggleButtonsVisiblity;
     protected _hideButton($btn: HTMLElement, idSuffix?: string): void;
     protected _showButton($btn: HTMLElement, idSuffix?: string, display?: string): void;
     protected _enableButton($btn: HTMLElement, idSuffix?: string): void;
