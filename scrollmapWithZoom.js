@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.26.8: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.26.9: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -2878,6 +2878,7 @@ class ScrollmapWithZoom {
 }
 ScrollmapWithZoom.count = 0;
 ScrollmapWithZoom.instances = new Map();
+ScrollmapWithZoom._optionsChanged = {};
 ScrollmapWithZoom._bEnableKeys = true;
 (function(ScrollmapWithZoom) {
     let wheelZoomingKeys;

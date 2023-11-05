@@ -285,7 +285,7 @@ class ScrollmapWithZoom {
         btnsDivOnMap ? : boolean
         btnsDivPositionOutsideMap ? : string,
         btns_visible ? : boolean;
-    };
+    } = {};
     protected _cover_arrows: boolean = null;
     protected _x_extra_l: number = null;
     protected _x_extra_r: number = null;
