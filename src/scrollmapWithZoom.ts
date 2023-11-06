@@ -1142,8 +1142,8 @@ class ScrollmapWithZoom {
                         <button name="close" aria-label="close">X</button>
                         <div>
                             <input type="checkbox" id="wheelZooming" value="true">
-                            <label for="wheelZooming">${__("lang_mainsite", "Zoom with mouse wheel + ")} <select name="wheelZoomingKey"></select> hello </label>
-                            
+                            <label for="wheelZooming">${__("lang_mainsite", "Zoom with mouse wheel + ")}</label>
+                            <select name="wheelZoomingKey"></select>
                         </div>
                         <div>
                             <input type="checkbox" id="pinchZooming" value="true">
