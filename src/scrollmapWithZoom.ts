@@ -1142,8 +1142,7 @@ class ScrollmapWithZoom {
                         <button name="close" aria-label="close">X</button>
                         <div>
                             <input type="checkbox" id="wheelZooming" value="true">
-                            <label for="wheelZooming">${__("lang_mainsite", "Zoom with mouse wheel + ")}</label>
-                            <select name="wheelZoomingKey"></select>
+                            <label for="wheelZooming">${dojo.string.substitute(__("lang_mainsite", "Zoom with mouse wheel + ${key}"), { key: "<select name='wheelZoomingKey'></select>" })}</label>
                         </div>
                         <div>
                             <input type="checkbox" id="pinchZooming" value="true">
@@ -1151,8 +1150,7 @@ class ScrollmapWithZoom {
                         </div>
                         <div>
                             <input type="checkbox" id="btnsDivOutsideMap" value="true">
-                            <label for="btnsDivOutsideMap">${__("lang_mainsite", "Place buttons outside scrollmap on ")}</label>
-                            <select name="btnsDivPositionOutsideMap"></select>
+                            <label for="wheelZooming">${dojo.string.substitute(__("lang_mainsite", "Place buttons outside scrollmap on ${position}"), { position: "<select name='btnsDivPositionOutsideMap'></select>" })}</label>
                         </div>
                         <div>
                             <button name="close2">${__("lang_mainsite", "Cancel")}</button>
