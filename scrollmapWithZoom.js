@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.26.11: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.26.12: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1225,6 +1225,7 @@ class ScrollmapWithZoom {
             if (this.getDisplayHeight() != map_height) {
                 this.setDisplayHeight(map_height);
             }
+            this._disableButton(this._btnResetHeight);
         });
     }
     _onResize(entries) {
@@ -1281,9 +1282,6 @@ class ScrollmapWithZoom {
             }
             if (settings.height_changed != null) {
                 this._bHeightChanged = settings.height_changed;
-                if (this._bHeightChanged) {
-                    this._enableButton(this._btnResetHeight);
-                }
             }
             if (settings.zoom != null) {
                 this.setMapZoom(settings.zoom);
@@ -1295,6 +1293,10 @@ class ScrollmapWithZoom {
             }
             if ((this.bAdaptHeightAuto && !this._bHeightChanged) || !this.bIncrHeightBtnVisible)
                 this.setDisplayHeight(height);
+            if (this._bHeightChanged) {
+                this._enableButton(this._btnResetHeight);
+            } else
+                this._disableButton(this._btnResetHeight);
         }
         settingsStr = localStorage.getItem(ScrollmapWithZoom._localStorageGameKey);
         if (settingsStr != null) {
