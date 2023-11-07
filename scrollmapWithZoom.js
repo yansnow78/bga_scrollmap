@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.26.10: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.26.11: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1069,7 +1069,7 @@ class ScrollmapWithZoom {
                         </div>
                         <div>
                             <input type="checkbox" id="btnsDivOutsideMap" value="true">
-                            <label for="wheelZooming">${dojo.string.substitute(__("lang_mainsite", "Place buttons outside scrollmap on ${position}"), { position: "<select name='btnsDivPositionOutsideMap'></select>" })}</label>
+                            <label for="btnsDivOutsideMap">${dojo.string.substitute(__("lang_mainsite", "Place buttons outside scrollmap on ${position}"), { position: "<select name='btnsDivPositionOutsideMap'></select>" })}</label>
                         </div>
                         <div>
                             <button name="close2">${__("lang_mainsite", "Cancel")}</button>

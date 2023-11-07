@@ -1150,7 +1150,7 @@ class ScrollmapWithZoom {
                         </div>
                         <div>
                             <input type="checkbox" id="btnsDivOutsideMap" value="true">
-                            <label for="wheelZooming">${dojo.string.substitute(__("lang_mainsite", "Place buttons outside scrollmap on ${position}"), { position: "<select name='btnsDivPositionOutsideMap'></select>" })}</label>
+                            <label for="btnsDivOutsideMap">${dojo.string.substitute(__("lang_mainsite", "Place buttons outside scrollmap on ${position}"), { position: "<select name='btnsDivPositionOutsideMap'></select>" })}</label>
                         </div>
                         <div>
                             <button name="close2">${__("lang_mainsite", "Cancel")}</button>
