@@ -1852,7 +1852,7 @@ class ScrollmapWithZoom {
 
         if (!wheelZoom) {
             clearTimeout(this._isScrolling);
-            if (!this.zoomingOptions.bWheelZooming) {
+            if (this.zoomingOptions.bWheelZooming) {
                 // Set a timeout to run after scrolling ends
                 this._isScrolling = setTimeout(() => {
                     this.container_div.classList.remove("scrollmap_warning_scroll");

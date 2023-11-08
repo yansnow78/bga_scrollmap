@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.26.12: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.26.13: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1722,7 +1722,7 @@ class ScrollmapWithZoom {
         }
         if (!wheelZoom) {
             clearTimeout(this._isScrolling);
-            if (!this.zoomingOptions.bWheelZooming) {
+            if (this.zoomingOptions.bWheelZooming) {
                 // Set a timeout to run after scrolling ends
                 this._isScrolling = setTimeout(() => {
                     this.container_div.classList.remove("scrollmap_warning_scroll");
