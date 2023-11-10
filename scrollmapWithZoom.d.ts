@@ -139,6 +139,7 @@ declare class ScrollmapWithZoom {
     btnMaximizeHeightHtml: string;
     btnToggleButtonsVisibilityHtml: string;
     btnSettingsHtml: string;
+    btnsDivPositionnable: boolean;
     btnsDivOnMap: boolean;
     btns2DivOnMap: boolean;
     btnsDivPositionOutsideMap: string;
@@ -226,6 +227,7 @@ declare class ScrollmapWithZoom {
     protected _bEnlargeReduceButtonsInsideMap: boolean;
     protected _buttons_div: HTMLElement;
     protected _buttons_div2: HTMLElement;
+    protected _buttons_divs_wrapper: HTMLElement;
     protected _defaultHeight: number;
     protected _xPrev: number;
     protected _yPrev: number;

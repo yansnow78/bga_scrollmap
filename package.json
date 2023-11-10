@@ -1,6 +1,6 @@
 {
   "name": "scrollmap-with-zoom",
-  "version": "1.26.13",
+  "version": "1.27.0",
   "description": "",
   "main": "scrollmapWithZoom.js",
   "scripts": {
