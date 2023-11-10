@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.27.0: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.27.1: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -744,8 +744,6 @@ class ScrollmapWithZoom {
                     display : flex;
                     flex-shrink : 0;
                     flex-wrap: wrap;
-                    max-width: fit-content;
-                    max-height: fit-content;
                 }
                 
                 .scrollmap_container > .scrollmap_btns_flex {
@@ -754,25 +752,40 @@ class ScrollmapWithZoom {
                     margin-bottom: 5px;
                 }
 
+                .scrollmap_container .scrollmap_btns_flex {
+                    max-width: fit-content;
+                    max-height: var(--scrollmap_height);
+                    height: fit-content;
+                }
+
+                .scrollmap_container.scrollmap_btns_left > .scrollmap_btns_flex,
+                .scrollmap_container.scrollmap_btns_right > .scrollmap_btns_flex {
+                    margin-top: calc(var(--btns_offset_y));
+                }
+
+                .scrollmap_container.scrollmap_btns_left > .scrollmap_btns_flex {
+                    margin-right: 5px;
+                }
+                .scrollmap_container.scrollmap_btns_right > .scrollmap_btns_flex {
+                    margin-left: 5px;
+                }
+                .scrollmap_container.scrollmap_btns_top > .scrollmap_btns_flex {
+                    margin-bottom: 5px;
+                }
+                .scrollmap_container.scrollmap_btns_bottom > .scrollmap_btns_flex {
+                    margin-top: 5px;
+                }
                 .scrollmap_container.scrollmap_btns_left .scrollmap_btns_flex {
                     flex-direction: column;
-                    margin-right: 5px;
-                    margin-top: calc(var(--btns_offset_y));
                 }
                 .scrollmap_container.scrollmap_btns_right .scrollmap_btns_flex {
                     flex-direction: column;
-                    margin-left: 5px;
-                    margin-top: calc(var(--btns_offset_y));
                 }
                 .scrollmap_container.scrollmap_btns_top .scrollmap_btns_flex {
                     flex-direction: row;
-                    margin-bottom: 5px;
-                    margin-left: calc(var(--btns_offset_x));
                 }
                 .scrollmap_container.scrollmap_btns_bottom .scrollmap_btns_flex {
                     flex-direction: row;
-                    margin-top: 5px;
-                    margin-left: calc(var(--btns_offset_x));
                 }
 
                 .scrollmap_overflow_clipped > .scrollmap_btns_flex {
