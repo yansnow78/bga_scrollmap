@@ -16,7 +16,7 @@ https://github.com/yansnow78/bga_scrollmap.git
 - zooming with buttons doesn't drift the board anymore
 - improve animation between game board and player bards tanks to an animation_div
 - add support to long click on buttons/keys (continuous scroll or zoom or enlarge/reduce until button/keys released)
-- add possibility to select which key need to be pressed when zooming with wheel
+- add possibility to disable or select which key need to be pressed when zooming with wheel
 - only allow 2 fingers scrolling by default, one finger is for page scrolling
 - only allow zoom with wheel if alt or ctrl or shift are pressed by default, wheel+no key pressed scroll the page as usual.
 - keep in memory zoom, pos for each game table between sessions via localStore
@@ -520,6 +520,7 @@ class ScrollmapWithZoom {
         this._buttons_div = document.createElement('div');
         this._buttons_div.classList.add(this.btnsPositionClasses);
         this._buttons_div.classList.add(this.btnsDivClasses);
+        this.clipped_div.appendChild(this._buttons_div);
         this._buttons_div2 = document.createElement('div');
         if (!this.btns2PositionClasses) {
             if (this.btnsPositionClasses == 'btn_pos_top_right')
@@ -529,11 +530,7 @@ class ScrollmapWithZoom {
         }
         this._buttons_div2.classList.add(this.btns2PositionClasses);
         this._buttons_div2.classList.add(this.btnsDivClasses);
-        if (this.btns2DivOnMap)
-            this.clipped_div.appendChild(this._buttons_div2);
-        else {
-            this.container_div.insertBefore(this._buttons_div2, this.clipped_div);
-        }
+        this.clipped_div.appendChild(this._buttons_div2);
 
         var styleElt = document.createElement("style");
         var enl_xpos = "calc(50% + var(--icon_size_z)/2 + 16px)";
