@@ -1350,9 +1350,9 @@ class ScrollmapWithZoom {
                 this._clearOldSettings();
                 this._loadedSettings = this._loadSettings();
                 if (!this._loadedSettings) {
-                    if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoomFit || this._zoomFitCalledDuringSetup)
+                    if (this._resetMode != ScrollmapWithZoom.ResetMode.ScrollAndZoomFit && this._zoomFitCalledDuringSetup)
                         this.zoomToFit();
-                    this.scrollToCenter(null, 0, 0);
+                    this.onReset();
                 }
             } else
                 this._scrollto(this.board_x, this.board_y, 0, 0);
@@ -2873,7 +2873,7 @@ class ScrollmapWithZoom {
         this._hideButton(this._btnZoomToFit);
     }
 
-    protected onReset(evt: Event) {
+    protected onReset() {
         if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoom)
             this.setMapZoom(this.defaultZoom);
         if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoomFit)
