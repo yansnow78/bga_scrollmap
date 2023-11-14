@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.27.3: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.27.4: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -451,7 +451,7 @@ class ScrollmapWithZoom {
         (_r = this.btnSettingsHtml) !== null && _r !== void 0 ? _r : (this.btnSettingsHtml = `<i class="show_settings scrollmap_icon ${this.btnSettingsClasses}"></i>`);
         (_s = this.btnInfoHtml) !== null && _s !== void 0 ? _s : (this.btnInfoHtml = `<i class="info scrollmap_icon ${this.btnInfoClasses}"></i>`);
         this._buttons_divs_wrapper = document.createElement('div');
-        this._buttons_divs_wrapper.classList.add("scrollmap_btns_flex");
+        this._buttons_divs_wrapper.classList.add("scrollmap_btns_flex", "scrollmap_btns_divs_wrapper");
         this.container_div.insertBefore(this._buttons_divs_wrapper, this.clipped_div);
         this._buttons_div = document.createElement('div');
         this._buttons_div.classList.add(this.btnsPositionClasses);
@@ -515,19 +515,19 @@ class ScrollmapWithZoom {
                     flex-direction: column;
                 }
 
-                .scrollmap_container.scrollmap_btns_left, .scrollmap_container .scrollmap_btns_left{
+                .scrollmap_container.scrollmap_btns_left{
                     flex-direction: row;
                 }
             
-                .scrollmap_container.scrollmap_btns_top, .scrollmap_container .scrollmap_btns_top{
+                .scrollmap_container.scrollmap_btns_top{
                     flex-direction: column;
                 }
 
-                .scrollmap_container.scrollmap_btns_right, .scrollmap_container .scrollmap_btns_right{
+                .scrollmap_container.scrollmap_btns_right{
                     flex-direction: row-reverse;
                 }
 
-                .scrollmap_container.scrollmap_btns_bottom, .scrollmap_container .scrollmap_btns_bottom{
+                .scrollmap_container.scrollmap_btns_bottom{
                     flex-direction: column-reverse;
                 }
 
@@ -760,28 +760,32 @@ class ScrollmapWithZoom {
                     margin-top: calc(var(--btns_offset_y));
                 }
 
-                .scrollmap_container.scrollmap_btns_left > .scrollmap_btns_flex {
+                .scrollmap_container.scrollmap_btns_left > .scrollmap_btns_divs_wrapper {
                     margin-right: 5px;
                 }
-                .scrollmap_container.scrollmap_btns_right > .scrollmap_btns_flex {
+                .scrollmap_container.scrollmap_btns_right > .scrollmap_btns_divs_wrapper {
                     margin-left: 5px;
                 }
-                .scrollmap_container.scrollmap_btns_top > .scrollmap_btns_flex {
+                .scrollmap_container.scrollmap_btns_top > .scrollmap_btns_divs_wrapper {
                     margin-bottom: 5px;
                 }
-                .scrollmap_container.scrollmap_btns_bottom > .scrollmap_btns_flex {
+                .scrollmap_container.scrollmap_btns_bottom > .scrollmap_btns_divs_wrapper {
                     margin-top: 5px;
                 }
-                .scrollmap_container.scrollmap_btns_left .scrollmap_btns_flex {
+                .scrollmap_container.scrollmap_btns_left > .scrollmap_btns_divs_wrapper,
+                .scrollmap_container.scrollmap_btns_left > .scrollmap_btns_divs_wrapper .scrollmap_btns_flex {
                     flex-direction: column;
                 }
-                .scrollmap_container.scrollmap_btns_right .scrollmap_btns_flex {
+                .scrollmap_container.scrollmap_btns_right > .scrollmap_btns_divs_wrapper,
+                .scrollmap_container.scrollmap_btns_right > .scrollmap_btns_divs_wrapper > .scrollmap_btns_flex {
                     flex-direction: column;
                 }
-                .scrollmap_container.scrollmap_btns_top .scrollmap_btns_flex {
+                .scrollmap_container.scrollmap_btns_top > .scrollmap_btns_divs_wrapper,
+                .scrollmap_container.scrollmap_btns_top > .scrollmap_btns_divs_wrapper > .scrollmap_btns_flex {
                     flex-direction: row;
                 }
-                .scrollmap_container.scrollmap_btns_bottom .scrollmap_btns_flex {
+                .scrollmap_container.scrollmap_btns_bottom > ..scrollmap_btns_divs_wrapper,
+                .scrollmap_container.scrollmap_btns_bottom > ..scrollmap_btns_divs_wrapper > .scrollmap_btns_flex {
                     flex-direction: row;
                 }
 
@@ -1038,6 +1042,11 @@ class ScrollmapWithZoom {
             this.btnsDivOnMap = options.btnsDivOnMap;
         if (options.btnsDivPositionOutsideMap != undefined)
             this.btnsDivPositionOutsideMap = options.btnsDivPositionOutsideMap;
+        var classList = btnsDivPositionOutsideMapPrev.split(' ');
+        for (const posClass of classList) {
+            if (posClass)
+                this.container_div.classList.remove(posClass);
+        }
         if (this.btnsDivOnMap) {
             this.clipped_div.appendChild(this._buttons_div);
             this.clipped_div.appendChild(this._buttons_div2);
@@ -1046,12 +1055,7 @@ class ScrollmapWithZoom {
             this._btnToggleButtonsVisiblity.classList.add("scrollmap_icon_always_visible");
             this._btnToggleButtonsVisiblity.classList.remove("scrollmap_btn_nodisplay");
         } else {
-            var classList = btnsDivPositionOutsideMapPrev.split(' ');
-            for (const posClass of classList) {
-                if (posClass)
-                    this.container_div.classList.remove(posClass);
-            }
-            var classList = this.btnsDivPositionOutsideMap.split(' ');
+            classList = this.btnsDivPositionOutsideMap.split(' ');
             for (const posClass of classList) {
                 if (posClass)
                     this.container_div.classList.add(posClass);
