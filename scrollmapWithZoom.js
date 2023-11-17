@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.27.4: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.27.5: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1227,14 +1227,6 @@ class ScrollmapWithZoom {
                 document.body.clientHeight || window.innerHeight;
             var container_pos = dojo.coords('map_container', true);
             screen_height /= pageZoom;
-            if (pageZoom == 1) {
-                var interfaceFactor = this._getInterfaceFactor();
-                if (interfaceFactor < 1) {
-                    debug("_adaptHeight use interfaceFactor ", interfaceFactor);
-                    pageZoom = interfaceFactor;
-                }
-            }
-            document.body.style.setProperty("--page_zoom", pageZoom.toString());
             var other_elements_height = this.adaptHeightCorr + container_pos.y;
             for (let i = 0; i < this.adaptHeightCorrDivs.length; i++) {
                 other_elements_height += this.adaptHeightCorrDivs[i].getBoundingClientRect().height;
@@ -1270,6 +1262,15 @@ class ScrollmapWithZoom {
                 }
             } else
                 this._scrollto(this.board_x, this.board_y, 0, 0);
+            var pageZoom = this._getPageZoom();
+            if (pageZoom == 1) {
+                var interfaceFactor = this._getInterfaceFactor();
+                if (interfaceFactor < 1) {
+                    debug("_adaptHeight use interfaceFactor ", interfaceFactor);
+                    pageZoom = interfaceFactor;
+                }
+            }
+            document.body.style.setProperty("--page_zoom", pageZoom.toString());
             this._setupDone = true;
         });
     }
@@ -2901,7 +2902,7 @@ class ScrollmapWithZoom {
                 break;
             case ScrollmapWithZoom.wheelZoomingKeys.Meta:
                 keystr = metastr;
-                return;
+                break;
         }
         return keystr;
     }
