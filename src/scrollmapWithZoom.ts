@@ -850,8 +850,8 @@ class ScrollmapWithZoom {
                 .scrollmap_container.scrollmap_btns_top > .scrollmap_btns_divs_wrapper > .scrollmap_btns_flex {
                     flex-direction: row;
                 }
-                .scrollmap_container.scrollmap_btns_bottom > ..scrollmap_btns_divs_wrapper,
-                .scrollmap_container.scrollmap_btns_bottom > ..scrollmap_btns_divs_wrapper > .scrollmap_btns_flex {
+                .scrollmap_container.scrollmap_btns_bottom > .scrollmap_btns_divs_wrapper,
+                .scrollmap_container.scrollmap_btns_bottom > .scrollmap_btns_divs_wrapper > .scrollmap_btns_flex {
                     flex-direction: row;
                 }
 
