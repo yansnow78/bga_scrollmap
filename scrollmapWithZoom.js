@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.27.6: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.27.7: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -149,6 +149,7 @@ class ScrollmapWithZoom {
         this.board_y = 0;
         this.startPosition = null;
         this.container_div = null;
+        this.container_subdiv = null;
         this.scrollable_div = null;
         this.surface_div = null;
         this.onsurface_div = null;
@@ -393,7 +394,6 @@ class ScrollmapWithZoom {
         if (typeof gameui.calcScale == "undefined") {
             dojo.safeMixin(gameui, new ebg.core.core_patch_slideto());
         }
-        container_div.classList.add("scrollmap_container");
         if (surface_div)
             surface_div.classList.add("scrollmap_surface");
         if (onsurface_div) {
@@ -414,13 +414,21 @@ class ScrollmapWithZoom {
             container_div.insertBefore(clipped_div, animation_div);
         }
         clipped_div.classList.add("scrollmap_overflow_clipped");
+        container_div.classList.add("scrollmap_container");
+        var container_subdiv = document.createElement('div');
+        container_subdiv.classList.add("scrollmap_container_subdiv");
         Array.from(container_div.children).forEach((child) => {
+            container_subdiv.appendChild(child);
+        });
+        container_div.insertBefore(container_subdiv, null);
+        Array.from(container_subdiv.children).forEach((child) => {
             //let child = children[i]; //second console o
             if (!child.classList.contains("scrollmap_anim") && !child.classList.contains("scrollmap_overflow_clipped"))
                 clipped_div.appendChild(child);
         });
         // clipped_div.appendChild(surface_div);
         this.container_div = container_div;
+        this.container_subdiv = container_subdiv;
         this.scrollable_div = scrollable_div;
         this.surface_div = surface_div;
         this.onsurface_div = onsurface_div;
@@ -452,7 +460,7 @@ class ScrollmapWithZoom {
         (_s = this.btnInfoHtml) !== null && _s !== void 0 ? _s : (this.btnInfoHtml = `<i class="info scrollmap_icon ${this.btnInfoClasses}"></i>`);
         this._buttons_divs_wrapper = document.createElement('div');
         this._buttons_divs_wrapper.classList.add("scrollmap_btns_flex", "scrollmap_btns_divs_wrapper");
-        this.container_div.insertBefore(this._buttons_divs_wrapper, this.clipped_div);
+        this.container_div.insertBefore(this._buttons_divs_wrapper, this.container_subdiv);
         this._buttons_div = document.createElement('div');
         this._buttons_div.classList.add(this.btnsPositionClasses);
         this._buttons_div.classList.add(this.btnsDivClasses);
@@ -544,7 +552,7 @@ class ScrollmapWithZoom {
                     overflow: hidden;
                 }
 
-                .scrollmap_container .scrollmap_overflow_clipped {
+                .scrollmap_container .scrollmap_overflow_clipped, .scrollmap_container_subdiv {
                     position: relative;
                     width: 100%;
                     height: 100%;

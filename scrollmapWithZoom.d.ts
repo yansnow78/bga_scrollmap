@@ -28,6 +28,7 @@ declare class ScrollmapWithZoom {
     board_y: number;
     startPosition: Position;
     container_div: HTMLElement;
+    container_subdiv: HTMLElement;
     scrollable_div: HTMLElement;
     surface_div: HTMLElement;
     onsurface_div: HTMLElement;
