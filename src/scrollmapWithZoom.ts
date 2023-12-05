@@ -627,6 +627,11 @@ class ScrollmapWithZoom {
                     height: 100%;
                 }
 
+                .scrollmap_container_subdiv {
+                    min-height : 0px;
+                    min-width : 0px;
+                }
+
                 .scrollmap_scrollable, .scrollmap_onsurface, .scrollmap_anim {
                     position: absolute;
                     transform-origin: left top;

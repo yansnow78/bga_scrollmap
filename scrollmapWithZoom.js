@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.27.8: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.27.9: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -556,6 +556,11 @@ class ScrollmapWithZoom {
                     position: relative;
                     width: 100%;
                     height: 100%;
+                }
+
+                .scrollmap_container_subdiv {
+                    min-height : 0px;
+                    min-width : 0px;
                 }
 
                 .scrollmap_scrollable, .scrollmap_onsurface, .scrollmap_anim {
