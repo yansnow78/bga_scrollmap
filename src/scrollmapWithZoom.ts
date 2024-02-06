@@ -1613,7 +1613,7 @@ class ScrollmapWithZoom {
             if (isDebug)
                 debugMsg += "click";
             this._enabledClicks = false;
-            this.onsurface_div.addEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
+            this.surface_div.addEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
         }
         if (isDebug && debugMsg != "")
             debug("_disableTooltipsAndClick enable " + debugMsg);
@@ -1621,8 +1621,8 @@ class ScrollmapWithZoom {
 
     protected _suppressCLickEvent(e: Event) {
         debug("_suppressCLickEvent");
-        this.onsurface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
-        // e.stopImmediatePropagation();
+        this.surface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
+        e.stopImmediatePropagation();
         e.stopPropagation();
     }
 

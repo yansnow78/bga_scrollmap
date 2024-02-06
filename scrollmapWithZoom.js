@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.27.9: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.27.11: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1509,15 +1509,15 @@ class ScrollmapWithZoom {
             if (isDebug)
                 debugMsg += "click";
             this._enabledClicks = false;
-            this.onsurface_div.addEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
+            this.surface_div.addEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
         }
         if (isDebug && debugMsg != "")
             debug("_disableTooltipsAndClick enable " + debugMsg);
     }
     _suppressCLickEvent(e) {
         debug("_suppressCLickEvent");
-        this.onsurface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
-        // e.stopImmediatePropagation();
+        this.surface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
+        e.stopImmediatePropagation();
         e.stopPropagation();
     }
     _getTouchesDist(e) {
