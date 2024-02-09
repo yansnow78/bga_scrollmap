@@ -12,6 +12,15 @@ declare const g_gamethemeurl: string;
 declare const gameui: any;
 declare const toint: Function;
 declare const aspect: any;
+type _optionsChangedT = {
+    bWheelZooming?: boolean;
+    wheelZooming?: number;
+    pinchZooming?: boolean;
+    btnsDivOnMap?: boolean;
+    btnsDivPositionOutsideMap?: string;
+    btns_visible?: boolean;
+    bRevertArrowsScroll?: boolean;
+};
 interface Position {
     x: number;
     y: number;
@@ -65,6 +74,8 @@ declare class ScrollmapWithZoom {
     defaultPosition: Position;
     centerPositionOffset: Position;
     centerCalcUseAlsoOnsurface: boolean;
+    get bRevertArrowsScroll(): boolean;
+    set bRevertArrowsScroll(value: boolean);
     /**
      * resizing properties
      */
@@ -156,16 +167,10 @@ declare class ScrollmapWithZoom {
     btnsSize: string;
     btnsFontSize: string;
     btnsAroundSize: string;
-    longPressScroll: number;
+    get longPressScroll(): number;
+    set longPressScroll(value: number);
     longPressZoom: number;
-    protected static _optionsChanged: {
-        bWheelZooming?: boolean;
-        wheelZooming?: number;
-        pinchZooming?: boolean;
-        btnsDivOnMap?: boolean;
-        btnsDivPositionOutsideMap?: string;
-        btns_visible?: boolean;
-    };
+    protected static _optionsChanged: _optionsChangedT;
     protected _cover_arrows: boolean;
     protected _x_extra_l: number;
     protected _x_extra_r: number;
@@ -174,6 +179,7 @@ declare class ScrollmapWithZoom {
     protected _prevZoom: number;
     protected _bEnableZooming: boolean;
     protected _scrollDeltaAlignWithZoom: number;
+    protected _longPressScrollAlignWithZoom: number;
     protected _bHeightChanged: boolean;
     protected _bMaxHeight: boolean;
     protected _bAdaptHeightAuto: boolean;
@@ -251,6 +257,9 @@ declare class ScrollmapWithZoom {
     protected _custom_css_query: string;
     protected _isScrolling: number;
     protected _resetMode: ScrollmapWithZoom.ResetMode;
+    protected _bRevertArrowsScroll: boolean;
+    protected _longPressScroll: number;
+    protected _longPressScrollOriented: number;
     constructor();
     protected static onShowTooltip(this: typeof dijit.Tooltip): void;
     create(container_div: HTMLElement, scrollable_div: HTMLElement, surface_div: HTMLElement, onsurface_div: HTMLElement, clipped_div?: HTMLElement, animation_div?: HTMLElement, page?: object, create_extra?: Function): void;
