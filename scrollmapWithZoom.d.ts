@@ -69,6 +69,7 @@ declare class ScrollmapWithZoom {
         bOneFingerScrolling: boolean;
     };
     bScrollDeltaAlignWithZoom: boolean;
+    bRestoreScrollPosition: boolean;
     scrollDelta: number;
     scrollingTresh: number;
     defaultPosition: Position;

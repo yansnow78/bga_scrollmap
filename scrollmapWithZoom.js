@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.28.0: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.29.0: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -198,6 +198,7 @@ class ScrollmapWithZoom {
             bOneFingerScrolling: false
         };
         this.bScrollDeltaAlignWithZoom = true;
+        this.bRestoreScrollPosition = true;
         this.scrollDelta = 100;
         this.scrollingTresh = 30;
         this.defaultPosition = null;
@@ -1361,7 +1362,7 @@ class ScrollmapWithZoom {
             if (settings.zoom != null) {
                 this.setMapZoom(settings.zoom);
             }
-            if (settings.board_x != null && settings.board_y != null) {
+            if (this.bRestoreScrollPosition && settings.board_x != null && settings.board_y != null) {
                 this._scrolled = true;
                 this._scrollto(settings.board_x, settings.board_y, 0, 0);
                 scrolled = true;

@@ -125,6 +125,7 @@ class ScrollmapWithZoom {
         bOneFingerScrolling: false
     };
     bScrollDeltaAlignWithZoom: boolean = true;
+    bRestoreScrollPosition: boolean = true;
     scrollDelta: number = 100;
     scrollingTresh: number = 30;
     defaultPosition: Position = null;
@@ -1458,7 +1459,7 @@ class ScrollmapWithZoom {
             if (settings.zoom != null) {
                 this.setMapZoom(settings.zoom);
             }
-            if (settings.board_x != null && settings.board_y != null) {
+            if (this.bRestoreScrollPosition && settings.board_x != null && settings.board_y != null) {
                 this._scrolled = true;
                 this._scrollto(settings.board_x, settings.board_y, 0, 0);
                 scrolled = true;
