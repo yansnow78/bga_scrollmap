@@ -280,7 +280,7 @@ declare class ScrollmapWithZoom {
     protected _loadSettings(): boolean;
     protected _saveSettings(): void;
     protected static _saveGameSettings(): void;
-    protected _onvisibilty_changehandler(e: Event): void;
+    protected _onvisibility_changehandler(e: Event): void;
     protected _onbeforeunload_handler(e: Event): void;
     protected _updatePointers(event: PointerEvent | TouchEvent | MouseEvent): any;
     protected _removePointers(event: PointerEvent | TouchEvent | MouseEvent): void;
@@ -314,6 +314,7 @@ declare class ScrollmapWithZoom {
         x: number;
         y: number;
     };
+    protected _reset(duration?: number): void;
     protected _isRectInside(outerRect: DOMRectReadOnly, innerRect: DOMRectReadOnly): boolean;
     protected _intersect(rect1: DOMRectReadOnly, rect2: DOMRectReadOnly): boolean;
     protected _adjustToContain(outerRect: DOMRect, innerRect: DOMRect, margin?: number): {

@@ -515,6 +515,8 @@ class ScrollmapWithZoom {
             if (!child.classList.contains("scrollmap_anim") && !child.classList.contains("scrollmap_overflow_clipped"))
                 clipped_div.appendChild(child);
         });
+        onsurface_div.style.opacity = "0";
+        scrollable_div.style.opacity = "0";
 
         // clipped_div.appendChild(surface_div);
         this.container_div = container_div;
@@ -1095,7 +1097,7 @@ class ScrollmapWithZoom {
         window.addEventListener('pagehide', (e) => {
             this._onbeforeunload_handler(e);
         });
-        document.addEventListener('visibilitychange', this._onvisibilty_changehandler.bind(this));
+        document.addEventListener('visibilitychange', this._onvisibility_changehandler.bind(this));
         window.addEventListener('load', (e) => {
             debug("document loaded"); /*this._adaptHeight();*/
         });
@@ -1400,10 +1402,17 @@ class ScrollmapWithZoom {
                 if (!this._loadedSettings) {
                     if (this._resetMode != ScrollmapWithZoom.ResetMode.ScrollAndZoomFit && this._zoomFitCalledDuringSetup)
                         this.zoomToFit();
-                    this.onReset();
+                    this._reset(0);
                 }
-            } else
+                setTimeout(() => {
+                    var anim = dojo.fadeIn({ node: this.onsurface_div, duration: 1500, delay: 0 });
+                    anim.play();
+                    var anim = dojo.fadeIn({ node: this.scrollable_div, duration: 1500, delay: 0 });
+                    anim.play();
+                }, 500);
+            } else {
                 this._scrollto(this.board_x, this.board_y, 0, 0);
+            }
             var pageZoom = this._getPageZoom();
             if (pageZoom == 1) {
                 var interfaceFactor = this._getInterfaceFactor();
@@ -1516,7 +1525,7 @@ class ScrollmapWithZoom {
         };
         localStorage.setItem(ScrollmapWithZoom._localStorageGameKey, JSON.stringify(gameSettings));
     }
-    protected _onvisibilty_changehandler(e: Event) {
+    protected _onvisibility_changehandler(e: Event) {
         if (document.visibilityState === "hidden") {
             this._saveSettings();
         }
@@ -2113,6 +2122,17 @@ class ScrollmapWithZoom {
             x: center.x,
             y: center.y
         };
+    }
+
+    protected _reset(duration ? : number) {
+        if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoom)
+            this.setMapZoom(this.defaultZoom);
+        if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoomFit)
+            this.zoomToFit();
+        if (this.defaultPosition)
+            this.scrollto(-this.defaultPosition.x, -this.defaultPosition.y, duration);
+        else
+            this.scrollToCenter(null, duration);
     }
 
     protected _isRectInside(outerRect: DOMRectReadOnly, innerRect: DOMRectReadOnly): boolean {
@@ -2942,14 +2962,7 @@ class ScrollmapWithZoom {
     }
 
     protected onReset() {
-        if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoom)
-            this.setMapZoom(this.defaultZoom);
-        if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoomFit)
-            this.zoomToFit();
-        if (this.defaultPosition)
-            this.scrollto(-this.defaultPosition.x, -this.defaultPosition.y);
-        else
-            this.scrollToCenter();
+        this._reset();
     }
 
     //////////////////////////////////////////////////
