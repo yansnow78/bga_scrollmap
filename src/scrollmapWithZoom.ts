@@ -1109,7 +1109,7 @@ class ScrollmapWithZoom {
         }, true);
 
         if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysArrows) {
-            let warning_arrowkeys = _('press the arrow keys with alt key to scroll the board');
+            let warning_arrowkeys = _('press the arrow keys with ctrl key to scroll the board');
             this.container_div.setAttribute("warning_arrowkeys", warning_arrowkeys);
         }
     }
@@ -1402,7 +1402,7 @@ class ScrollmapWithZoom {
                 if (!this._loadedSettings) {
                     if (this._resetMode != ScrollmapWithZoom.ResetMode.ScrollAndZoomFit && this._zoomFitCalledDuringSetup)
                         this.zoomToFit();
-                    this._reset(0);
+                    this.reset(0);
                 }
                 setTimeout(() => {
                     var anim = dojo.fadeIn({ node: this.onsurface_div, duration: 1500, delay: 0 });
@@ -2124,7 +2124,7 @@ class ScrollmapWithZoom {
         };
     }
 
-    protected _reset(duration ? : number) {
+    protected reset(duration ? : number) {
         if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoom)
             this.setMapZoom(this.defaultZoom);
         if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoomFit)
@@ -2962,7 +2962,7 @@ class ScrollmapWithZoom {
     }
 
     protected onReset() {
-        this._reset();
+        this.reset();
     }
 
     //////////////////////////////////////////////////

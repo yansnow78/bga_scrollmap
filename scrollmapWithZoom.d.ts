@@ -314,7 +314,7 @@ declare class ScrollmapWithZoom {
         x: number;
         y: number;
     };
-    protected _reset(duration?: number): void;
+    protected reset(duration?: number): void;
     protected _isRectInside(outerRect: DOMRectReadOnly, innerRect: DOMRectReadOnly): boolean;
     protected _intersect(rect1: DOMRectReadOnly, rect2: DOMRectReadOnly): boolean;
     protected _adjustToContain(outerRect: DOMRect, innerRect: DOMRect, margin?: number): {

@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.29.0: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.29.1: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1031,7 +1031,7 @@ class ScrollmapWithZoom {
                 this.setDisplayHeight(new_height, false);
         }, true);
         if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysArrows) {
-            let warning_arrowkeys = _('press the arrow keys with alt key to scroll the board');
+            let warning_arrowkeys = _('press the arrow keys with ctrl key to scroll the board');
             this.container_div.setAttribute("warning_arrowkeys", warning_arrowkeys);
         }
     }
@@ -1306,7 +1306,7 @@ class ScrollmapWithZoom {
                 if (!this._loadedSettings) {
                     if (this._resetMode != ScrollmapWithZoom.ResetMode.ScrollAndZoomFit && this._zoomFitCalledDuringSetup)
                         this.zoomToFit();
-                    this._reset(0);
+                    this.reset(0);
                 }
                 setTimeout(() => {
                     var anim = dojo.fadeIn({ node: this.onsurface_div, duration: 1500, delay: 0 });
@@ -1966,7 +1966,7 @@ class ScrollmapWithZoom {
             y: center.y
         };
     }
-    _reset(duration) {
+    reset(duration) {
         if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoom)
             this.setMapZoom(this.defaultZoom);
         if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoomFit)
@@ -2714,7 +2714,7 @@ class ScrollmapWithZoom {
         this._hideButton(this._btnZoomToFit);
     }
     onReset() {
-        this._reset();
+        this.reset();
     }
     //////////////////////////////////////////////////
     //// Increase/decrease display height with buttons
