@@ -20,6 +20,7 @@ type _optionsChangedT = {
     btnsDivPositionOutsideMap?: string;
     btns_visible?: boolean;
     bRevertArrowsScroll?: boolean;
+    bOneFingerScrolling?: boolean;
 };
 interface Position {
     x: number;

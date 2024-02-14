@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.29.1: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.29.2: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1011,7 +1011,7 @@ class ScrollmapWithZoom {
         if (this._resizeHeadersObserver) {
             this._resizeHeadersObserver.observe($('log_history_status'));
             this._resizeHeadersObserver.observe($('page-title'));
-            this._resizeHeadersObserver.observe($('after-page-title'));
+            // this._resizeHeadersObserver.observe($('after-page-title'));
         }
         this._localStorageKey = 'scrollmap_' + gameui.table_id + '_' + gameui.player_id + '_' + this.container_div.id;
         if (!ScrollmapWithZoom._localStorageGameKey)
@@ -1126,6 +1126,10 @@ class ScrollmapWithZoom {
                             <input type="checkbox" id="pinchZooming" value="true">
                             <label for="pinchZooming">${_("Pinch fingers to zoom")}</label>
                         </div>
+                        <div>
+                            <input type="checkbox" id="bOneFingerScrolling" value="true">
+                            <label for="bOneFingerScrolling">${_("One finger scrolling")}</label>
+                        </div>
                         ${this.btnsDivPositionnable ? String.raw `
                         <div>
                             <input type="checkbox" id="btnsDivOutsideMap" value="true">
@@ -1197,7 +1201,7 @@ class ScrollmapWithZoom {
         // interface HTMLFormControlsCollectionExt<T extends Element> extends HTMLCollectionBase {
         //     item(index: number): T | null;
         //     namedItem(name: string): T | null;
-        //     [index: number]: T;
+        //     [index: number]: T;.
         // }
         // interface HTMLFormElemnts extends HTMLFormControlsCollection {
         //     [key: string | number]: HTMLElement;
@@ -1206,6 +1210,7 @@ class ScrollmapWithZoom {
         inputs.namedItem("wheelZooming").checked = this.zoomingOptions.bWheelZooming;
         inputs.namedItem("wheelZoomingKey").value = '' + this.zoomingOptions.wheelZooming;
         inputs.namedItem("pinchZooming").checked = this.zoomingOptions.pinchZooming;
+        inputs.namedItem("bOneFingerScrolling").checked = this.scrollingOptions.bOneFingerScrolling;
         if (this.btnsDivPositionnable) {
             inputs.namedItem("btnsDivOutsideMap").checked = !this.btnsDivOnMap;
             inputs.namedItem("btnsDivPositionOutsideMap").value = this.btnsDivPositionOutsideMap;
@@ -1228,6 +1233,11 @@ class ScrollmapWithZoom {
         if (this.zoomingOptions.pinchZooming != pinchZooming) {
             this.zoomingOptions.pinchZooming = pinchZooming;
             ScrollmapWithZoom._optionsChanged.pinchZooming = pinchZooming;
+        }
+        var bOneFingerScrolling = inputs.namedItem("bOneFingerScrolling").checked;
+        if (this.scrollingOptions.bOneFingerScrolling != bOneFingerScrolling) {
+            this.scrollingOptions.bOneFingerScrolling = bOneFingerScrolling;
+            ScrollmapWithZoom._optionsChanged.bOneFingerScrolling = bOneFingerScrolling;
         }
         if (this.btnsDivPositionnable) {
             var btnsDivOnMap = !inputs.namedItem("btnsDivOutsideMap").checked;
@@ -1395,6 +1405,8 @@ class ScrollmapWithZoom {
                     this.zoomingOptions.wheelZooming = optionsChanged.wheelZooming;
                 if (optionsChanged.pinchZooming != undefined)
                     this.zoomingOptions.pinchZooming = optionsChanged.pinchZooming;
+                if (optionsChanged.bOneFingerScrolling != undefined)
+                    this.scrollingOptions.bOneFingerScrolling = optionsChanged.bOneFingerScrolling;
                 if (optionsChanged.btns_visible != null) {
                     this._setButtonsVisiblity(settings.btns_visible);
                 }
