@@ -1413,7 +1413,7 @@ class ScrollmapWithZoom {
                 if (!this._loadedSettings) {
                     if (this._resetMode != ScrollmapWithZoom.ResetMode.ScrollAndZoomFit && this._zoomFitCalledDuringSetup)
                         this.zoomToFit();
-                    this.reset(0);
+                    this.scrollto(0, 0, 0);
                 }
                 setTimeout(() => {
                     var anim = dojo.fadeIn({ node: this.onsurface_div, duration: 1500, delay: 0 });

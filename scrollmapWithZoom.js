@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.29.2: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.30.0: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1316,7 +1316,7 @@ class ScrollmapWithZoom {
                 if (!this._loadedSettings) {
                     if (this._resetMode != ScrollmapWithZoom.ResetMode.ScrollAndZoomFit && this._zoomFitCalledDuringSetup)
                         this.zoomToFit();
-                    this.reset(0);
+                    this.scrollto(0, 0, 0);
                 }
                 setTimeout(() => {
                     var anim = dojo.fadeIn({ node: this.onsurface_div, duration: 1500, delay: 0 });
