@@ -518,6 +518,7 @@ class ScrollmapWithZoom {
         });
         onsurface_div.style.opacity = "0";
         scrollable_div.style.opacity = "0";
+        animation_div.style.opacity = "0";
 
         // clipped_div.appendChild(surface_div);
         this.container_div = container_div;
@@ -1419,6 +1420,8 @@ class ScrollmapWithZoom {
                     var anim = dojo.fadeIn({ node: this.onsurface_div, duration: 1500, delay: 0 });
                     anim.play();
                     var anim = dojo.fadeIn({ node: this.scrollable_div, duration: 1500, delay: 0 });
+                    anim.play();
+                    var anim = dojo.fadeIn({ node: this.animation_div, duration: 1500, delay: 0 });
                     anim.play();
                 }, 500);
             } else {
