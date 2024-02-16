@@ -1114,6 +1114,7 @@ class ScrollmapWithZoom {
             let warning_arrowkeys = _('press the arrow keys with ctrl key to scroll the board');
             this.container_div.setAttribute("warning_arrowkeys", warning_arrowkeys);
         }
+        debug("ebg.ScrollmapWithZoom create end");
     }
 
     createCompletely(container_div: HTMLElement, page: object = null, create_extra: Function = null, bEnlargeReduceButtonsInsideMap: boolean = true) {
@@ -1414,7 +1415,10 @@ class ScrollmapWithZoom {
                 if (!this._loadedSettings) {
                     if (this._resetMode != ScrollmapWithZoom.ResetMode.ScrollAndZoomFit && this._zoomFitCalledDuringSetup)
                         this.zoomToFit();
-                    this._scrollto(this.board_x, this.board_y, 0, 0);
+                    if (this.startPosition)
+                        this.scrollto(-this.startPosition.x, -this.startPosition.y, 0, 0);
+                    else
+                        this.scrollto(0, 0, 0, 0);
                 }
                 setTimeout(() => {
                     var anim = dojo.fadeIn({ node: this.onsurface_div, duration: 1500, delay: 0 });
@@ -2023,6 +2027,8 @@ class ScrollmapWithZoom {
     protected _scrollto(x: number, y: number, duration ? : number, delay ? : number) {
         if (this._setupDone)
             this._scrolled = true;
+        else
+            this.startPosition = { x: -x / this.zoom, y: -y / this.zoom };
         // debug("scrollto", this.board_x, this.board_y);
         if (duration == null) {
             duration = 350; // Default duration
@@ -3111,7 +3117,7 @@ class ScrollmapWithZoom {
         var current_height = this.getDisplayHeight();
         var maxHeight = screen_height - this._titleHeight;
         new_height = Math.min(Math.max(new_height, this.minHeight), maxHeight);
-        if (this.bIncrHeightKeepInPos)
+        if (this.bIncrHeightKeepInPos && this._setupDone)
             this.board_y += (current_height - new_height) / 2;
         this.container_div.style.setProperty("--scrollmap_height", new_height + 'px');
         this.container_div.style.height = 'var(--scrollmap_height)';
