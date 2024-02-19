@@ -134,6 +134,7 @@ class ScrollmapWithZoom {
         x: 0,
         y: 0
     };
+    centerCssQuery: string = null;
     centerCalcUseAlsoOnsurface: boolean = true;
     public get bRevertArrowsScroll(): boolean {
         return this._bRevertArrowsScroll;
@@ -404,7 +405,6 @@ class ScrollmapWithZoom {
     protected _gestureStart: boolean = false;
     protected _prevTouchesDist: number;
     protected _prevTouchesMiddle: DOMPoint;
-    protected _custom_css_query: string = null;
     protected _isScrolling: number = 0;
     // protected _longPressAnim: FrameRequestCallback(time: any, anim?: any) => void;
     protected _resetMode: ScrollmapWithZoom.ResetMode = ScrollmapWithZoom.ResetMode.Scroll;
@@ -2135,6 +2135,8 @@ class ScrollmapWithZoom {
             y_extra_u = 0;
             y_extra_d = 0;
         }
+        if (!custom_css_query)
+            custom_css_query = this.centerCssQuery;
         const center = this.getMapCenter(custom_css_query);
         center.x += (x_extra_r - x_extra_l) / 2;
         center.y += (y_extra_d - y_extra_u) / 2;
@@ -2303,8 +2305,6 @@ class ScrollmapWithZoom {
     getMapLimits(custom_css_query: string = null): {
         min_x: number;max_x: number;min_y: number;max_y: number;
     } {
-        if (custom_css_query)
-            this._custom_css_query = custom_css_query;
         // Get all elements inside and get their max x/y/w/h
         var max_x: number = null;
         var max_y: number = null;
@@ -2353,20 +2353,17 @@ class ScrollmapWithZoom {
             min_y = (min_y !== null) ? Math.min(min_y, top) : top;
             debug(node.id, left, top, left + width, top + height);
         }
-        if ((typeof this._custom_css_query != 'undefined') && (this._custom_css_query !== null)) {
-            document.querySelectorAll(this._custom_css_query).forEach((node) => {
-                calcMaxMin( < HTMLElement > node, this.scrollable_div);
-            });
-        } else {
-            var css_query = ":scope > *";
-            this.scrollable_div.querySelectorAll(css_query).forEach((node) => {
-                calcMaxMin( < HTMLElement > node, this.scrollable_div);
-            });
-            if (this.centerCalcUseAlsoOnsurface)
-                this.onsurface_div.querySelectorAll(css_query).forEach((node) => {
-                    calcMaxMin( < HTMLElement > node, this.onsurface_div);
-                });
+        var css_query = ":scope > *";
+        if (custom_css_query) {
+            css_query = custom_css_query;
         }
+        this.scrollable_div.querySelectorAll(css_query).forEach((node) => {
+            calcMaxMin( < HTMLElement > node, this.scrollable_div);
+        });
+        if (this.centerCalcUseAlsoOnsurface)
+            this.onsurface_div.querySelectorAll(css_query).forEach((node) => {
+                calcMaxMin( < HTMLElement > node, this.onsurface_div);
+            });
 
         return {
             min_x,

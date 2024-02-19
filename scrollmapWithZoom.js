@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.30.3: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.30.4: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -206,6 +206,7 @@ class ScrollmapWithZoom {
             x: 0,
             y: 0
         };
+        this.centerCssQuery = null;
         this.centerCalcUseAlsoOnsurface = true;
         /**
          * resizing properties
@@ -361,7 +362,6 @@ class ScrollmapWithZoom {
         this._scrolled = false;
         this._prevDist = -1;
         this._gestureStart = false;
-        this._custom_css_query = null;
         this._isScrolling = 0;
         // protected _longPressAnim: FrameRequestCallback(time: any, anim?: any) => void;
         this._resetMode = ScrollmapWithZoom.ResetMode.Scroll;
@@ -1977,6 +1977,8 @@ class ScrollmapWithZoom {
             y_extra_u = 0;
             y_extra_d = 0;
         }
+        if (!custom_css_query)
+            custom_css_query = this.centerCssQuery;
         const center = this.getMapCenter(custom_css_query);
         center.x += (x_extra_r - x_extra_l) / 2;
         center.y += (y_extra_d - y_extra_u) / 2;
@@ -2122,8 +2124,6 @@ class ScrollmapWithZoom {
         this._makeRectVisible(obj_rect, board_rect, centerOnIt, excl_width, excl_height, pos);
     }
     getMapLimits(custom_css_query = null) {
-        if (custom_css_query)
-            this._custom_css_query = custom_css_query;
         // Get all elements inside and get their max x/y/w/h
         var max_x = null;
         var max_y = null;
@@ -2170,20 +2170,17 @@ class ScrollmapWithZoom {
             min_y = (min_y !== null) ? Math.min(min_y, top) : top;
             debug(node.id, left, top, left + width, top + height);
         }
-        if ((typeof this._custom_css_query != 'undefined') && (this._custom_css_query !== null)) {
-            document.querySelectorAll(this._custom_css_query).forEach((node) => {
-                calcMaxMin(node, this.scrollable_div);
-            });
-        } else {
-            var css_query = ":scope > *";
-            this.scrollable_div.querySelectorAll(css_query).forEach((node) => {
-                calcMaxMin(node, this.scrollable_div);
-            });
-            if (this.centerCalcUseAlsoOnsurface)
-                this.onsurface_div.querySelectorAll(css_query).forEach((node) => {
-                    calcMaxMin(node, this.onsurface_div);
-                });
+        var css_query = ":scope > *";
+        if (custom_css_query) {
+            css_query = custom_css_query;
         }
+        this.scrollable_div.querySelectorAll(css_query).forEach((node) => {
+            calcMaxMin(node, this.scrollable_div);
+        });
+        if (this.centerCalcUseAlsoOnsurface)
+            this.onsurface_div.querySelectorAll(css_query).forEach((node) => {
+                calcMaxMin(node, this.onsurface_div);
+            });
         return {
             min_x,
             max_x,

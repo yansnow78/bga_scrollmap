@@ -75,6 +75,7 @@ declare class ScrollmapWithZoom {
     scrollingTresh: number;
     defaultPosition: Position;
     centerPositionOffset: Position;
+    centerCssQuery: string;
     centerCalcUseAlsoOnsurface: boolean;
     get bRevertArrowsScroll(): boolean;
     set bRevertArrowsScroll(value: boolean);
@@ -256,7 +257,6 @@ declare class ScrollmapWithZoom {
     protected _gestureStart: boolean;
     protected _prevTouchesDist: number;
     protected _prevTouchesMiddle: DOMPoint;
-    protected _custom_css_query: string;
     protected _isScrolling: number;
     protected _resetMode: ScrollmapWithZoom.ResetMode;
     protected _bRevertArrowsScroll: boolean;

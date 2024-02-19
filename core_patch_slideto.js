@@ -160,6 +160,28 @@ define([
                 this._placeOnObject(mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter, bToCenter);
             },
 
+            _slideToPos: function (mobile_obj, top, left, duration, disabled3d) {
+                var anim = dojo.fx.slideTo({
+                    node: mobile_obj,
+                    top: top,
+                    left: left,
+                    delay: delay,
+                    duration: duration,
+                    unit: "px"
+                });
+
+                if (disabled3d !== null) {
+                    anim = this.transformSlideAnimTo3d(anim, mobile_obj, duration, delay, vector_x, vector_y);
+                }
+
+                if (mobile_obj.closest(".scrollmap_onsurface, .scrollmap_scrollable")){
+                    var orig_parent = mobile_obj;
+                    dojo.connect(anim, 'onEnd', dojo.hitch(this, function () {
+                        dojo.place(mobile_obj, orig_parent);
+                    }));
+                }
+            },
+
             // Return an animation that is moving (slide) a DOM object over another one
             _slideToObject: function (mobile_obj, target_obj, target_x, target_y, bRelPos, duration, delay, bFromCenter, bToCenter) {
                 if (mobile_obj === null) {
