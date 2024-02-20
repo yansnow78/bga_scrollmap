@@ -2288,12 +2288,12 @@ class ScrollmapWithZoom {
     }
 
 
-    makeObjVisible(obj: HTMLElement, centerOnIt: boolean = true, excl_width: number = 0, excl_height: number = 0, pos: "topleft" | "topright" | "bottomleft" | "bottomright" = "topleft") {
+    makeObjVisible(obj: HTMLElement, centerOnIt: boolean = false, excl_width: number = 0, excl_height: number = 0, pos: "topleft" | "topright" | "bottomleft" | "bottomright" = "topleft") {
         let board_rect = this.clipped_div.getBoundingClientRect();
         let obj_rect = obj.getBoundingClientRect();
         this._makeRectVisible(obj_rect, board_rect, centerOnIt, excl_width, excl_height, pos);
     }
-    makeVisible(x: number, y: number, w: number = 0, h: number = 0, centerOnIt: boolean = true, excl_width: number = 0, excl_height: number = 0, pos: "topleft" | "topright" | "bottomleft" | "bottomright" = "topleft") {
+    makeVisible(x: number, y: number, w: number = 0, h: number = 0, centerOnIt: boolean = false, excl_width: number = 0, excl_height: number = 0, pos: "topleft" | "topright" | "bottomleft" | "bottomright" = "topleft") {
         const s = window.getComputedStyle(this.clipped_div);
         const width = parseFloat(s.width);
         const height = parseFloat(s.height);
@@ -2301,7 +2301,6 @@ class ScrollmapWithZoom {
         var board_rect = new DOMRect(-this.board_x - width / 2, -this.board_y - height / 2, width, height);
         this._makeRectVisible(obj_rect, board_rect, centerOnIt, excl_width, excl_height, pos);
     }
-
     getMapLimits(custom_css_query: string = null): {
         min_x: number;max_x: number;min_y: number;max_y: number;
     } {
@@ -2364,7 +2363,7 @@ class ScrollmapWithZoom {
             this.onsurface_div.querySelectorAll(css_query).forEach((node) => {
                 calcMaxMin( < HTMLElement > node, this.onsurface_div);
             });
-
+        debug("getMapLimits", min_x, max_x, min_y, max_y);
         return {
             min_x,
             max_x,

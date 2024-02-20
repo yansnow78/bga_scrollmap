@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.30.4: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.30.5: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -2110,12 +2110,12 @@ class ScrollmapWithZoom {
                 this.scroll(delta.x, delta.y);
         }
     }
-    makeObjVisible(obj, centerOnIt = true, excl_width = 0, excl_height = 0, pos = "topleft") {
+    makeObjVisible(obj, centerOnIt = false, excl_width = 0, excl_height = 0, pos = "topleft") {
         let board_rect = this.clipped_div.getBoundingClientRect();
         let obj_rect = obj.getBoundingClientRect();
         this._makeRectVisible(obj_rect, board_rect, centerOnIt, excl_width, excl_height, pos);
     }
-    makeVisible(x, y, w = 0, h = 0, centerOnIt = true, excl_width = 0, excl_height = 0, pos = "topleft") {
+    makeVisible(x, y, w = 0, h = 0, centerOnIt = false, excl_width = 0, excl_height = 0, pos = "topleft") {
         const s = window.getComputedStyle(this.clipped_div);
         const width = parseFloat(s.width);
         const height = parseFloat(s.height);
@@ -2181,6 +2181,7 @@ class ScrollmapWithZoom {
             this.onsurface_div.querySelectorAll(css_query).forEach((node) => {
                 calcMaxMin(node, this.onsurface_div);
             });
+        debug("getMapLimits", min_x, max_x, min_y, max_y);
         return {
             min_x,
             max_x,
