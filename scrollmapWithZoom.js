@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.30.5: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.31.0: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -307,10 +307,10 @@ class ScrollmapWithZoom {
         this._enabledClicks = true;
         this._enableTooltipsAndClick_handler = this._enableTooltipsAndClick.bind(this);
         this._resizeObserver = (typeof ResizeObserver !== 'undefined') ? new ResizeObserver(entries => {
-            this._onResize(entries);
+            this._onResize();
         }) : null;
         this._resizeHeadersObserver = (typeof ResizeObserver !== 'undefined') ? new ResizeObserver(entries => {
-            this._adaptHeight(entries);
+            this._adaptHeight();
         }) : null;
         this._onpointermove_handler = this._onPointerMove.bind(this);
         this._onpointerup_handler = this._onPointerUp.bind(this);
@@ -1025,7 +1025,7 @@ class ScrollmapWithZoom {
         window.addEventListener('load', (e) => {
             debug("document loaded"); /*this._adaptHeight();*/
         });
-        dojo.connect(gameui, "onGameUiWidthChange", this, dojo.hitch(this, '_adaptHeight'));
+        dojo.connect(gameui, "onScreenWidthChange", this, dojo.hitch(this, '_adaptHeight'));
         dojo.require("dojo.aspect");
         dojo.aspect.after(ScrollmapWithZoom, "updateHeight", (new_height, incrHeightGlobalKey) => {
             if (this.incrHeightGlobalKey == incrHeightGlobalKey)
@@ -1268,8 +1268,9 @@ class ScrollmapWithZoom {
         // this._form.style.display = "none";
         return false;
     }
-    _adaptHeight(entries) {
+    _adaptHeight() {
         window.requestAnimationFrame(() => {
+            this._onResize();
             // your code
             debug("_adaptHeight");
             var pageZoom = this._getPageZoom();
@@ -1309,7 +1310,7 @@ class ScrollmapWithZoom {
             this._disableButton(this._btnResetHeight);
         });
     }
-    _onResize(entries) {
+    _onResize() {
         window.requestAnimationFrame(() => {
             if (!this._setupDone || (this.bAdaptHeightAuto && !this._adaptHeightDone)) {
                 debug(this._setupDone ? "onResize after adaptHeight" : "1st onResize after setup");
@@ -1829,11 +1830,12 @@ class ScrollmapWithZoom {
             }
         }
         if (!wheelZoom) {
-            clearTimeout(this._isScrolling);
-            if (this.zoomingOptions.bWheelZooming) {
+            if (this.zoomingOptions.bWheelZooming && !this._isScrolling) {
                 // Set a timeout to run after scrolling ends
                 this._isScrolling = setTimeout(() => {
                     this.container_div.classList.remove("scrollmap_warning_scroll");
+                    clearTimeout(this._isScrolling);
+                    // this._isScrolling = 0;
                 }, 1000);
                 this.container_div.classList.add("scrollmap_warning_scroll");
             }
@@ -2818,7 +2820,7 @@ class ScrollmapWithZoom {
         this._bMaxHeight = false;
         this._bHeightChanged = false;
         if (this.bAdaptHeightAuto)
-            this._adaptHeight(null);
+            this._adaptHeight();
         else
             this.setDisplayHeight(this._defaultHeight);
         this._disableButton(this._btnResetHeight);

@@ -343,10 +343,10 @@ class ScrollmapWithZoom {
     protected _enabledClicks: boolean = true;
     protected _enableTooltipsAndClick_handler: (this: HTMLElement, ev: MouseEvent) => any = this._enableTooltipsAndClick.bind(this);
     protected _resizeObserver: ResizeObserver = (typeof ResizeObserver !== 'undefined') ? new ResizeObserver(entries => {
-        this._onResize(entries);
+        this._onResize();
     }) : null;
     protected _resizeHeadersObserver: ResizeObserver = (typeof ResizeObserver !== 'undefined') ? new ResizeObserver(entries => {
-        this._adaptHeight(entries);
+        this._adaptHeight();
     }) : null;
     protected _onpointermove_handler: (this: HTMLElement, ev: MouseEvent) => any = this._onPointerMove.bind(this);
     protected _onpointerup_handler: (this: HTMLElement, ev: MouseEvent) => any = this._onPointerUp.bind(this);
@@ -1103,7 +1103,7 @@ class ScrollmapWithZoom {
         window.addEventListener('load', (e) => {
             debug("document loaded"); /*this._adaptHeight();*/
         });
-        dojo.connect(gameui, "onGameUiWidthChange", this, dojo.hitch(this, '_adaptHeight'));
+        dojo.connect(gameui, "onScreenWidthChange", this, dojo.hitch(this, '_adaptHeight'));
         dojo.require("dojo.aspect");
         dojo.aspect.after(ScrollmapWithZoom, "updateHeight", (new_height: number, incrHeightGlobalKey: string) => {
             if (this.incrHeightGlobalKey == incrHeightGlobalKey)
@@ -1361,8 +1361,9 @@ class ScrollmapWithZoom {
         return false;
     }
 
-    protected _adaptHeight(entries: ResizeObserverEntry[]) {
+    protected _adaptHeight() {
         window.requestAnimationFrame(() => {
+            this._onResize();
             // your code
             debug("_adaptHeight");
             var pageZoom = this._getPageZoom();
@@ -1406,7 +1407,7 @@ class ScrollmapWithZoom {
 
     }
 
-    protected _onResize(entries: ResizeObserverEntry[]) {
+    protected _onResize() {
         window.requestAnimationFrame(() => {
             if (!this._setupDone || (this.bAdaptHeightAuto && !this._adaptHeightDone)) {
                 debug(this._setupDone ? "onResize after adaptHeight" : "1st onResize after setup");
@@ -1965,13 +1966,13 @@ class ScrollmapWithZoom {
         }
 
         if (!wheelZoom) {
-            clearTimeout(this._isScrolling);
-            if (this.zoomingOptions.bWheelZooming) {
+            if (this.zoomingOptions.bWheelZooming && !this._isScrolling) {
                 // Set a timeout to run after scrolling ends
                 this._isScrolling = setTimeout(() => {
                     this.container_div.classList.remove("scrollmap_warning_scroll");
+                    clearTimeout(this._isScrolling);
+                    // this._isScrolling = 0;
                 }, 1000);
-
                 this.container_div.classList.add("scrollmap_warning_scroll");
             }
             return;
@@ -3076,7 +3077,7 @@ class ScrollmapWithZoom {
         this._bMaxHeight = false;
         this._bHeightChanged = false;
         if (this.bAdaptHeightAuto)
-            this._adaptHeight(null);
+            this._adaptHeight();
         else
             this.setDisplayHeight(this._defaultHeight);
         this._disableButton(this._btnResetHeight);

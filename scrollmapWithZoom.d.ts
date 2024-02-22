@@ -275,8 +275,8 @@ declare class ScrollmapWithZoom {
     protected _showForm(): void;
     protected _submitForm(): boolean;
     protected _closeForm(): boolean;
-    protected _adaptHeight(entries: ResizeObserverEntry[]): void;
-    protected _onResize(entries: ResizeObserverEntry[]): void;
+    protected _adaptHeight(): void;
+    protected _onResize(): void;
     protected _clearOldSettings(): void;
     protected _loadSettings(): boolean;
     protected _saveSettings(): void;
