@@ -1380,7 +1380,7 @@ class ScrollmapWithZoom {
                 return;
             var screen_height = document.documentElement.clientHeight ||
                 document.body.clientHeight || window.innerHeight;
-            var container_pos = dojo.coords('map_container', true);
+            var container_pos = dojo.coords(this.container_div, true);
             screen_height /= pageZoom;
             var other_elements_height = this.adaptHeightCorr + container_pos.y;
             for (let i = 0; i < this.adaptHeightCorrDivs.length; i++) {
