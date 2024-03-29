@@ -1385,8 +1385,11 @@ class ScrollmapWithZoom {
             var other_elements_height = this.adaptHeightCorr + container_pos.y;
             for (let i = 0; i < this.adaptHeightCorrDivs.length; i++) {
                 let float = window.getComputedStyle(this.adaptHeightCorrDivs[i]).float;
-                if (float != "left" && float != "right")
-                    other_elements_height += this.adaptHeightCorrDivs[i].getBoundingClientRect().height;
+                if (float != "left" && float != "right") {
+                    var brect = this.adaptHeightCorrDivs[i].getBoundingClientRect();
+                    if (brect.top + 1 >= container_pos.y + container_pos.h)
+                        other_elements_height += brect.height;
+                }
             }
             // var $log_history_status = $('log_history_status'); 
             // if ($log_history_status)
