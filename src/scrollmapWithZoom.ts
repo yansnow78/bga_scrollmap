@@ -1387,7 +1387,7 @@ class ScrollmapWithZoom {
                 let float = window.getComputedStyle(this.adaptHeightCorrDivs[i]).float;
                 if (float != "left" && float != "right") {
                     var brect = this.adaptHeightCorrDivs[i].getBoundingClientRect();
-                    if (brect.top + 1 >= container_pos.y + container_pos.h)
+                    if (brect.top + 5 >= container_pos.y + container_pos.h)
                         other_elements_height += brect.height;
                 }
             }

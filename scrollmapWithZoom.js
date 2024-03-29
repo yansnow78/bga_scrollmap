@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.32.4: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.32.5: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1293,7 +1293,7 @@ class ScrollmapWithZoom {
                 let float = window.getComputedStyle(this.adaptHeightCorrDivs[i]).float;
                 if (float != "left" && float != "right") {
                     var brect = this.adaptHeightCorrDivs[i].getBoundingClientRect();
-                    if (brect.top + 1 >= container_pos.y + container_pos.h)
+                    if (brect.top + 5 >= container_pos.y + container_pos.h)
                         other_elements_height += brect.height;
                 }
             }
