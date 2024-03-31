@@ -11,6 +11,25 @@ define([
         return declare("ebg.core.core_patch_slideto", null, {
             constructor: function () {
                 debug('ebg.core.core_patch constructor');
+                this._checkIfZoomImplemented();
+            },
+
+            _checkIfZoomImplemented: function(){
+                if (Tooltip._MasterTooltip.prototype._origShow)
+                    return;
+                const scrollX = window.pageXOffset;
+                const scrollY = window.pageYOffset;
+                const el = document.createElement("div");
+                el.style = 'top : 10px; left: 10px; zoom: 2.0; width: 4000px; height: 4000px; position: absolute';
+                document.body.appendChild(el);
+                const el2 = document.createElement("div");
+                el2.style = 'top : 20px; left: 5px; zoom: 4.0; width: 10px; height: 10px; position: absolute';
+                el.appendChild(el2);
+                window.scroll(0,0);
+                const tBox = domGeometry.position(el2);
+                this._zoomImplemented = (tBox.x==7.5);
+                document.body.removeChild(el);
+                window.scroll(scrollX,scrollY);
             },
 
             calcScale: function (element) {

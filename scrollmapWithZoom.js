@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.32.5: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.32.6: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1286,15 +1286,17 @@ class ScrollmapWithZoom {
                 return;
             var screen_height = document.documentElement.clientHeight ||
                 document.body.clientHeight || window.innerHeight;
-            var container_pos = dojo.coords(this.container_div, true);
+            var container_pos = dojo.coords(this.container_div, false);
             screen_height /= pageZoom;
-            var other_elements_height = this.adaptHeightCorr + container_pos.y;
+            var other_elements_height = this.adaptHeightCorr + container_pos.y + window.scrollY / pageZoom;
             for (let i = 0; i < this.adaptHeightCorrDivs.length; i++) {
                 let float = window.getComputedStyle(this.adaptHeightCorrDivs[i]).float;
                 if (float != "left" && float != "right") {
+                    var corrCoord = dojo.coords(this.adaptHeightCorrDivs[i], true);
+                    //if (corrCoord.y + 5 >= container_pos.y + container_pos.h)
                     var brect = this.adaptHeightCorrDivs[i].getBoundingClientRect();
-                    if (brect.top + 5 >= container_pos.y + container_pos.h)
-                        other_elements_height += brect.height;
+                    //if (brect.top + 5 >= container_pos.y + container_pos.h)
+                    other_elements_height += brect.height;
                 }
             }
             // var $log_history_status = $('log_history_status'); 
@@ -1492,12 +1494,14 @@ class ScrollmapWithZoom {
     }
     _getPageZoom() {
         var pageZoom = 1;
-        try {
-            var pageZoomStr = $("page-content").style.getPropertyValue("zoom");
-            if (pageZoomStr !== "")
-                pageZoom = parseFloat(pageZoomStr);
-        } catch (error) {
-            /* empty */
+        if (gameui._zoomImplemented) {
+            try {
+                var pageZoomStr = $("page-content").style.getPropertyValue("zoom");
+                if (pageZoomStr !== "")
+                    pageZoom = parseFloat(pageZoomStr);
+            } catch (error) {
+                /* empty */
+            }
         }
         return pageZoom;
     }
