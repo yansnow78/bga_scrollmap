@@ -15,8 +15,6 @@ define([
             },
 
             _checkIfZoomImplemented: function(){
-                if (Tooltip._MasterTooltip.prototype._origShow)
-                    return;
                 const scrollX = window.pageXOffset;
                 const scrollY = window.pageYOffset;
                 const el = document.createElement("div");
@@ -26,7 +24,7 @@ define([
                 el2.style = 'top : 20px; left: 5px; zoom: 4.0; width: 10px; height: 10px; position: absolute';
                 el.appendChild(el2);
                 window.scroll(0,0);
-                const tBox = domGeometry.position(el2);
+                const tBox = el2.getBoundingClientRect();
                 this._zoomImplemented = (tBox.x==7.5);
                 document.body.removeChild(el);
                 window.scroll(scrollX,scrollY);
