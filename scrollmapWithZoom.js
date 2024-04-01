@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.32.7: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.32.8: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1506,7 +1506,7 @@ class ScrollmapWithZoom {
         return pageZoom;
     }
     _getInterfaceFactor() {
-        return screen.width / gameui.interface_min_width;
+        return screen.width / window.innerWidth;
     }
     _getXYCoord(ev, ev2) {
         var clientX = ev.clientX;

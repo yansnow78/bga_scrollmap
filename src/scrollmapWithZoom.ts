@@ -1609,7 +1609,7 @@ class ScrollmapWithZoom {
     }
 
     protected _getInterfaceFactor() {
-        return screen.width / gameui.interface_min_width;
+        return screen.width / window.innerWidth;
     }
 
     protected _getXYCoord(ev: PointerEvent | Touch | MouseEvent, ev2 ? : PointerEvent | Touch | MouseEvent) {
