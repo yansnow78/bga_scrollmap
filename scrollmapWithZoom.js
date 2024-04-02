@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.33.0: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.33.1: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1002,6 +1002,7 @@ class ScrollmapWithZoom {
         if (!this._bIncrHeightBtnVisible)
             this.hideEnlargeReduceButtons();
         this._RepositionButtonsDiv();
+        this.setBShowMoveCursor();
         this.bIncrHeightGlobally = this._bIncrHeightGlobally;
         this._defaultHeight = parseFloat(window.getComputedStyle(this.container_div).height);
         this.bEnableZooming = this._bEnableZooming;

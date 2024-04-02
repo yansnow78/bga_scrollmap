@@ -1081,6 +1081,7 @@ class ScrollmapWithZoom {
             this.hideEnlargeReduceButtons();
 
         this._RepositionButtonsDiv();
+        this.setBShowMoveCursor();
 
         this.bIncrHeightGlobally = this._bIncrHeightGlobally;
         this._defaultHeight = parseFloat(window.getComputedStyle(this.container_div).height);
