@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.33.2: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.33.3: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1151,7 +1151,7 @@ class ScrollmapWithZoom {
                         </div>
                         <div>
                             <input type="checkbox" id="bTakeIntoAccountPanelsHeight" value="true">
-                            <label for="bTakeIntoAccountPanelsHeight">${_("Take into account panel height")}</label>
+                            <label for="bTakeIntoAccountPanelsHeight">${_("Take into account panels height")}</label>
                         </div>
                         <div>
                             <button name="close2">${_("Cancel")}</button>
