@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.33.4: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.33.5: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -631,7 +631,6 @@ class ScrollmapWithZoom {
                 }
 
                 .scrollmap_container:after {
-                    animation: scrollmap_warning_fadein 0.8s backwards;
                     color: #fff;
                     font-family: "Roboto", Arial, sans-serif;
                     font-size: 22px;
@@ -654,7 +653,8 @@ class ScrollmapWithZoom {
                 .scrollmap_warning_scroll:after,
                 .scrollmap_warning_arrowkeys:after, 
                 .scrollmap_warning_plusminuskeys:after {
-                    animation: scrollmap_warning_fadein 0.8s forwards; }
+                    animation: scrollmap_warning_fadeout 3s ease-in;
+                }
 
                 .scrollmap_warning_touch:after {
                     content: attr(warning_touch);
@@ -1373,14 +1373,13 @@ class ScrollmapWithZoom {
                     else
                         this.scrollto(0, 0, 0, 0);
                 }
-                setTimeout(() => {
-                    var anim = dojo.fadeIn({ node: this.onsurface_div, duration: 1500, delay: 0 });
-                    anim.play();
-                    var anim = dojo.fadeIn({ node: this.scrollable_div, duration: 1500, delay: 0 });
-                    anim.play();
-                    var anim = dojo.fadeIn({ node: this.animation_div, duration: 1500, delay: 0 });
-                    anim.play();
-                }, 500);
+                if (!this._setupDone)
+                    setTimeout(() => {
+                        var animA = dojo.fadeIn({ node: this.onsurface_div, duration: 1500, delay: 0 });
+                        var animB = dojo.fadeIn({ node: this.scrollable_div, duration: 1500, delay: 0 });
+                        var animC = dojo.fadeIn({ node: this.animation_div, duration: 1500, delay: 0 });
+                        dojo.fx.combine([animA, animB, animC]).play();
+                    }, 500);
             } else {
                 this._scrollto(this.board_x, this.board_y, 0, 0);
             }
@@ -1895,7 +1894,7 @@ class ScrollmapWithZoom {
                     this.container_div.classList.remove("scrollmap_warning_scroll");
                     clearTimeout(this._isScrolling);
                     // this._isScrolling = 0;
-                }, 1000);
+                }, 3000);
                 this.container_div.classList.add("scrollmap_warning_scroll");
             }
             return;
@@ -2602,7 +2601,7 @@ class ScrollmapWithZoom {
     _onKeyUp(e) {
         if (!ScrollmapWithZoom.bEnableKeys || ScrollmapWithZoom.count != 1)
             return;
-        setTimeout(() => { this.container_div.classList.remove("scrollmap_warning_arrowkeys"); }, 2000);
+        setTimeout(() => { this.container_div.classList.remove("scrollmap_warning_arrowkeys"); }, 3000);
         if (!this._keysPressed.get(e.key))
             return;
         console.log("onKeyUp", e.key);
