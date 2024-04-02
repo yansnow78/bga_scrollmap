@@ -21,6 +21,8 @@ type _optionsChangedT = {
     btns_visible?: boolean;
     bRevertArrowsScroll?: boolean;
     bOneFingerScrolling?: boolean;
+    bShowMoveCursor?: boolean;
+    bAutoCompensatePanelsHeight?: boolean;
 };
 interface Position {
     x: number;
@@ -68,6 +70,7 @@ declare class ScrollmapWithZoom {
     bEnableScrolling: boolean;
     scrollingOptions: {
         bOneFingerScrolling: boolean;
+        bShowMoveCursor: boolean;
     };
     bScrollDeltaAlignWithZoom: boolean;
     bRestoreScrollPosition: boolean;
@@ -87,6 +90,7 @@ declare class ScrollmapWithZoom {
     incrHeightDelta: number;
     bIncrHeightKeepInPos: boolean;
     bAdaptHeightAutoCompensateChatIcon: boolean;
+    bAdaptHeightAutoCompensatePanelsHeight: boolean;
     get bAdaptHeightAuto(): boolean;
     set bAdaptHeightAuto(value: boolean);
     set adaptHeightCorrDivs(value: HTMLDivElement[]);
@@ -397,6 +401,7 @@ declare class ScrollmapWithZoom {
     hideInfoButton(): void;
     getInfoButtonTooltip(): string;
     setInfoButtonTooltip(): void;
+    setBShowMoveCursor(): void;
     getWheelZoomingOptionTranslated(): string;
 }
 declare namespace ScrollmapWithZoom {

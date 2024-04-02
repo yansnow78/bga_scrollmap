@@ -49,7 +49,9 @@ type _optionsChangedT = {
     btnsDivPositionOutsideMap ? : string;
     btns_visible ? : boolean;
     bRevertArrowsScroll ? : boolean;
-    bOneFingerScrolling ? : boolean
+    bOneFingerScrolling ? : boolean;
+    bShowMoveCursor ? : boolean;
+    bAutoCompensatePanelsHeight ? : boolean
 };
 
 interface Position {
@@ -122,8 +124,10 @@ class ScrollmapWithZoom {
     bEnableScrolling: boolean = true;
     scrollingOptions: {
         bOneFingerScrolling: boolean;
+        bShowMoveCursor: boolean;
     } = {
-        bOneFingerScrolling: false
+        bOneFingerScrolling: false,
+        bShowMoveCursor: true
     };
     bScrollDeltaAlignWithZoom: boolean = true;
     bRestoreScrollPosition: boolean = true;
@@ -154,6 +158,7 @@ class ScrollmapWithZoom {
     incrHeightDelta: number = 100;
     bIncrHeightKeepInPos: boolean = true;
     bAdaptHeightAutoCompensateChatIcon: boolean = true;
+    bAdaptHeightAutoCompensatePanelsHeight: boolean = false;
     public get bAdaptHeightAuto(): boolean {
         return this._bAdaptHeightAuto;
     }
@@ -902,7 +907,7 @@ class ScrollmapWithZoom {
 
                 .scrollmap_overflow_clipped > .scrollmap_btns_flex {
                     --column_cnt : 2;
-                    width: calc(var(--column_cnt) * (var(--icon_size_z) + 2 * var(--icon_around_size_z)));
+                    width: calc(var(--column_cnt) * (var(--icon_size_z) + 2 * var(--icon_around_size_z)) + 1px);
                 }
 
                 .scrollmap_dialog button {
@@ -1219,6 +1224,10 @@ class ScrollmapWithZoom {
                             <input type="checkbox" id="bOneFingerScrolling" value="true">
                             <label for="bOneFingerScrolling">${_("One finger scrolling")}</label>
                         </div>
+                        <div>
+                            <input type="checkbox" id="bShowMoveCursor" value="true">
+                            <label for="bShowMoveCursor">${_("Show move cursor")}</label>
+                        </div>
                         ${this.btnsDivPositionnable ? String.raw`
                         <div>
                             <input type="checkbox" id="btnsDivOutsideMap" value="true">
@@ -1228,6 +1237,10 @@ class ScrollmapWithZoom {
                         <div>
                             <input type="checkbox" id="bRevertArrowsScroll" value="true">
                             <label for="bRevertArrowsScroll">${_("Revert scroll direction of arrows")}</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="bTakeIntoAccountPanelsHeight" value="true">
+                            <label for="bTakeIntoAccountPanelsHeight">${_("Take into account panel height")}</label>
                         </div>
                         <div>
                             <button name="close2">${_("Cancel")}</button>
@@ -1302,12 +1315,13 @@ class ScrollmapWithZoom {
         inputs.namedItem("wheelZoomingKey").value = '' + this.zoomingOptions.wheelZooming;
         inputs.namedItem("pinchZooming").checked = this.zoomingOptions.pinchZooming;
         inputs.namedItem("bOneFingerScrolling").checked = this.scrollingOptions.bOneFingerScrolling;
+        inputs.namedItem("bShowMoveCursor").checked = this.scrollingOptions.bShowMoveCursor;
         if (this.btnsDivPositionnable) {
             inputs.namedItem("btnsDivOutsideMap").checked = !this.btnsDivOnMap;
             inputs.namedItem("btnsDivPositionOutsideMap").value = this.btnsDivPositionOutsideMap;
         }
         inputs.namedItem("bRevertArrowsScroll").checked = this.bRevertArrowsScroll;
-
+        inputs.namedItem("bTakeIntoAccountPanelsHeight").checked = this.bAdaptHeightAutoCompensatePanelsHeight;
     }
 
     protected _submitForm() {
@@ -1332,6 +1346,12 @@ class ScrollmapWithZoom {
             this.scrollingOptions.bOneFingerScrolling = bOneFingerScrolling;
             ScrollmapWithZoom._optionsChanged.bOneFingerScrolling = bOneFingerScrolling;
         }
+        var bShowMoveCursor = inputs.namedItem("bShowMoveCursor").checked;
+        if (this.scrollingOptions.bShowMoveCursor != bShowMoveCursor) {
+            this.scrollingOptions.bShowMoveCursor = bShowMoveCursor;
+            ScrollmapWithZoom._optionsChanged.bShowMoveCursor = bShowMoveCursor;
+            this.setBShowMoveCursor();
+        }
         if (this.btnsDivPositionnable) {
             var btnsDivOnMap = !inputs.namedItem("btnsDivOutsideMap").checked;
             if (this.btnsDivOnMap != btnsDivOnMap) {
@@ -1347,6 +1367,12 @@ class ScrollmapWithZoom {
         if (this.bRevertArrowsScroll != bRevertArrowsScroll) {
             this.bRevertArrowsScroll = bRevertArrowsScroll;
             ScrollmapWithZoom._optionsChanged.bRevertArrowsScroll = bRevertArrowsScroll;
+        }
+        var bAutoCompensatePanelsHeight = inputs.namedItem("bTakeIntoAccountPanelsHeight").checked;
+        if (this.bAdaptHeightAutoCompensatePanelsHeight != bAutoCompensatePanelsHeight) {
+            this.bAdaptHeightAutoCompensatePanelsHeight = bAutoCompensatePanelsHeight;
+            ScrollmapWithZoom._optionsChanged.bAutoCompensatePanelsHeight = bAutoCompensatePanelsHeight;
+            this._adaptHeight();
         }
         if (this == ScrollmapWithZoom.instances.values().next().value)
             ScrollmapWithZoom._saveGameSettings();
@@ -1382,7 +1408,19 @@ class ScrollmapWithZoom {
                 document.body.clientHeight || window.innerHeight;
             var container_pos = dojo.coords(this.container_div, false);
             screen_height /= pageZoom;
-            var other_elements_height = this.adaptHeightCorr + container_pos.y + window.scrollY / pageZoom;
+            var scrollY_z = window.scrollY / pageZoom;
+            var other_elements_height = this.adaptHeightCorr + container_pos.y + scrollY_z;
+            if (!this.bAdaptHeightAutoCompensatePanelsHeight && dojo.hasClass('ebd-body', 'mobile_version')) {
+                //debugger;
+                // var playersPanelsCoord = dojo.coords($("player_boards"), false);
+                var pageTitleCoord = dojo.coords($("page-title"), false);
+                var pageContentCoord = dojo.coords($("page-content"), false);
+                /*if (playersPanelsCoord.y + playersPanelsCoord.h >= 0)
+                    other_elements_height -= playersPanelsCoord.h + playersPanelsCoord.y;*/
+                other_elements_height -= pageContentCoord.y + scrollY_z;
+                //if( dojo.hasClass( 'page-title', 'fixed-page-title' ) )
+                other_elements_height += pageTitleCoord.h;
+            }
             for (let i = 0; i < this.adaptHeightCorrDivs.length; i++) {
                 let float = window.getComputedStyle(this.adaptHeightCorrDivs[i]).float;
                 if (float != "left" && float != "right") {
@@ -1401,8 +1439,9 @@ class ScrollmapWithZoom {
             //     other_elements_height -= $connect_status.getBoundingClientRect().height / pageZoom;
             if (this.bAdaptHeightAutoCompensateChatIcon) {
                 var $chatwindowavatar = document.querySelector(".chatwindowavatar");
+                // debugger;
                 if ($chatwindowavatar)
-                    other_elements_height += $chatwindowavatar.getBoundingClientRect().height / pageZoom;
+                    other_elements_height += (1.5 * $chatwindowavatar.getBoundingClientRect().height) / pageZoom;
             }
             var map_height = screen_height - other_elements_height;
 
@@ -1520,6 +1559,10 @@ class ScrollmapWithZoom {
                     this.zoomingOptions.pinchZooming = optionsChanged.pinchZooming;
                 if (optionsChanged.bOneFingerScrolling != undefined)
                     this.scrollingOptions.bOneFingerScrolling = optionsChanged.bOneFingerScrolling;
+                if (optionsChanged.bShowMoveCursor != undefined) {
+                    this.scrollingOptions.bShowMoveCursor = optionsChanged.bShowMoveCursor;
+                    this.setBShowMoveCursor();
+                }
                 if (optionsChanged.btns_visible != null) {
                     this._setButtonsVisiblity(settings.btns_visible);
                 }
@@ -1527,6 +1570,10 @@ class ScrollmapWithZoom {
                     this._RepositionButtonsDiv(optionsChanged);
                 if (optionsChanged.bRevertArrowsScroll != undefined) {
                     this.bRevertArrowsScroll = optionsChanged.bRevertArrowsScroll;
+                }
+                if (optionsChanged.bAutoCompensatePanelsHeight != null) {
+                    this.bAdaptHeightAutoCompensatePanelsHeight = optionsChanged.bAutoCompensatePanelsHeight;
+                    this._adaptHeight();
                 }
             }
         }
@@ -2562,27 +2609,31 @@ class ScrollmapWithZoom {
     }
 
     protected _hideButton($btn: HTMLElement, idSuffix = "") {
-        debug("_hideButton", $btn);
-        if ($btn !== null)
+        if ($btn !== null && !$btn.classList.contains("scrollmap_btn_nodisplay")) {
+            debug("_hideButton", $btn);
             $btn.classList.add("scrollmap_btn_nodisplay");
+        }
     }
 
     protected _showButton($btn: HTMLElement, idSuffix = "", display = 'block') {
-        debug("_showButton", $btn);
-        if ($btn !== null)
+        if ($btn !== null && $btn.classList.contains("scrollmap_btn_nodisplay")) {
+            debug("_showButton", $btn);
             $btn.classList.remove("scrollmap_btn_nodisplay");
+        }
     }
 
     protected _enableButton($btn: HTMLElement, idSuffix = "") {
-        debug("_enableButton", $btn);
-        if ($btn !== null)
+        if ($btn !== null && $btn.classList.contains("scrollmap_btn_disabled")) {
+            debug("_enableButton", $btn);
             $btn.classList.remove("scrollmap_btn_disabled");
+        }
     }
 
     protected _disableButton($btn: HTMLElement, idSuffix = "", display = 'block') {
-        debug("_disableButton", $btn);
-        if ($btn !== null)
+        if ($btn !== null && !$btn.classList.contains("scrollmap_btn_disabled")) {
+            debug("_disableButton", $btn);
             $btn.classList.add("scrollmap_btn_disabled");
+        }
     }
 
     protected _createButton(button_code: string): HTMLElement {
@@ -3234,6 +3285,10 @@ class ScrollmapWithZoom {
             gameui.tooltips[this._btnInfo.id].bForceOpening = true;
             gameui.tooltips[this._btnInfo.id].getContent = () => { return this.getInfoButtonTooltip(); };
         }
+    }
+
+    setBShowMoveCursor() {
+        this.surface_div.style.cursor = (this.scrollingOptions.bShowMoveCursor ? "" : "unset");
     }
 
     getWheelZoomingOptionTranslated() {
