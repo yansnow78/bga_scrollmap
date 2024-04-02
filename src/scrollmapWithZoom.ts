@@ -1241,7 +1241,7 @@ class ScrollmapWithZoom {
                         </div>
                         <div>
                             <input type="checkbox" id="bTakeIntoAccountPanelsHeight" value="true">
-                            <label for="bTakeIntoAccountPanelsHeight">${_("Take into account panels height")}</label>
+                            <label for="bTakeIntoAccountPanelsHeight">${_("Take into account players panels height")}</label>
                         </div>
                         <div>
                             <button name="close2">${_("Cancel")}</button>
