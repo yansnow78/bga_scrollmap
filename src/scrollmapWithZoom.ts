@@ -1323,7 +1323,7 @@ class ScrollmapWithZoom {
         }
         inputs.namedItem("bRevertArrowsScroll").checked = this.bRevertArrowsScroll;
         inputs.namedItem("bTakeIntoAccountPanelsHeight").checked = this.bAdaptHeightAutoCompensatePanelsHeight;
-        if (dojo.hasClass('ebd-body', 'mobile_version'))
+        if (dojo.hasClass('ebd-body', 'mobile_version') && this._bAdaptHeightAuto)
             inputs.namedItem("bTakeIntoAccountPanelsHeight").parentElement.style.display = "";
         else
             inputs.namedItem("bTakeIntoAccountPanelsHeight").parentElement.style.display = "none";
