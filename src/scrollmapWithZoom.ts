@@ -706,6 +706,7 @@ class ScrollmapWithZoom {
                 }
 
                 .scrollmap_container:after {
+                    animation: scrollmap_warning_fadein 0.8s backwards;
                     color: #fff;
                     font-family: "Roboto", Arial, sans-serif;
                     font-size: 22px;
@@ -728,8 +729,7 @@ class ScrollmapWithZoom {
                 .scrollmap_warning_scroll:after,
                 .scrollmap_warning_arrowkeys:after, 
                 .scrollmap_warning_plusminuskeys:after {
-                    animation: scrollmap_warning_fadeout 3s ease-in;
-                }
+                    animation: scrollmap_warning_fadein 0.8s forwards; }
 
                 .scrollmap_warning_touch:after {
                     content: attr(warning_touch);
