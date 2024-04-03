@@ -1432,8 +1432,8 @@ class ScrollmapWithZoom {
                     var corrCoord = dojo.coords(this.adaptHeightCorrDivs[i], true);
                     //if (corrCoord.y + 5 >= container_pos.y + container_pos.h)
                     var brect = this.adaptHeightCorrDivs[i].getBoundingClientRect();
-                    //if (brect.top + 5 >= container_pos.y + container_pos.h)
-                    other_elements_height += brect.height;
+                    if (brect.top + 5 >= container_pos.y + container_pos.h)
+                        other_elements_height += brect.height;
                 }
             }
             // var $log_history_status = $('log_history_status'); 
