@@ -170,7 +170,8 @@ class ScrollmapWithZoom {
     public set adaptHeightCorrDivs(value) {
         this._adaptHeightCorrDivs = value;
         for (let i = 0; i < this.adaptHeightCorrDivs.length; i++) {
-            this._resizeHeadersObserver.observe(this.adaptHeightCorrDivs[i]);
+            if (this._resizeHeadersObserver)
+                this._resizeHeadersObserver.observe(this.adaptHeightCorrDivs[i]);
         }
     }
     public get adaptHeightCorrDivs() {
