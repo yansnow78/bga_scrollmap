@@ -153,7 +153,7 @@ class ScrollmapWithZoom {
     /** 
      * resizing properties
      */
-    minHeight: number = 300;
+    minHeight: number = 350;
     incrHeightGlobalKey: string = null;
     incrHeightDelta: number = 100;
     bIncrHeightKeepInPos: boolean = true;

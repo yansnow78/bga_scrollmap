@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.33.9: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.33.10: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -213,7 +213,7 @@ class ScrollmapWithZoom {
         /**
          * resizing properties
          */
-        this.minHeight = 300;
+        this.minHeight = 350;
         this.incrHeightGlobalKey = null;
         this.incrHeightDelta = 100;
         this.bIncrHeightKeepInPos = true;
