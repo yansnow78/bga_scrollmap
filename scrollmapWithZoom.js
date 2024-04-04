@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.33.10: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.33.11: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -57,6 +57,18 @@ class ScrollmapWithZoom {
             this._longPressScrollOriented = -this._longPressScrollOriented;
         }
         this._bRevertArrowsScroll = value;
+    }
+    /**
+     * resizing properties
+     */
+    set minHeight(value) {
+        this._orig_minHeight = value;
+        this._minHeight = value;
+        if (this.container_div)
+            this._RepositionButtonsDiv();
+    }
+    get minHeight() {
+        return this._orig_minHeight;
     }
     get bAdaptHeightAuto() {
         return this._bAdaptHeightAuto;
@@ -210,10 +222,6 @@ class ScrollmapWithZoom {
         };
         this.centerCssQuery = null;
         this.centerCalcUseAlsoOnsurface = true;
-        /**
-         * resizing properties
-         */
-        this.minHeight = 350;
         this.incrHeightGlobalKey = null;
         this.incrHeightDelta = 100;
         this.bIncrHeightKeepInPos = true;
@@ -292,6 +300,8 @@ class ScrollmapWithZoom {
         this._longPressScrollAlignWithZoom = 0;
         this._bHeightChanged = false;
         this._bMaxHeight = false;
+        this._minHeight = 300;
+        this._orig_minHeight = 300;
         this._bAdaptHeightAuto = false;
         this._adaptHeightCorrDivs = [];
         this._bIncrHeightGlobally = false;
@@ -999,7 +1009,7 @@ class ScrollmapWithZoom {
         if (!this._bEnableZooming)
             this.hideOnScreenZoomButtons();
         this.setupOnScreenResetButtons();
-        this.setupEnlargeReduceButtons(this.incrHeightDelta, this.bIncrHeightKeepInPos, this.minHeight, this.bIncrHeightBtnIsShort, this.bIncrHeightBtnGroupedWithOthers);
+        this.setupEnlargeReduceButtons(this.incrHeightDelta, this.bIncrHeightKeepInPos, this._minHeight, this.bIncrHeightBtnIsShort, this.bIncrHeightBtnGroupedWithOthers);
         if (!this._bIncrHeightBtnVisible)
             this.hideEnlargeReduceButtons();
         this._RepositionButtonsDiv();
@@ -1115,6 +1125,7 @@ class ScrollmapWithZoom {
             this.container_div.style.setProperty('--btns_offset_y', this.btnsOutsideMapOffsetY);
             this._setButtonsVisiblity(true, false);
             this._btnToggleButtonsVisiblity.classList.add("scrollmap_btn_nodisplay");
+            this._minHeight = Math.max(this._orig_minHeight, this._buttons_divs_wrapper.getBoundingClientRect().height / this._getPageZoom());
         }
     }
     _createForm() {
@@ -1358,6 +1369,7 @@ class ScrollmapWithZoom {
                 this.setDisplayHeight(map_height);
             }
             this._disableButton(this._btnResetHeight);
+            this._RepositionButtonsDiv();
         });
     }
     _onResize() {
@@ -2855,7 +2867,8 @@ class ScrollmapWithZoom {
         }
         this.incrHeightDelta = incrHeightDelta;
         this.bIncrHeightKeepInPos = bIncrHeightKeepInPos;
-        this.minHeight = minHeight;
+        if (minHeight)
+            this.minHeight = minHeight;
     }
     showEnlargeReduceButtons() {
         var btnsProps = this._getEnlargeReduceButtonsProps(this._bEnlargeReduceButtonsInsideMap);
@@ -2915,7 +2928,7 @@ class ScrollmapWithZoom {
         screen_height /= pageZoom;
         var current_height = this.getDisplayHeight();
         var maxHeight = screen_height - this._titleHeight;
-        new_height = Math.min(Math.max(new_height, this.minHeight), maxHeight);
+        new_height = Math.min(Math.max(new_height, this._minHeight), maxHeight);
         if (this.bIncrHeightKeepInPos && this._setupDone)
             this.board_y += (current_height - new_height) / 2;
         this.container_div.style.setProperty("--scrollmap_height", new_height + 'px');
@@ -2933,7 +2946,7 @@ class ScrollmapWithZoom {
         this._enableButton(this._btnResetHeight);
         if (new_height == maxHeight) {
             this._disableButton(this._btnIncreaseHeight);
-        } else if (new_height == this.minHeight) {
+        } else if (new_height == this._minHeight) {
             this._disableButton(this._btnDecreaseHeight);
         } else {
             this._enableButton(this._btnIncreaseHeight);

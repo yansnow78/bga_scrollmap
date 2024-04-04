@@ -85,7 +85,8 @@ declare class ScrollmapWithZoom {
     /**
      * resizing properties
      */
-    minHeight: number;
+    set minHeight(value: number);
+    get minHeight(): number;
     incrHeightGlobalKey: string;
     incrHeightDelta: number;
     bIncrHeightKeepInPos: boolean;
@@ -189,6 +190,8 @@ declare class ScrollmapWithZoom {
     protected _longPressScrollAlignWithZoom: number;
     protected _bHeightChanged: boolean;
     protected _bMaxHeight: boolean;
+    protected _minHeight: number;
+    protected _orig_minHeight: number;
     protected _bAdaptHeightAuto: boolean;
     protected _adaptHeightCorrDivs: Array<HTMLDivElement>;
     protected _bIncrHeightGlobally: boolean;
