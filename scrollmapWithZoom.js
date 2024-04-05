@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.33.11: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.33.12: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -846,7 +846,7 @@ class ScrollmapWithZoom {
                     width: calc(var(--column_cnt) * (var(--icon_size_z) + 2 * var(--icon_around_size_z)) + 1px);
                 }
 
-                .scrollmap_dialog button {
+                .scrollmap_form button {
                     width: fit-content;
                     padding: 5px;
                     border: 1px solid;
@@ -1132,9 +1132,7 @@ class ScrollmapWithZoom {
         var inputs = null;
         if (!ScrollmapWithZoom._formDialog) {
             var formTmpl = String.raw `
-                <dialog class="scrollmap_dialog">
                     <form class="scrollmap_form">
-                        <button name="close" aria-label="close">X</button>
                         <div>
                             <input type="checkbox" id="wheelZooming" value="true">
                             <label for="wheelZooming">${dojo.string.substitute(_("Zoom with mouse wheel + ${key}"), { key: "<select name='wheelZoomingKey'></select>" })}</label>
@@ -1154,7 +1152,7 @@ class ScrollmapWithZoom {
                         ${this.btnsDivPositionnable ? String.raw `
                         <div>
                             <input type="checkbox" id="btnsDivOutsideMap" value="true">
-                            <label for="btnsDivOutsideMap">${dojo.string.substitute(_("Place buttons outside scrollmap on ${position}"), { position: "<select name='btnsDivPositionOutsideMap'></select>" })}</label>
+                            <label for="btnsDivOutsideMap">${dojo.string.substitute(_("Place buttons outside scrollmap on ${position}"), { position: "<select id='btnsDivPositionOutsideMap' name='btnsDivPositionOutsideMap'></select>" })}</label>
                         </div>
                         ` : ''}
                         <div>
@@ -1170,12 +1168,16 @@ class ScrollmapWithZoom {
                             <button type="submit" name="confirm">${_("Confirm")}</button>
                         </div>
                     </form>
-                </dialog>
             `;
-            document.body.insertAdjacentHTML("beforeend", formTmpl);
-            ScrollmapWithZoom._formDialog = document.body.lastElementChild;
-            ScrollmapWithZoom._form = ScrollmapWithZoom._formDialog.firstElementChild;
-            //this._form = < HTMLFormElement > this.container_div.lastElementChild;
+            // document.body.insertAdjacentHTML("beforeend", formTmpl);
+            // ScrollmapWithZoom._formDialog = < HTMLDialogElement > document.body.lastElementChild;
+            ScrollmapWithZoom._formDialog = new ebg.popindialog();
+            ScrollmapWithZoom._formDialog.create('scrollmap_dialog');
+            ScrollmapWithZoom._formDialog.setTitle(_("Board preferences"));
+            ScrollmapWithZoom._formDialog.setContent(formTmpl);
+            ScrollmapWithZoom._formDialog.bCloseIsHiding = true;
+            // ScrollmapWithZoom._form = < HTMLFormElement > ScrollmapWithZoom._formDialog.firstElementChild;
+            ScrollmapWithZoom._form = $('popin_' + ScrollmapWithZoom._formDialog.id + '_contents').firstElementChild;
             inputs = ScrollmapWithZoom._form.elements;
             ScrollmapWithZoom._form.onsubmit = () => { return false; };
             var keys = new Map([
@@ -1205,17 +1207,23 @@ class ScrollmapWithZoom {
                     option.text = value;
                     btnsDivPositionsSel.appendChild(option);
                 }
+                btnsDivPositionsSel.onmousedown = (event) => { event.stopPropagation(); };
+                btnsDivPositionsSel.onclick = (event) => { event.stopPropagation(); };
+                inputs.namedItem("btnsDivPositionOutsideMap").onclick = (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                };
             }
         }
         if (!inputs)
             inputs = ScrollmapWithZoom._form.elements;
         inputs.namedItem("confirm").addEventListener("click", this._submitForm.bind(this));
         var closeFctBind = this._closeForm.bind(this);
-        inputs.namedItem("close").addEventListener("click", closeFctBind);
+        // inputs.namedItem("close").addEventListener("click", closeFctBind);
         inputs.namedItem("close2").addEventListener("click", closeFctBind);
     }
     _showForm() {
-        ScrollmapWithZoom._formDialog.showModal();
+        ScrollmapWithZoom._formDialog.show();
         //this._form.style.display = "block";
         // interface HTMLCollectionOf2<T extends Element>  {
         //     readonly length: number;
@@ -1300,13 +1308,13 @@ class ScrollmapWithZoom {
         }
         if (this == ScrollmapWithZoom.instances.values().next().value)
             ScrollmapWithZoom._saveGameSettings();
-        ScrollmapWithZoom._formDialog.close();
-        //this._form.style.display = "none";
+        // ScrollmapWithZoom._formDialog.close();
+        ScrollmapWithZoom._formDialog.hide();
         return false;
     }
     _closeForm() {
-        ScrollmapWithZoom._formDialog.close();
-        // this._form.style.display = "none";
+        // ScrollmapWithZoom._formDialog.close();
+        ScrollmapWithZoom._formDialog.hide();
         return false;
     }
     _adaptHeight() {
