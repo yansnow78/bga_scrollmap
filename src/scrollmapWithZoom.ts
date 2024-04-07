@@ -162,6 +162,14 @@ class ScrollmapWithZoom {
     public get minHeight(): number {
         return this._orig_minHeight;
     }
+
+    heitOptions: {
+        bOneFingerScrolling: boolean;
+        bShowMoveCursor: boolean;
+    } = {
+        bOneFingerScrolling: false,
+        bShowMoveCursor: true
+    };
     incrHeightGlobalKey: string = null;
     incrHeightDelta: number = 100;
     bIncrHeightKeepInPos: boolean = true;
@@ -1215,7 +1223,9 @@ class ScrollmapWithZoom {
             this._setButtonsVisiblity(true, false);
             this._btnToggleButtonsVisiblity.classList.add("scrollmap_btn_nodisplay");
 
-            this._minHeight = Math.max(this._orig_minHeight, this._buttons_divs_wrapper.getBoundingClientRect().height / this._getPageZoom());
+            this._minHeight = Math.max(this._orig_minHeight, this._buttons_divs_wrapper.getBoundingClientRect().height);
+            if (this._minHeight > this.getDisplayHeight())
+                this.setDisplayHeight(this._minHeight);
         }
     }
 

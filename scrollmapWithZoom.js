@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.33.12: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.33.13: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -222,6 +222,10 @@ class ScrollmapWithZoom {
         };
         this.centerCssQuery = null;
         this.centerCalcUseAlsoOnsurface = true;
+        this.heitOptions = {
+            bOneFingerScrolling: false,
+            bShowMoveCursor: true
+        };
         this.incrHeightGlobalKey = null;
         this.incrHeightDelta = 100;
         this.bIncrHeightKeepInPos = true;
@@ -1125,7 +1129,9 @@ class ScrollmapWithZoom {
             this.container_div.style.setProperty('--btns_offset_y', this.btnsOutsideMapOffsetY);
             this._setButtonsVisiblity(true, false);
             this._btnToggleButtonsVisiblity.classList.add("scrollmap_btn_nodisplay");
-            this._minHeight = Math.max(this._orig_minHeight, this._buttons_divs_wrapper.getBoundingClientRect().height / this._getPageZoom());
+            this._minHeight = Math.max(this._orig_minHeight, this._buttons_divs_wrapper.getBoundingClientRect().height);
+            if (this._minHeight > this.getDisplayHeight())
+                this.setDisplayHeight(this._minHeight);
         }
     }
     _createForm() {

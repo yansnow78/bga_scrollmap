@@ -87,6 +87,10 @@ declare class ScrollmapWithZoom {
      */
     set minHeight(value: number);
     get minHeight(): number;
+    heitOptions: {
+        bOneFingerScrolling: boolean;
+        bShowMoveCursor: boolean;
+    };
     incrHeightGlobalKey: string;
     incrHeightDelta: number;
     bIncrHeightKeepInPos: boolean;
