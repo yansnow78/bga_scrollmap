@@ -1456,7 +1456,7 @@ class ScrollmapWithZoom {
                 if (float != "left" && float != "right") {
                     var corrCoord = dojo.coords(this.adaptHeightCorrDivs[i], true);
                     //if (corrCoord.y + 5 >= container_pos.y + container_pos.h)
-                    var brect = this.adaptHeightCorrDivs[i].getBoundingClientRect();
+                    let brect = this.adaptHeightCorrDivs[i].getBoundingClientRect();
                     if (brect.top + 5 >= container_pos.y + container_pos.h)
                         other_elements_height += brect.height;
                 }
@@ -1471,7 +1471,9 @@ class ScrollmapWithZoom {
                 var $chatwindowavatar = document.querySelector(".chatwindowavatar");
                 // debugger;
                 if ($chatwindowavatar) {
-                    other_elements_height += (window.innerHeight - $chatwindowavatar.getBoundingClientRect().top) / pageZoom;
+                    let brect = $chatwindowavatar.getBoundingClientRect();
+                    if (brect.height > 0)
+                        other_elements_height += (window.innerHeight - brect.top) / pageZoom;
                 }
             }
             var map_height = screen_height - other_elements_height;
