@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.33.15: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.33.16: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1372,8 +1372,9 @@ class ScrollmapWithZoom {
             if (this.bAdaptHeightAutoCompensateChatIcon) {
                 var $chatwindowavatar = document.querySelector(".chatwindowavatar");
                 // debugger;
-                if ($chatwindowavatar)
-                    other_elements_height += (1.5 * $chatwindowavatar.getBoundingClientRect().height) / pageZoom;
+                if ($chatwindowavatar) {
+                    other_elements_height += window.innerHeight - $chatwindowavatar.getBoundingClientRect().top;
+                }
             }
             var map_height = screen_height - other_elements_height;
             if (this.getDisplayHeight() != map_height) {

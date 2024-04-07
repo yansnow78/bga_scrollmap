@@ -1470,8 +1470,9 @@ class ScrollmapWithZoom {
             if (this.bAdaptHeightAutoCompensateChatIcon) {
                 var $chatwindowavatar = document.querySelector(".chatwindowavatar");
                 // debugger;
-                if ($chatwindowavatar)
-                    other_elements_height += (1.5 * $chatwindowavatar.getBoundingClientRect().height) / pageZoom;
+                if ($chatwindowavatar) {
+                    other_elements_height += window.innerHeight - $chatwindowavatar.getBoundingClientRect().top;
+                }
             }
             var map_height = screen_height - other_elements_height;
 
