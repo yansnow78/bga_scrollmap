@@ -1471,7 +1471,7 @@ class ScrollmapWithZoom {
                 var $chatwindowavatar = document.querySelector(".chatwindowavatar");
                 // debugger;
                 if ($chatwindowavatar) {
-                    other_elements_height += window.innerHeight - $chatwindowavatar.getBoundingClientRect().top;
+                    other_elements_height += (window.innerHeight - $chatwindowavatar.getBoundingClientRect().top) / pageZoom;
                 }
             }
             var map_height = screen_height - other_elements_height;
