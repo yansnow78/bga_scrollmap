@@ -1467,13 +1467,16 @@ class ScrollmapWithZoom {
             // var $connect_status = $('connect_status');
             // if ($connect_status)
             //     other_elements_height -= $connect_status.getBoundingClientRect().height / pageZoom;
-            if (this.bAdaptHeightAutoCompensateChatIcon) {
+            if (this.bAdaptHeightAutoCompensateChatIcon && dojo.hasClass('ebd-body', 'mobile_version')) {
                 var $chatwindowavatar = document.querySelector(".chatwindowavatar");
                 // debugger;
                 if ($chatwindowavatar) {
                     let brect = $chatwindowavatar.getBoundingClientRect();
-                    if (brect.height > 0)
-                        other_elements_height += (window.innerHeight - brect.top) / pageZoom;
+                    if (brect.height > 0) {
+                        let bheight = window.innerHeight - brect.top;
+                        if (bheight < 120)
+                            other_elements_height += bheight / pageZoom;
+                    }
                 }
             }
             var map_height = screen_height - other_elements_height;
