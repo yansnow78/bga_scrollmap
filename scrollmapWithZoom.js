@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.33.19: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.34.0: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1167,6 +1167,10 @@ class ScrollmapWithZoom {
                             <label for="bTakeIntoAccountPanelsHeight">${_("Take into account players panels height")}</label>
                         </div>
                         <div>
+                            <input type="checkbox" id="bAutoCompensateChatIcon" value="true">
+                            <label for="bAutoCompensateChatIcon">${_("Take into account chat icon")}</label>
+                        </div>
+                        <div>
                             <button name="close2">${_("Cancel")}</button>
                             <button type="submit" name="confirm">${_("Confirm")}</button>
                         </div>
@@ -1254,10 +1258,14 @@ class ScrollmapWithZoom {
         }
         inputs.namedItem("bRevertArrowsScroll").checked = this.bRevertArrowsScroll;
         inputs.namedItem("bTakeIntoAccountPanelsHeight").checked = this.bAdaptHeightAutoCompensatePanelsHeight;
-        if (dojo.hasClass('ebd-body', 'mobile_version') && this._bAdaptHeightAuto)
+        inputs.namedItem("bAutoCompensateChatIcon").checked = this.bAdaptHeightAutoCompensateChatIcon;
+        if (dojo.hasClass('ebd-body', 'mobile_version') && this._bAdaptHeightAuto) {
             inputs.namedItem("bTakeIntoAccountPanelsHeight").parentElement.style.display = "";
-        else
+            inputs.namedItem("bAutoCompensateChatIcon").parentElement.style.display = "";
+        } else {
             inputs.namedItem("bTakeIntoAccountPanelsHeight").parentElement.style.display = "none";
+            inputs.namedItem("bAutoCompensateChatIcon").parentElement.style.display = "none";
+        }
     }
     _submitForm() {
         var inputs = ScrollmapWithZoom._form.elements;
@@ -1303,12 +1311,21 @@ class ScrollmapWithZoom {
             this.bRevertArrowsScroll = bRevertArrowsScroll;
             ScrollmapWithZoom._optionsChanged.bRevertArrowsScroll = bRevertArrowsScroll;
         }
+        var addHeightNeeded = false;
         var bAutoCompensatePanelsHeight = inputs.namedItem("bTakeIntoAccountPanelsHeight").checked;
         if (this.bAdaptHeightAutoCompensatePanelsHeight != bAutoCompensatePanelsHeight) {
             this.bAdaptHeightAutoCompensatePanelsHeight = bAutoCompensatePanelsHeight;
             ScrollmapWithZoom._optionsChanged.bAutoCompensatePanelsHeight = bAutoCompensatePanelsHeight;
-            this._adaptHeight();
+            addHeightNeeded = true;
         }
+        var bAutoCompensateChatIcon = inputs.namedItem("bAutoCompensateChatIcon").checked;
+        if (this.bAdaptHeightAutoCompensateChatIcon != bAutoCompensateChatIcon) {
+            this.bAdaptHeightAutoCompensateChatIcon = bAutoCompensateChatIcon;
+            ScrollmapWithZoom._optionsChanged.bAutoCompensateChatIcon = bAutoCompensateChatIcon;
+            addHeightNeeded = true;
+        }
+        if (addHeightNeeded)
+            this._adaptHeight();
         if (this == ScrollmapWithZoom.instances.values().next().value)
             ScrollmapWithZoom._saveGameSettings();
         // ScrollmapWithZoom._formDialog.close();
@@ -1505,10 +1522,17 @@ class ScrollmapWithZoom {
                 if (optionsChanged.bRevertArrowsScroll != undefined) {
                     this.bRevertArrowsScroll = optionsChanged.bRevertArrowsScroll;
                 }
+                var adaptHeightNeeded = false;
                 if (optionsChanged.bAutoCompensatePanelsHeight != null) {
                     this.bAdaptHeightAutoCompensatePanelsHeight = optionsChanged.bAutoCompensatePanelsHeight;
-                    this._adaptHeight();
+                    adaptHeightNeeded = true;
                 }
+                if (optionsChanged.bAutoCompensateChatIcon != null) {
+                    this.bAdaptHeightAutoCompensateChatIcon = optionsChanged.bAutoCompensateChatIcon;
+                    adaptHeightNeeded = true;
+                }
+                if (adaptHeightNeeded)
+                    this._adaptHeight();
             }
         }
         return scrolled;

@@ -23,6 +23,7 @@ type _optionsChangedT = {
     bOneFingerScrolling?: boolean;
     bShowMoveCursor?: boolean;
     bAutoCompensatePanelsHeight?: boolean;
+    bAutoCompensateChatIcon?: boolean;
 };
 interface Position {
     x: number;
