@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.33.13: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.33.14: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -222,10 +222,6 @@ class ScrollmapWithZoom {
         };
         this.centerCssQuery = null;
         this.centerCalcUseAlsoOnsurface = true;
-        this.heitOptions = {
-            bOneFingerScrolling: false,
-            bShowMoveCursor: true
-        };
         this.incrHeightGlobalKey = null;
         this.incrHeightDelta = 100;
         this.bIncrHeightKeepInPos = true;

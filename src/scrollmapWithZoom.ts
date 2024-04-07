@@ -163,13 +163,6 @@ class ScrollmapWithZoom {
         return this._orig_minHeight;
     }
 
-    heitOptions: {
-        bOneFingerScrolling: boolean;
-        bShowMoveCursor: boolean;
-    } = {
-        bOneFingerScrolling: false,
-        bShowMoveCursor: true
-    };
     incrHeightGlobalKey: string = null;
     incrHeightDelta: number = 100;
     bIncrHeightKeepInPos: boolean = true;
