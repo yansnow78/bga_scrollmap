@@ -1197,6 +1197,7 @@ class ScrollmapWithZoom {
             this.container_div.style.setProperty('--btns_offset_y', this.btnsOffsetY);
             this._btnToggleButtonsVisiblity.classList.add("scrollmap_icon_always_visible");
             this._btnToggleButtonsVisiblity.classList.remove("scrollmap_btn_nodisplay");
+            this._minHeight = this._orig_minHeight;
         } else {
             classList = this.btnsDivPositionOutsideMap.split(' ');
             for (const posClass of classList) {

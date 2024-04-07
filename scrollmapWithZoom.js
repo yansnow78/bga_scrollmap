@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.33.14: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.33.15: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1108,6 +1108,7 @@ class ScrollmapWithZoom {
             this.container_div.style.setProperty('--btns_offset_y', this.btnsOffsetY);
             this._btnToggleButtonsVisiblity.classList.add("scrollmap_icon_always_visible");
             this._btnToggleButtonsVisiblity.classList.remove("scrollmap_btn_nodisplay");
+            this._minHeight = this._orig_minHeight;
         } else {
             classList = this.btnsDivPositionOutsideMap.split(' ');
             for (const posClass of classList) {
