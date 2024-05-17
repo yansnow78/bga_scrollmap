@@ -2987,10 +2987,12 @@ class ScrollmapWithZoom {
         this._enableButton(this._btnResetHeight);
         if (new_height == maxHeight) {
             this._disableButton(this._btnIncreaseHeight);
-        } else if (new_height == this._minHeight) {
-            this._disableButton(this._btnDecreaseHeight);
         } else {
             this._enableButton(this._btnIncreaseHeight);
+        }
+        if (new_height == this._minHeight) {
+            this._disableButton(this._btnDecreaseHeight);
+        } else {
             this._enableButton(this._btnDecreaseHeight);
         }
         return (new_height == maxHeight);
