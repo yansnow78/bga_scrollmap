@@ -15,19 +15,64 @@ define([
             },
 
             _checkIfZoomImplemented: function(){
+                this._posZoomCorrNeeded = false;
+                if (typeof document.body.style.zoom === undefined){
+                    return
+                }
                 const scrollX = window.pageXOffset;
                 const scrollY = window.pageYOffset;
                 const el = document.createElement("div");
-                el.style = 'top : 10px; left: 10px; zoom: 2.0; width: 4000px; height: 4000px; position: absolute';
+                el.style = 'top : 10px; left: 10px; zoom: 2.0; width: 100px; height: 100px; position: absolute';
                 document.body.appendChild(el);
-                const el2 = document.createElement("div");
-                el2.style = 'top : 20px; left: 5px; zoom: 4.0; width: 10px; height: 10px; position: absolute';
-                el.appendChild(el2);
                 window.scroll(0,0);
-                const tBox = el2.getBoundingClientRect();
-                this._zoomImplemented = (tBox.x==7.5);
+                const tBox = el.getBoundingClientRect();
+                if (tBox.x!=10)
+                    this._posZoomCorrNeeded = (tBox.width!=100);
                 document.body.removeChild(el);
                 window.scroll(scrollX,scrollY);
+            },
+
+            getBoundingClientRectWithoutZoom: function (element) {
+                var rect = element.getBoundingClientRect();
+                var zoomCorr = (!gameui._posZoomCorrNeeded) ? gameui._calcCurrentCSSZoom(element) : 1;
+                rect.left *= zoomCorr;
+                rect.top *= zoomCorr;
+                rect.right *= zoomCorr;
+                rect.bottom *= zoomCorr;
+                rect.x *= zoomCorr;
+                rect.y *= zoomCorr;
+                rect.width *= zoomCorr;
+                rect.height *= zoomCorr;
+                return rect;
+            },
+
+            getBoundingClientRectWithZoom: function (element) {
+                var rect = element.getBoundingClientRect();
+                var zoomCorr = (gameui._posZoomCorrNeeded) ? gameui._calcCurrentCSSZoom(element) : 1;
+                rect.left /= zoomCorr;
+                rect.top /= zoomCorr;
+                rect.right /= zoomCorr;
+                rect.bottom /= zoomCorr;
+                rect.x /= zoomCorr;
+                rect.y /= zoomCorr;
+                rect.width /= zoomCorr;
+                rect.height /= zoomCorr;
+                return rect;
+            },
+
+            _calcCurrentCSSZoom: function(node){
+                if (typeof node.currentCSSZoom !== "undefined")
+                    return node.currentCSSZoom;
+                let zoom = 1.0;
+                var zoomStr = window.getComputedStyle(node).getPropertyValue("zoom");
+
+                if (zoomStr != "") {
+                    zoom = parseFloat(zoomStr);
+                }
+                const parent = node.parentElement; 
+                if (parent)
+                    zoom = zoom * this._calcCurrentCSSZoom(parent);
+                    return zoom;
             },
 
             calcScale: function (element) {
@@ -47,11 +92,11 @@ define([
             // calcScale: function( element ){
             //     if (!this.bCalcScale)
             //         return 1;
-            //     var matrix = this.calcTransform(element);
+            //     var matrix = this._calcTransform(element);
             //     return matrix ? Math.hypot(matrix.m11, matrix.m12) : 1;
             // },
 
-            calcTransform: function (element, clearTranslation = true) {
+            _calcTransform: function (element, clearTranslation = true) {
                 var transform = window.getComputedStyle(element).transform;
                 var matrix = null;
                 if (transform !== "none") {
@@ -59,7 +104,7 @@ define([
                 }
                 var parent = element.parentElement;
                 if (parent !== null) {
-                    var matrixParent = this.calcTransform(parent, false);
+                    var matrixParent = this._calcTransform(parent, false);
                     if (matrix === null)
                         matrix = matrixParent;
                     else if (matrixParent !== null)
@@ -73,13 +118,13 @@ define([
                 return matrix;
             },
 
-
             calcNewLocation: function (mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter, bToCenter) {
                 if (typeof mobile_obj == 'string')
                     mobile_obj = $(mobile_obj);
                 if( typeof target_obj == 'string' )
                     target_obj = $( target_obj ); 
                 var src = dojo.position(mobile_obj);
+                var zoomCorr = this._posZoomCorrNeeded ? this._calcCurrentCSSZoom(mobile_obj): 1;
 
                 // Current mobile object relative coordinates
                 var left = dojo.style(mobile_obj, 'left');
@@ -91,14 +136,14 @@ define([
                     tgt.y - src.y
                 );
 
-                var matrix = this.calcTransform(mobile_obj.parentNode);
+                var matrix = this._calcTransform(mobile_obj.parentNode);
 
                 if (target_x == null) {
                     vector_abs.x += (tgt.w - src.w) / 2;
                     vector_abs.y += (tgt.h - src.h) / 2;
                 } else if (bRelPos) {
                     debug("relative positioning");
-                    var target_matrix = this.calcTransform(target_obj);
+                    var target_matrix = this._calcTransform(target_obj);
                     var target_v = new DOMPoint(toint(target_x), toint(target_y));
                     if (target_matrix !== null) {
                         target_v = target_matrix.transformPoint(target_v);
@@ -107,8 +152,8 @@ define([
                     if (matrix !== null)
                         delta_x = matrix.transformPoint(new DOMPoint(0, -mobile_obj.offsetHeight)).x;
 
-                    vector_abs.x += target_v.x - delta_x;
-                    vector_abs.y += target_v.y;
+                    vector_abs.x += (target_v.x - delta_x) * zoomCorr;
+                    vector_abs.y += target_v.y * zoomCorr;
                     if (bFromCenter) {
                         vector_abs.x -= src.w / 2;
                         vector_abs.y -= src.h / 2;
@@ -118,8 +163,8 @@ define([
                         vector_abs.y += tgt.h / 2;
                     }
                 } else {
-                    vector_abs.x += toint(target_x);
-                    vector_abs.y += toint(target_y);
+                    vector_abs.x += toint(target_x) * zoomCorr;
+                    vector_abs.y += toint(target_y) * zoomCorr;
                     if (bFromCenter) {
                         vector_abs.x -= src.w / 2;
                         vector_abs.y -= src.h / 2;
@@ -129,6 +174,8 @@ define([
                 var vector = vector_abs;
                 if (matrix !== null)
                     vector = matrix.inverse().transformPoint(vector_abs);
+                vector.x /=  zoomCorr;
+                vector.y /=  zoomCorr;
                 left += vector.x;
                 top += vector.y;
 

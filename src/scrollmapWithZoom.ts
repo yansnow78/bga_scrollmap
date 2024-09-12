@@ -1442,7 +1442,7 @@ class ScrollmapWithZoom {
             // your code
             debug("_adaptHeight");
             var pageZoom = this._getPageZoom();
-            this._titleHeight = $('page-title').getBoundingClientRect().height / pageZoom;
+            this._titleHeight = gameui.getBoundingClientRectWithZoom($('page-title')).height;
             if (!this.bAdaptHeightAuto)
                 return;
             if (this._setupDone)
@@ -1455,28 +1455,30 @@ class ScrollmapWithZoom {
                 return;
             var screen_height = document.documentElement.clientHeight ||
                 document.body.clientHeight || window.innerHeight;
-            var container_pos = dojo.coords(this.container_div, false);
-            screen_height /= pageZoom;
-            var scrollY_z = window.scrollY / pageZoom;
-            var other_elements_height = this.adaptHeightCorr + container_pos.y + scrollY_z;
+            var container_pos = gameui.getBoundingClientRectWithoutZoom(this.container_div);
+            var other_elements_height = this.adaptHeightCorr + container_pos.y + window.scrollY;
+
+
             if (!this.bAdaptHeightAutoCompensatePanelsHeight && dojo.hasClass('ebd-body', 'mobile_version')) {
+                var page_title = $("page-title");
                 //debugger;
                 // var playersPanelsCoord = dojo.coords($("player_boards"), false);
-                var pageTitleCoord = dojo.coords($("page-title"), false);
-                var pageContentCoord = dojo.coords($("page-content"), false);
+                var pageTitleCoord = gameui.getBoundingClientRectWithoutZoom(page_title);
+                var pageContentCoord = gameui.getBoundingClientRectWithoutZoom($("page-content"));
                 /*if (playersPanelsCoord.y + playersPanelsCoord.h >= 0)
                     other_elements_height -= playersPanelsCoord.h + playersPanelsCoord.y;*/
-                other_elements_height -= pageContentCoord.y + scrollY_z;
+                other_elements_height -= pageContentCoord.y + window.scrollY;
                 //if( dojo.hasClass( 'page-title', 'fixed-page-title' ) )
-                other_elements_height += pageTitleCoord.h;
+                other_elements_height += pageTitleCoord.height;
             }
             for (let i = 0; i < this.adaptHeightCorrDivs.length; i++) {
                 let float = window.getComputedStyle(this.adaptHeightCorrDivs[i]).float;
                 if (float != "left" && float != "right") {
                     var corrCoord = dojo.coords(this.adaptHeightCorrDivs[i], true);
                     //if (corrCoord.y + 5 >= container_pos.y + container_pos.h)
-                    let brect = this.adaptHeightCorrDivs[i].getBoundingClientRect();
-                    if (brect.top + 5 >= container_pos.y + container_pos.h)
+                    var zoomCorr = (!gameui._posZoomCorrNeeded) ? gameui._calcCurrentCSSZoom(page_title) : 1;
+                    let brect = gameui.getBoundingClientRectWithoutZoom(this.adaptHeightCorrDivs[i]);
+                    if (brect.top + 5 >= container_pos.y + container_pos.height)
                         other_elements_height += brect.height;
                 }
             }
@@ -1490,15 +1492,15 @@ class ScrollmapWithZoom {
                 var $chatwindowavatar = document.querySelector(".chatwindowavatar");
                 // debugger;
                 if ($chatwindowavatar) {
-                    let brect = $chatwindowavatar.getBoundingClientRect();
+                    let brect = gameui.getBoundingClientRectWithoutZoom($chatwindowavatar);
                     if (brect.height > 0) {
                         let bheight = window.innerHeight - brect.top;
                         if (bheight < 120)
-                            other_elements_height += bheight / pageZoom;
+                            other_elements_height += bheight;
                     }
                 }
             }
-            var map_height = screen_height - other_elements_height;
+            var map_height = (screen_height - other_elements_height) / gameui._calcCurrentCSSZoom(this.container_div);
 
             if (this.getDisplayHeight() != map_height) {
                 this.setDisplayHeight(map_height);
@@ -1705,9 +1707,10 @@ class ScrollmapWithZoom {
 
     protected _getPageZoom() {
         var pageZoom = 1;
-        if (gameui._zoomImplemented) {
+        // @ts-ignore
+        if (typeof document.body.style.zoom !== "undefined") {
             try {
-                var pageZoomStr = $("page-content").style.getPropertyValue("zoom");
+                var pageZoomStr = window.getComputedStyle($("page-content")).getPropertyValue("zoom");
                 if (pageZoomStr !== "")
                     pageZoom = parseFloat(pageZoomStr);
             } catch (error) {
