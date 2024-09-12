@@ -1218,7 +1218,7 @@ class ScrollmapWithZoom {
             this._setButtonsVisiblity(true, false);
             this._btnToggleButtonsVisiblity.classList.add("scrollmap_btn_nodisplay");
 
-            this._minHeight = Math.max(this._orig_minHeight, this._buttons_divs_wrapper.getBoundingClientRect().height);
+            this._minHeight = Math.max(this._orig_minHeight, gameui.getBoundingClientRectWithZoom(this._buttons_divs_wrapper).height);
             if (this._minHeight > this.getDisplayHeight())
                 this.setDisplayHeight(this._minHeight);
         }
@@ -1733,13 +1733,7 @@ class ScrollmapWithZoom {
         }
         const pageZoom = this._getPageZoom();
         var x, y;
-        if ((gameui !== null) && (typeof gameui.calcNewLocation === "function")) {
-            [, , x, y] = gameui.calcNewLocation(this.surface_div, null, clientX / pageZoom, clientY / pageZoom, false, true);
-        } else {
-            const containerRect = this.clipped_div.getBoundingClientRect();
-            x = (clientX / pageZoom - containerRect.x - containerRect.width / 2);
-            y = (clientY / pageZoom - containerRect.y - containerRect.height / 2);
-        }
+        [, , x, y] = gameui.calcNewLocation(this.surface_div, null, clientX / pageZoom, clientY / pageZoom, false, true);
         return [x, y];
     }
 
@@ -2133,8 +2127,8 @@ class ScrollmapWithZoom {
             obj = < HTMLElement > $(obj);
         if (!obj)
             return
-        var objPos = obj.getBoundingClientRect();
-        var mapPos = this.scrollable_div.getBoundingClientRect();
+        var objPos = gameui.getBoundingClientRectWithZoom(obj);
+        var mapPos = gameui.getBoundingClientRectWithZoom(this.scrollable_div);
 
         // Coordinates (pixels left and top relative to map_scrollable_oversurface) of the player's frog
         var objLocation = {
@@ -2411,8 +2405,8 @@ class ScrollmapWithZoom {
 
 
     makeObjVisible(obj: HTMLElement, centerOnIt: boolean = false, excl_width: number = 0, excl_height: number = 0, pos: "topleft" | "topright" | "bottomleft" | "bottomright" = "topleft") {
-        let board_rect = this.clipped_div.getBoundingClientRect();
-        let obj_rect = obj.getBoundingClientRect();
+        let board_rect = gameui.getBoundingClientRectWithZoom(this.clipped_div);
+        let obj_rect = gameui.getBoundingClientRectWithZoom(obj);
         this._makeRectVisible(obj_rect, board_rect, centerOnIt, excl_width, excl_height, pos);
     }
     makeVisible(x: number, y: number, w: number = 0, h: number = 0, centerOnIt: boolean = false, excl_width: number = 0, excl_height: number = 0, pos: "topleft" | "topright" | "bottomleft" | "bottomright" = "topleft") {
