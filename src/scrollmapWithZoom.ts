@@ -65,6 +65,7 @@ class ScrollmapWithZoom {
     private static instances: Map < string, ScrollmapWithZoom > = new Map < string, ScrollmapWithZoom > ();
     private static _form: HTMLFormElement;
     private static _formDialog: any;
+    private static _core_patched: boolean = false;
     /**
      * board properties
      */
@@ -495,8 +496,9 @@ class ScrollmapWithZoom {
         ScrollmapWithZoom.count++;
         ScrollmapWithZoom.instances.set(container_div.id, this);
         ScrollmapWithZoom.bEnableKeys = ScrollmapWithZoom._bEnableKeys;
-        if (typeof gameui.calcScale == "undefined") {
+        if (!ScrollmapWithZoom._core_patched) {
             dojo.safeMixin(gameui, new ebg.core.core_patch_slideto());
+            ScrollmapWithZoom._core_patched = true;
         }
 
         if (surface_div)
@@ -1218,7 +1220,7 @@ class ScrollmapWithZoom {
             this._setButtonsVisiblity(true, false);
             this._btnToggleButtonsVisiblity.classList.add("scrollmap_btn_nodisplay");
 
-            this._minHeight = Math.max(this._orig_minHeight, gameui.getBoundingClientRectWithZoom(this._buttons_divs_wrapper).height);
+            this._minHeight = Math.max(this._orig_minHeight, gameui.getBoundingClientRectIgnoreZoom(this._buttons_divs_wrapper).height);
             if (this._minHeight > this.getDisplayHeight())
                 this.setDisplayHeight(this._minHeight);
         }
@@ -1442,7 +1444,7 @@ class ScrollmapWithZoom {
             // your code
             debug("_adaptHeight");
             var pageZoom = this._getPageZoom();
-            this._titleHeight = gameui.getBoundingClientRectWithZoom($('page-title')).height;
+            this._titleHeight = gameui.getBoundingClientRectIgnoreZoom($('page-title')).height;
             if (!this.bAdaptHeightAuto)
                 return;
             if (this._setupDone)
@@ -1455,29 +1457,21 @@ class ScrollmapWithZoom {
                 return;
             var screen_height = document.documentElement.clientHeight ||
                 document.body.clientHeight || window.innerHeight;
-            var container_pos = gameui.getBoundingClientRectWithoutZoom(this.container_div);
+            var container_pos = gameui.getBoundingClientRectIncludeZoom(this.container_div);
             var other_elements_height = this.adaptHeightCorr + container_pos.y + window.scrollY;
 
 
             if (!this.bAdaptHeightAutoCompensatePanelsHeight && dojo.hasClass('ebd-body', 'mobile_version')) {
                 var page_title = $("page-title");
-                //debugger;
-                // var playersPanelsCoord = dojo.coords($("player_boards"), false);
-                var pageTitleCoord = gameui.getBoundingClientRectWithoutZoom(page_title);
-                var pageContentCoord = gameui.getBoundingClientRectWithoutZoom($("page-content"));
-                /*if (playersPanelsCoord.y + playersPanelsCoord.h >= 0)
-                    other_elements_height -= playersPanelsCoord.h + playersPanelsCoord.y;*/
+                var pageTitleCoord = gameui.getBoundingClientRectIncludeZoom(page_title);
+                var pageContentCoord = gameui.getBoundingClientRectIncludeZoom($("page-content"));
                 other_elements_height -= pageContentCoord.y + window.scrollY;
-                //if( dojo.hasClass( 'page-title', 'fixed-page-title' ) )
                 other_elements_height += pageTitleCoord.height;
             }
             for (let i = 0; i < this.adaptHeightCorrDivs.length; i++) {
                 let float = window.getComputedStyle(this.adaptHeightCorrDivs[i]).float;
                 if (float != "left" && float != "right") {
-                    var corrCoord = dojo.coords(this.adaptHeightCorrDivs[i], true);
-                    //if (corrCoord.y + 5 >= container_pos.y + container_pos.h)
-                    var zoomCorr = (!gameui._posZoomCorrNeeded) ? gameui._calcCurrentCSSZoom(page_title) : 1;
-                    let brect = gameui.getBoundingClientRectWithoutZoom(this.adaptHeightCorrDivs[i]);
+                    let brect = gameui.getBoundingClientRectIncludeZoom(this.adaptHeightCorrDivs[i]);
                     if (brect.top + 5 >= container_pos.y + container_pos.height)
                         other_elements_height += brect.height;
                 }
@@ -1492,7 +1486,7 @@ class ScrollmapWithZoom {
                 var $chatwindowavatar = document.querySelector(".chatwindowavatar");
                 // debugger;
                 if ($chatwindowavatar) {
-                    let brect = gameui.getBoundingClientRectWithoutZoom($chatwindowavatar);
+                    let brect = gameui.getBoundingClientRectIncludeZoom($chatwindowavatar);
                     if (brect.height > 0) {
                         let bheight = window.innerHeight - brect.top;
                         if (bheight < 120)
@@ -1500,7 +1494,7 @@ class ScrollmapWithZoom {
                     }
                 }
             }
-            var map_height = (screen_height - other_elements_height) / gameui._calcCurrentCSSZoom(this.container_div);
+            var map_height = (screen_height - other_elements_height) / gameui.calcCurrentCSSZoom(this.container_div);
 
             if (this.getDisplayHeight() != map_height) {
                 this.setDisplayHeight(map_height);
@@ -2127,8 +2121,8 @@ class ScrollmapWithZoom {
             obj = < HTMLElement > $(obj);
         if (!obj)
             return
-        var objPos = gameui.getBoundingClientRectWithZoom(obj);
-        var mapPos = gameui.getBoundingClientRectWithZoom(this.scrollable_div);
+        var objPos = gameui.getBoundingClientRectIgnoreZoom(obj);
+        var mapPos = gameui.getBoundingClientRectIgnoreZoom(this.scrollable_div);
 
         // Coordinates (pixels left and top relative to map_scrollable_oversurface) of the player's frog
         var objLocation = {
@@ -2405,8 +2399,8 @@ class ScrollmapWithZoom {
 
 
     makeObjVisible(obj: HTMLElement, centerOnIt: boolean = false, excl_width: number = 0, excl_height: number = 0, pos: "topleft" | "topright" | "bottomleft" | "bottomright" = "topleft") {
-        let board_rect = gameui.getBoundingClientRectWithZoom(this.clipped_div);
-        let obj_rect = gameui.getBoundingClientRectWithZoom(obj);
+        let board_rect = gameui.getBoundingClientRectIgnoreZoom(this.clipped_div);
+        let obj_rect = gameui.getBoundingClientRectIgnoreZoom(obj);
         this._makeRectVisible(obj_rect, board_rect, centerOnIt, excl_width, excl_height, pos);
     }
     makeVisible(x: number, y: number, w: number = 0, h: number = 0, centerOnIt: boolean = false, excl_width: number = 0, excl_height: number = 0, pos: "topleft" | "topright" | "bottomleft" | "bottomright" = "topleft") {

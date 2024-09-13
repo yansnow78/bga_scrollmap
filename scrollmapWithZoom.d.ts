@@ -34,6 +34,7 @@ declare class ScrollmapWithZoom {
     private static instances;
     private static _form;
     private static _formDialog;
+    private static _core_patched;
     /**
      * board properties
      */

@@ -11,30 +11,29 @@ define([
         return declare("ebg.core.core_patch_slideto", null, {
             constructor: function () {
                 debug('ebg.core.core_patch constructor');
-                this._checkIfZoomImplemented();
-            },
-
-            _checkIfZoomImplemented: function(){
-                this._posZoomCorrNeeded = false;
-                if (typeof document.body.style.zoom === undefined){
-                    return
+                function _checkIfZoomImplemented(){
+                    this._boundingRectIncludeZoom = false;
+                    if (typeof document.body.style.zoom === undefined){
+                        return
+                    }
+                    const scrollX = window.pageXOffset;
+                    const scrollY = window.pageYOffset;
+                    const el = document.createElement("div");
+                    el.style = 'top : 10px; left: 10px; zoom: 2.0; width: 100px; height: 100px; position: absolute';
+                    document.body.appendChild(el);
+                    window.scroll(0,0);
+                    const tBox = el.getBoundingClientRect();
+                    if (tBox.x!=10)
+                        this._boundingRectIncludeZoom = (tBox.width!=100);
+                    document.body.removeChild(el);
+                    window.scroll(scrollX,scrollY);
                 }
-                const scrollX = window.pageXOffset;
-                const scrollY = window.pageYOffset;
-                const el = document.createElement("div");
-                el.style = 'top : 10px; left: 10px; zoom: 2.0; width: 100px; height: 100px; position: absolute';
-                document.body.appendChild(el);
-                window.scroll(0,0);
-                const tBox = el.getBoundingClientRect();
-                if (tBox.x!=10)
-                    this._posZoomCorrNeeded = (tBox.width!=100);
-                document.body.removeChild(el);
-                window.scroll(scrollX,scrollY);
+                _checkIfZoomImplemented.call(this);
             },
 
-            getBoundingClientRectWithoutZoom: function (element) {
+            getBoundingClientRectIncludeZoom: function (element) {
                 var rect = element.getBoundingClientRect();
-                var zoomCorr = (!gameui._posZoomCorrNeeded) ? gameui._calcCurrentCSSZoom(element) : 1;
+                var zoomCorr = (!this._boundingRectIncludeZoom) ? this.calcCurrentCSSZoom(element) : 1;
                 rect.left *= zoomCorr;
                 rect.top *= zoomCorr;
                 rect.right *= zoomCorr;
@@ -46,9 +45,9 @@ define([
                 return rect;
             },
 
-            getBoundingClientRectWithZoom: function (element) {
+            getBoundingClientRectIgnoreZoom: function (element) {
                 var rect = element.getBoundingClientRect();
-                var zoomCorr = (gameui._posZoomCorrNeeded) ? gameui._calcCurrentCSSZoom(element) : 1;
+                var zoomCorr = (this._boundingRectIncludeZoom) ? this.calcCurrentCSSZoom(element) : 1;
                 rect.left /= zoomCorr;
                 rect.top /= zoomCorr;
                 rect.right /= zoomCorr;
@@ -60,7 +59,7 @@ define([
                 return rect;
             },
 
-            _calcCurrentCSSZoom: function(node){
+            calcCurrentCSSZoom: function(node){
                 if (typeof node.currentCSSZoom !== "undefined")
                     return node.currentCSSZoom;
                 let zoom = 1.0;
@@ -71,7 +70,7 @@ define([
                 }
                 const parent = node.parentElement; 
                 if (parent)
-                    zoom = zoom * this._calcCurrentCSSZoom(parent);
+                    zoom = zoom * this.calcCurrentCSSZoom(parent);
                     return zoom;
             },
 
@@ -124,7 +123,7 @@ define([
                 if( typeof target_obj == 'string' )
                     target_obj = $( target_obj ); 
                 var src = dojo.position(mobile_obj);
-                var zoomCorr = this._posZoomCorrNeeded ? this._calcCurrentCSSZoom(mobile_obj): 1;
+                var zoomCorr = this._boundingRectIncludeZoom ? this.calcCurrentCSSZoom(mobile_obj): 1;
 
                 // Current mobile object relative coordinates
                 var left = dojo.style(mobile_obj, 'left');
