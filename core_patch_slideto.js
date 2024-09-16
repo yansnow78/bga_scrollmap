@@ -373,11 +373,11 @@ define([
                 var alpha_mobile_original = this.getAbsRotationAngle(mobile_obj);
 
                 var my_new_mobile = dojo.clone(mobile_obj);
-                var tgt = dojo.position(mobile_obj);
-                dojo.destroy(mobile_obj);
                 dojo.place(my_new_mobile, new_parent, position);
                 var alpha_mobile_new = this.getAbsRotationAngle(my_new_mobile);
-                this._placeOnObject(my_new_mobile, null, tgt.x, tgt.y, false);
+
+                this._placeOnObject(my_new_mobile, mobile_obj);
+                dojo.destroy(mobile_obj);
 
                 if (!bDontPreserveRotation && (alpha_mobile_new != alpha_mobile_original)) {
                     // We must rotate the new element to make sure its absolute rotation angle do not change
