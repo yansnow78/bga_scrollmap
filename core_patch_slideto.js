@@ -122,14 +122,14 @@ define([
                     mobile_obj = $(mobile_obj);
                 if( typeof target_obj == 'string' )
                     target_obj = $( target_obj ); 
-                var src = dojo.position(mobile_obj);
-                var zoomCorr = this._boundingRectIncludeZoom ? this.calcCurrentCSSZoom(mobile_obj): 1;
+                var src = this.getBoundingClientRectIncludeZoom(mobile_obj);
+                var zoomCorr = this.calcCurrentCSSZoom(mobile_obj);
 
                 // Current mobile object relative coordinates
                 var left = dojo.style(mobile_obj, 'left');
                 var top = dojo.style(mobile_obj, 'top');
 
-                var tgt = (target_obj !== null) ? dojo.position(target_obj) : new DOMPoint(0, 0);
+                var tgt = (target_obj !== null) ? this.getBoundingClientRectIncludeZoom(target_obj) : new DOMPoint(0, 0);
                 var vector_abs = new DOMPoint(
                     tgt.x - src.x,
                     tgt.y - src.y
@@ -138,8 +138,8 @@ define([
                 var matrix = this._calcTransform(mobile_obj.parentNode);
 
                 if (target_x == null) {
-                    vector_abs.x += (tgt.w - src.w) / 2;
-                    vector_abs.y += (tgt.h - src.h) / 2;
+                    vector_abs.x += (tgt.width - src.width) / 2;
+                    vector_abs.y += (tgt.height - src.height) / 2;
                 } else if (bRelPos) {
                     debug("relative positioning");
                     var target_matrix = this._calcTransform(target_obj);
@@ -151,22 +151,23 @@ define([
                     if (matrix !== null)
                         delta_x = matrix.transformPoint(new DOMPoint(0, -mobile_obj.offsetHeight)).x;
 
-                    vector_abs.x += (target_v.x - delta_x) * zoomCorr;
-                    vector_abs.y += target_v.y * zoomCorr;
+                    var targetZoomCorr = this.calcCurrentCSSZoom(target_obj);
+                    vector_abs.x += (target_v.x - delta_x) * targetZoomCorr;
+                    vector_abs.y += target_v.y * targetZoomCorr;
                     if (bFromCenter) {
-                        vector_abs.x -= src.w / 2;
-                        vector_abs.y -= src.h / 2;
+                        vector_abs.x -= src.width / 2;
+                        vector_abs.y -= src.height / 2;
                     }
                     if (bToCenter) {
-                        vector_abs.x += tgt.w / 2;
-                        vector_abs.y += tgt.h / 2;
+                        vector_abs.x += tgt.width / 2;
+                        vector_abs.y += tgt.height / 2;
                     }
                 } else {
-                    vector_abs.x += toint(target_x) * zoomCorr;
-                    vector_abs.y += toint(target_y) * zoomCorr;
+                    vector_abs.x += toint(target_x);
+                    vector_abs.y += toint(target_y);
                     if (bFromCenter) {
-                        vector_abs.x -= src.w / 2;
-                        vector_abs.y -= src.h / 2;
+                        vector_abs.x -= src.width / 2;
+                        vector_abs.y -= src.height / 2;
                     }
                 }
 

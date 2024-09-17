@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.34.5: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.34.6: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -1127,7 +1127,7 @@ class ScrollmapWithZoom {
             this.container_div.style.setProperty('--btns_offset_y', this.btnsOutsideMapOffsetY);
             this._setButtonsVisiblity(true, false);
             this._btnToggleButtonsVisiblity.classList.add("scrollmap_btn_nodisplay");
-            this._minHeight = Math.max(this._orig_minHeight, gameui.getBoundingClientRectIgnoreZoom(this._buttons_divs_wrapper).height);
+            this._minHeight = Math.max(this._orig_minHeight, gameui.getBoundingClientRectIgnoreZoom(this._buttons_divs_wrapper).height + 2);
             if (this._minHeight > this.getDisplayHeight())
                 this.setDisplayHeight(this._minHeight);
         }
@@ -1343,7 +1343,6 @@ class ScrollmapWithZoom {
             this._onResize();
             // your code
             debug("_adaptHeight");
-            var pageZoom = this._getPageZoom();
             this._titleHeight = gameui.getBoundingClientRectIgnoreZoom($('page-title')).height;
             if (!this.bAdaptHeightAuto)
                 return;
@@ -1612,9 +1611,8 @@ class ScrollmapWithZoom {
             clientX = (clientX + ev2.clientX) / 2;
             clientY = (clientY + ev2.clientY) / 2;
         }
-        const pageZoom = this._getPageZoom();
         var x, y;
-        [, , x, y] = gameui.calcNewLocation(this.surface_div, null, clientX / pageZoom, clientY / pageZoom, false, true);
+        [, , x, y] = gameui.calcNewLocation(this.surface_div, null, clientX, clientY, false, true);
         return [x, y];
     }
     _enableInteractions() {
@@ -2953,8 +2951,7 @@ class ScrollmapWithZoom {
     setDisplayHeight(new_height, dispatch = true) {
         var screen_height = document.documentElement.clientHeight ||
             document.body.clientHeight || window.innerHeight;
-        var pageZoom = this._getPageZoom();
-        screen_height /= pageZoom;
+        screen_height /= gameui.calcCurrentCSSZoom(this.container_div);
         var current_height = this.getDisplayHeight();
         var maxHeight = screen_height - this._titleHeight;
         new_height = Math.min(Math.max(new_height, this._minHeight), maxHeight);
