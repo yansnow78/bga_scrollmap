@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.34.6: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.34.7: Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -351,7 +351,7 @@ class ScrollmapWithZoom {
         this._btnToggleButtonsVisiblity = null;
         this._btnZoomPlusNames = 'zoomplus,zoom_plus,zoomin,zoom_in';
         this._btnZoomMinusNames = 'zoomminus,zoom_minus,zoomout,zoom_out';
-        this._btnResetNames = 'reset,back_to_center,reset_map,map_reset,center';
+        this._btnResetNames = 'reset,back_to_center,reset_map,map_reset,center,movehome';
         this._btnZoomToFitNames = 'zoomtofit,fullscreen';
         this._btnIncreaseHeightNames = "enlargedisplay";
         this._btnDecreaseHeightNames = "reducedisplay,shrinkdisplay";
@@ -1021,7 +1021,10 @@ class ScrollmapWithZoom {
         if (this.defaultZoom === null)
             this.defaultZoom = this.zoom;
         this.setMapZoom(this.zoom);
-        this.scrollto(0, 0, 0, 0);
+        if (this.startPosition)
+            this.scrollto(-this.startPosition.x, -this.startPosition.y, 0, 0);
+        else
+            this.scrollToCenter(null, 0, 0);
         if (this._resizeObserver)
             this._resizeObserver.observe(this.container_div);
         if (this._resizeHeadersObserver) {

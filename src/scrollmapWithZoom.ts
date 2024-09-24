@@ -393,7 +393,7 @@ class ScrollmapWithZoom {
     protected _btnToggleButtonsVisiblity: HTMLElement = null;
     protected _btnZoomPlusNames: string = 'zoomplus,zoom_plus,zoomin,zoom_in';
     protected _btnZoomMinusNames: string = 'zoomminus,zoom_minus,zoomout,zoom_out';
-    protected _btnResetNames: string = 'reset,back_to_center,reset_map,map_reset,center';
+    protected _btnResetNames: string = 'reset,back_to_center,reset_map,map_reset,center,movehome';
     protected _btnZoomToFitNames: string = 'zoomtofit,fullscreen';
     protected _btnIncreaseHeightNames = "enlargedisplay";
     protected _btnDecreaseHeightNames = "reducedisplay,shrinkdisplay";
@@ -1104,7 +1104,11 @@ class ScrollmapWithZoom {
         if (this.defaultZoom === null)
             this.defaultZoom = this.zoom;
         this.setMapZoom(this.zoom);
-        this.scrollto(0, 0, 0, 0);
+
+        if (this.startPosition)
+            this.scrollto(-this.startPosition.x, -this.startPosition.y, 0, 0);
+        else
+            this.scrollToCenter(null, 0, 0);
         if (this._resizeObserver)
             this._resizeObserver.observe(this.container_div);
         if (this._resizeHeadersObserver) {
