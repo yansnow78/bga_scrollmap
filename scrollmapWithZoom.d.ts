@@ -30,6 +30,7 @@ interface Position {
     y: number;
 }
 declare class ScrollmapWithZoom {
+    version: String;
     private static count;
     private static instances;
     private static _form;

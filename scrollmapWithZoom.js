@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.34.7: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.34.8 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -174,6 +174,7 @@ class ScrollmapWithZoom {
         //     RIGHT_TOP : 10,
         //     RIGHT_BOTTOM: 11,
         //   };
+        this.version = '1.34.8';
         /**
          * board properties
          */
@@ -1648,7 +1649,7 @@ class ScrollmapWithZoom {
                 debugMsg += "click";
             setTimeout(() => {
                 this._enabledClicks = true;
-                this.onsurface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
+                this.surface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
             }, 200);
         }
         if (isDebug && debugMsg != "")
@@ -3055,6 +3056,7 @@ class ScrollmapWithZoom {
             info += '<BR>' + _('To fit to content : press the end key with ctrl key');
         if (this._bConfigurableInUserPreference)
             info += _('This is configurable in user preference.');
+        info += '<BR>' + '(v ' + this.version + ')';
         info += '</div>';
         return info;
     }

@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom version-x.x.x: Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom version-x.x.x : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -61,8 +61,11 @@ interface Position {
 }
 
 class ScrollmapWithZoom {
+    version: String = 'version-x.x.x';
     private static count: number = 0;
-    private static instances: Map < string, ScrollmapWithZoom > = new Map < string, ScrollmapWithZoom > ();
+    private static instances: Map < string,
+    ScrollmapWithZoom > = new Map < string,
+    ScrollmapWithZoom > ();
     private static _form: HTMLFormElement;
     private static _formDialog: any;
     private static _core_patched: boolean = false;
@@ -350,12 +353,12 @@ class ScrollmapWithZoom {
     protected _bInfoBtnVisible: boolean = true;
     protected _bBtnsVisible: boolean = true;
     protected _pointers: Map < number,
-        any > = new Map();
+    any > = new Map();
     protected _classNameSuffix: string = '';
     protected _longPress: boolean = false;
     // protected _longKeyPress: boolean = false;
     protected _keysPressed: Map < string,
-        any > = new Map();
+    any > = new Map();
     protected static _bEnableKeys: boolean = true;
     protected _enableTooltipsAndClickTimerId: number = null;
     protected _enabledTooltips: boolean = true;
@@ -1766,7 +1769,7 @@ class ScrollmapWithZoom {
                 debugMsg += "click";
             setTimeout(() => {
                 this._enabledClicks = true;
-                this.onsurface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
+                this.surface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
             }, 200);
         }
         if (isDebug && debugMsg != "")
@@ -3330,6 +3333,7 @@ class ScrollmapWithZoom {
             info += '<BR>' + _('To fit to content : press the end key with ctrl key');
         if (this._bConfigurableInUserPreference)
             info += _('This is configurable in user preference.');
+        info += '<BR>' + '(v ' + this.version + ')';
         info += '</div>';
         return info;
     }

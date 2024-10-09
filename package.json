@@ -1,6 +1,6 @@
 {
   "name": "scrollmap-with-zoom",
-  "version": "1.34.7",
+  "version": "1.34.8",
   "description": "",
   "main": "scrollmapWithZoom.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "build:ts": "tsc",
     "postbuild:ts": "js-beautify -o scrollmapWithZoom.js",
     "build:scss": "sass --no-source-map src/scrollmapWithZoom.scss build/scrollmapWithZoom.css",
-    "addversionnr": "cross-var replace-in-file \"version-x.x.x\" \"$npm_package_version\" scrollmapWithZoom.js",
+    "addversionnr": "cross-var replace-in-file /version-x.x.x/g \"$npm_package_version\" scrollmapWithZoom.js --isRegex",
     "preversion": "npm run build:ts",
     "version": "npm run addversionnr && git add .",
     "postversion": "git push && git push --tag"
