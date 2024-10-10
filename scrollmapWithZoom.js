@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.34.8 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.35.0 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -174,7 +174,7 @@ class ScrollmapWithZoom {
         //     RIGHT_TOP : 10,
         //     RIGHT_BOTTOM: 11,
         //   };
-        this.version = '1.34.8';
+        this.version = '1.35.0';
         /**
          * board properties
          */
@@ -1533,8 +1533,8 @@ class ScrollmapWithZoom {
         }
         return scrolled;
     }
-    _saveSettings() {
-        debug("_saveSettings");
+    saveSettings() {
+        debug("saveSettings");
         let settings = {
             time: Date.now(),
             zoom: this.zoom,
@@ -1556,11 +1556,11 @@ class ScrollmapWithZoom {
     }
     _onvisibility_changehandler(e) {
         if (document.visibilityState === "hidden") {
-            this._saveSettings();
+            this.saveSettings();
         }
     }
     _onbeforeunload_handler(e) {
-        this._saveSettings();
+        this.saveSettings();
     }
     _updatePointers(event) {
         var prevEv;

@@ -289,7 +289,7 @@ declare class ScrollmapWithZoom {
     protected _onResize(): void;
     protected _clearOldSettings(): void;
     protected _loadSettings(): boolean;
-    protected _saveSettings(): void;
+    protected saveSettings(): void;
     protected static _saveGameSettings(): void;
     protected _onvisibility_changehandler(e: Event): void;
     protected _onbeforeunload_handler(e: Event): void;

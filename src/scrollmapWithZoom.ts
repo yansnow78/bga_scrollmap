@@ -1643,8 +1643,8 @@ class ScrollmapWithZoom {
         }
         return scrolled;
     }
-    protected _saveSettings() {
-        debug("_saveSettings");
+    protected saveSettings() {
+        debug("saveSettings");
         let settings = {
             time: Date.now(),
             zoom: this.zoom,
@@ -1666,12 +1666,12 @@ class ScrollmapWithZoom {
     }
     protected _onvisibility_changehandler(e: Event) {
         if (document.visibilityState === "hidden") {
-            this._saveSettings();
+            this.saveSettings();
         }
     }
 
     protected _onbeforeunload_handler(e: Event) {
-        this._saveSettings();
+        this.saveSettings();
     }
 
     protected _updatePointers(event: PointerEvent | TouchEvent | MouseEvent) {
