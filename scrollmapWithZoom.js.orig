@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.35.1 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.35.0 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -174,7 +174,7 @@ class ScrollmapWithZoom {
         //     RIGHT_TOP : 10,
         //     RIGHT_BOTTOM: 11,
         //   };
-        this.version = '1.35.1';
+        this.version = '1.35.0';
         /**
          * board properties
          */
@@ -3028,10 +3028,14 @@ class ScrollmapWithZoom {
         info += '<ul>';
         info += '<li>' + _('maintain the mouse button or 2 fingers pressed and move.') + '</li>';
         info += '<li>' + _('press the scroll/pan buttons (long press : continious scroll/pan).') + '</li>';
+<<<<<<< ours
+        if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysArrows)
+=======
         if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysArrows) {
             let keysStr = _("ctrl");
             info += '<li>' + dojo.string.substitute(_('press the arrow keys with ${keys} (long press : continious scroll/pan).'), { keys: keysStr }) + '</li>';
         }
+>>>>>>> theirs
         info += '</ul>';
         if (this._bEnableZooming) {
             info += '<BR>';

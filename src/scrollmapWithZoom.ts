@@ -3305,14 +3305,16 @@ class ScrollmapWithZoom {
         info += '<ul>';
         info += '<li>' + _('maintain the mouse button or 2 fingers pressed and move.') + '</li>';
         info += '<li>' + _('press the scroll/pan buttons (long press : continious scroll/pan).') + '</li>';
-        if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysArrows)
-            info += '<li>' + _('press the arrow keys with alt key (long press : continious scroll/pan).') + '</li>';
+        if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysArrows) {
+            let keysStr = _("ctrl");
+            info += '<li>' + dojo.string.substitute(_('press the arrow keys with ${keys} (long press : continious scroll/pan).'), { keys: keysStr }) + '</li>';
+        }
         info += '</ul>';
         if (this._bEnableZooming) {
             info += '<BR>';
             info += _('To zoom, do one of the folowing things:');
             info += '<ul>';
-            var keysStr = this.getWheelZoomingOptionTranslated();
+            let keysStr = this.getWheelZoomingOptionTranslated();
             info += '<li>';
             info += `<span style="${this.zoomingOptions.bWheelZooming ? "" : "text-decoration: line-through;"}">` + dojo.string.substitute(_("use the mouse wheel with ${keys}"), { keys: keysStr }) + '</span>';
             info += canbemodfied;
