@@ -2944,7 +2944,7 @@ class ScrollmapWithZoom {
         debug("setupOnScreenArrows");
         this.scrollDelta = scrollDelta;
         this.bScrollDeltaAlignWithZoom = bScrollDeltaAlignWithZoom;
-        var _btnsMoveHelp = dojo.string.substitute(_("Scroll display (you can also use ${keys} + arrow keys)"), { keys: _("alt") });
+        var _btnsMoveHelp = dojo.string.substitute(_("Scroll display (you can also use ${keys} + arrow keys)"), { keys: _("ctrl") });
         if (this.bScrollDeltaAlignWithZoom)
             this._scrollDeltaAlignWithZoom = scrollDelta * this.zoom;
         else

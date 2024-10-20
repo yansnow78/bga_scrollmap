@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.35.1 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.35.2 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -174,7 +174,7 @@ class ScrollmapWithZoom {
         //     RIGHT_TOP : 10,
         //     RIGHT_BOTTOM: 11,
         //   };
-        this.version = '1.35.1';
+        this.version = '1.35.2';
         /**
          * board properties
          */
@@ -2704,7 +2704,7 @@ class ScrollmapWithZoom {
         debug("setupOnScreenArrows");
         this.scrollDelta = scrollDelta;
         this.bScrollDeltaAlignWithZoom = bScrollDeltaAlignWithZoom;
-        var _btnsMoveHelp = dojo.string.substitute(_("Scroll display (you can also use ${keys} + arrow keys)"), { keys: _("alt") });
+        var _btnsMoveHelp = dojo.string.substitute(_("Scroll display (you can also use ${keys} + arrow keys)"), { keys: _("ctrl") });
         if (this.bScrollDeltaAlignWithZoom)
             this._scrollDeltaAlignWithZoom = scrollDelta * this.zoom;
         else
