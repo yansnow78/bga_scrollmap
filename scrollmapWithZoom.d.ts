@@ -1,6 +1,3 @@
-declare var isDebug: boolean;
-declare var debug: any;
-declare var error: any;
 declare const define: Function;
 declare const ebg: any;
 declare const $: Function;
@@ -30,6 +27,8 @@ interface Position {
     y: number;
 }
 declare class ScrollmapWithZoom {
+    static debugEn: boolean;
+    static get debug(): Function;
     version: String;
     private static count;
     private static instances;
@@ -433,3 +432,4 @@ declare namespace ScrollmapWithZoom {
         Center = "scrollmap_btns_center"
     }
 }
+declare var SWZ: typeof ScrollmapWithZoom;

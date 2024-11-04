@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.35.2 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.36.0 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -25,11 +25,10 @@ https://github.com/yansnow78/bga_scrollmap.git
 - ...
  * Coded by yannsnow
  * */
-/*global gameui, dojo, dijit*/
-var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
-var debug = isDebug ? console.info.bind(window.console) : function() {};
-var error = isDebug ? console.error.bind(window.console) : function() {};
 class ScrollmapWithZoom {
+    static get debug() {
+        return (ScrollmapWithZoom.debugEn == true || (localStorage.getItem(ScrollmapWithZoom._localStorageGameKey + ".debugEn") === "true")) ? console.debug.bind(window.console) : () => {};
+    };
     get bEnableZooming() {
         return this._bEnableZooming;
     }
@@ -39,7 +38,7 @@ class ScrollmapWithZoom {
             return;
         if (!this._bEnableZooming) {
             this.hideOnScreenZoomButtons();
-            debug("bEnableZooming is false, hide zoom buttons");
+            SWZ.debug("bEnableZooming is false, hide zoom buttons");
         }
         var warning_touch = _("Use two fingers to begin moving the board. ");
         if (this._bEnableZooming)
@@ -174,7 +173,7 @@ class ScrollmapWithZoom {
         //     RIGHT_TOP : 10,
         //     RIGHT_BOTTOM: 11,
         //   };
-        this.version = '1.35.2';
+        this.version = '1.36.0';
         /**
          * board properties
          */
@@ -422,7 +421,7 @@ class ScrollmapWithZoom {
     }
     create(container_div, scrollable_div, surface_div, onsurface_div, clipped_div = null, animation_div = null, page = null, create_extra = null) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
-        debug("ebg.ScrollmapWithZoom create");
+        SWZ.debug("ebg.ScrollmapWithZoom create");
         if (typeof gameui.bUseRelPosForObjPos == "undefined")
             gameui.bUseRelPosForObjPos = true;
         ScrollmapWithZoom.count++;
@@ -1042,7 +1041,7 @@ class ScrollmapWithZoom {
         });
         document.addEventListener('visibilitychange', this._onvisibility_changehandler.bind(this));
         window.addEventListener('load', (e) => {
-            debug("document loaded"); /*this._adaptHeight();*/
+            SWZ.debug("document loaded"); /*this._adaptHeight();*/
         });
         dojo.connect(gameui, "onScreenWidthChange", this, dojo.hitch(this, '_adaptHeight'));
         dojo.require("dojo.aspect");
@@ -1054,10 +1053,10 @@ class ScrollmapWithZoom {
             let warning_arrowkeys = _('press the arrow keys with ctrl key to scroll the board');
             this.container_div.setAttribute("warning_arrowkeys", warning_arrowkeys);
         }
-        debug("ebg.ScrollmapWithZoom create end");
+        SWZ.debug("ebg.ScrollmapWithZoom create end");
     }
     createCompletely(container_div, page = null, create_extra = null, bEnlargeReduceButtonsInsideMap = true) {
-        debug("createCompletely");
+        SWZ.debug("createCompletely");
         var tmplDisplayButtons = String.raw `
             ${this.btnIncreaseHeightHtml}
             ${this.btnDecreaseHeightHtml}
@@ -1346,7 +1345,7 @@ class ScrollmapWithZoom {
         window.requestAnimationFrame(() => {
             this._onResize();
             // your code
-            debug("_adaptHeight");
+            SWZ.debug("_adaptHeight");
             this._titleHeight = gameui.getBoundingClientRectIgnoreZoom($('page-title')).height;
             if (!this.bAdaptHeightAuto)
                 return;
@@ -1405,7 +1404,7 @@ class ScrollmapWithZoom {
     _onResize() {
         window.requestAnimationFrame(() => {
             if (!this._setupDone || (this.bAdaptHeightAuto && !this._adaptHeightDone)) {
-                debug(this._setupDone ? "onResize after adaptHeight" : "1st onResize after setup");
+                SWZ.debug(this._setupDone ? "onResize after adaptHeight" : "1st onResize after setup");
                 this._clearOldSettings();
                 this._loadedSettings = this._loadSettings();
                 if (!this._loadedSettings) {
@@ -1430,7 +1429,7 @@ class ScrollmapWithZoom {
             if (pageZoom == 1) {
                 var interfaceFactor = this._getInterfaceFactor();
                 if (interfaceFactor < 1) {
-                    debug("_adaptHeight use interfaceFactor ", interfaceFactor);
+                    SWZ.debug("_adaptHeight use interfaceFactor ", interfaceFactor);
                     pageZoom = interfaceFactor;
                 }
             }
@@ -1469,7 +1468,7 @@ class ScrollmapWithZoom {
         }
         if (settingsStr != null) {
             let settings = JSON.parse(settingsStr);
-            debug("_loadSettings", settings.board_x, settings.board_y);
+            SWZ.debug("_loadSettings", settings.board_x, settings.board_y);
             var height = this.getDisplayHeight();
             if (settings.height != null) {
                 this.setDisplayHeight(settings.height);
@@ -1534,7 +1533,7 @@ class ScrollmapWithZoom {
         return scrolled;
     }
     saveSettings() {
-        debug("saveSettings");
+        SWZ.debug("saveSettings");
         let settings = {
             time: Date.now(),
             zoom: this.zoom,
@@ -1547,7 +1546,7 @@ class ScrollmapWithZoom {
         localStorage.setItem(this._localStorageKey, JSON.stringify(settings));
     }
     static _saveGameSettings() {
-        debug("_saveGameSettings");
+        SWZ.debug("_saveGameSettings");
         let gameSettings = {
             time: Date.now(),
             optionsChanged: this._optionsChanged
@@ -1635,28 +1634,28 @@ class ScrollmapWithZoom {
         // this.container_div.style.touchAction = "auto";
     }
     _enableTooltipsAndClick() {
-        if (isDebug)
+        if (SWZ.debugEn)
             var debugMsg = "";
         if (!this._enabledTooltips) {
-            if (isDebug)
+            if (SWZ.debugEn)
                 debugMsg += "tooltips";
             gameui.switchDisplayTooltips(false);
             this._enabledTooltips = true;
             this._enableTooltipsAndClickTimerId = null;
         }
         if (!this._enabledClicks) {
-            if (isDebug)
+            if (SWZ.debugEn)
                 debugMsg += "click";
             setTimeout(() => {
                 this._enabledClicks = true;
                 this.surface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
             }, 200);
         }
-        if (isDebug && debugMsg != "")
-            debug("_enableTooltipsAndClick enable " + debugMsg);
+        if (SWZ.debugEn && debugMsg != "")
+            SWZ.debug("_enableTooltipsAndClick enable " + debugMsg);
     }
     _disableTooltipsAndClick(setTimer = false) {
-        if (isDebug)
+        if (SWZ.debugEn)
             var debugMsg = "";
         if (setTimer) {
             if (this._enableTooltipsAndClickTimerId != null)
@@ -1664,7 +1663,7 @@ class ScrollmapWithZoom {
             this._enableTooltipsAndClickTimerId = setTimeout(this._enableTooltipsAndClick_handler, 500);
         }
         if (this._enabledTooltips && !gameui.bHideTooltips) {
-            if (isDebug)
+            if (SWZ.debugEn)
                 debugMsg += "tooltips";
             gameui.switchDisplayTooltips(true);
             for (var i in gameui.tooltips) {
@@ -1673,16 +1672,16 @@ class ScrollmapWithZoom {
             this._enabledTooltips = false;
         }
         if (this._enabledClicks) {
-            if (isDebug)
+            if (SWZ.debugEn)
                 debugMsg += "click";
             this._enabledClicks = false;
             this.surface_div.addEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
         }
-        if (isDebug && debugMsg != "")
-            debug("_disableTooltipsAndClick enable " + debugMsg);
+        if (SWZ.debugEn && debugMsg != "")
+            SWZ.debug("_disableTooltipsAndClick enable " + debugMsg);
     }
     _suppressCLickEvent(e) {
-        debug("_suppressCLickEvent");
+        SWZ.debug("_suppressCLickEvent");
         this.surface_div.removeEventListener('click', this._suppressCLickEvent_handler, this._passiveEventListener);
         e.stopImmediatePropagation();
         e.stopPropagation();
@@ -1704,11 +1703,11 @@ class ScrollmapWithZoom {
         if (e.type !== "touchmove" && e.type !== "touchstart") {
             // if (e.touches.length === 1 && !(this.bEnableScrolling && this.scrollingOptions.bOneFingerScrolling)) {
             //     this._touchInteracting = true;
-            //     debug(e.touches.length);
+            //     SWZ.debug(e.touches.length);
             // }
             if (e.touches.length === 0)
                 this._touchInteracting = false;
-            //debug(e.touches.length);
+            //SWZ.debug(e.touches.length);
         }
         if ((e.type !== "touchmove" && e.type !== "touchstart") ||
             !((this.bEnableScrolling) || (this._bEnableZooming && this.zoomingOptions.pinchZooming))) {
@@ -1729,7 +1728,7 @@ class ScrollmapWithZoom {
                     this._gestureStart = false;
             });
             // if (!this._gestureStart)
-            //     debug( this._gestureStart, e.touches.length, e.targetTouches.length);
+            //     SWZ.debug( this._gestureStart, e.touches.length, e.targetTouches.length);
             // const date = Date.now();
             // let currentDate = null;
             // do {
@@ -1758,18 +1757,18 @@ class ScrollmapWithZoom {
                     // var zooming = /* touchesDistDiff > 5 &&  */((scrollX + scrollY)<touchesDistDiff);
                     // // var scrolling = /* (scrollX + scrollY) > 5 &&  */(5*(scrollX + scrollY)>touchesDistDiff);
                     // var scrolling = /* (scrollX + scrollY) > 5 &&  */(Math.hypot(scrollX + scrollY)>touchesDistDiff);
-                    //  debug("touchmove", scrollX+scrollY, scrolling, "   ", touchesDistDiff, zooming);
+                    //  SWZ.debug("touchmove", scrollX+scrollY, scrolling, "   ", touchesDistDiff, zooming);
                     //     if ((scrolling && this.bEnableScrolling) || 
                     //         (zooming && this._bEnableZooming && this.zoomingOptions.pinchZooming)) {
                     //         this.container_div.classList.remove("scrollmap_warning_touch");
                     //         this._touchInteracting = true;
-                    //         debug('start interacting');
+                    //         SWZ.debug('start interacting');
                     //     }
                     this._enableInteractions();
                     // e.stopImmediatePropagation();
                     // e.preventDefault();
                 }
-                // debug(this._touchInteracting);
+                // SWZ.debug(this._touchInteracting);
                 //this._prevTouchesDist = touchesDist;
                 //this._prevTouchesMiddle = touchesMiddle;
             }
@@ -1802,7 +1801,7 @@ class ScrollmapWithZoom {
         this._updatePointers(ev);
     }
     _onPointerMove(ev) {
-        // debug("pointer move");
+        // SWZ.debug("pointer move");
         // var new_evt = new PointerEvent("pointermove", ev);
         // var canceled = !this.scrollable_div.firstElementChild .dispatchEvent(new_evt);
         // debugger
@@ -1838,7 +1837,7 @@ class ScrollmapWithZoom {
             const ev2 = it.next().value;
             const curDist = Math.hypot(ev2.clientX - ev1.clientX, ev2.clientY - ev1.clientY);
             const [x, y] = this._getXYCoord(ev1, ev2);
-            // debug(x, y);
+            // SWZ.debug(x, y);
             if (this._prevDist > 0.0) {
                 // const diff = curDist - this._prevDist;
                 // newZoom = this.zoom * (1 + this.zoomPinchDelta * diff);
@@ -1946,21 +1945,21 @@ class ScrollmapWithZoom {
         this.container_div.classList.remove("scrollmap_warning_scroll");
         evt.preventDefault();
         const [x, y] = this._getXYCoord(evt);
-        // debug("onwheel", evt.clientX, evt.clientY, x, y);
+        // SWZ.debug("onwheel", evt.clientX, evt.clientY, x, y);
         this.changeMapZoom(evt.deltaY * -this.zoomWheelDelta, x, y);
         this._disableTooltipsAndClick(true);
     }
     scroll(dx, dy, duration, delay) {
-        // debug("scroll", this.board_x, dx, this.board_y, dy);
+        // SWZ.debug("scroll", this.board_x, dx, this.board_y, dy);
         this._scrollto(this.board_x + dx, this.board_y + dy, duration, delay);
     }
     // Scroll the board to make it centered on given position
     scrollto(x, y, duration, delay) {
-        // debug("scroll", this.board_x, dx, this.board_y, dy);
+        // SWZ.debug("scroll", this.board_x, dx, this.board_y, dy);
         this._scrollto(x * this.zoom, y * this.zoom, duration, delay);
     }
     scrolltoAndZoom(x, y, zoom, duration, delay) {
-        // debug("scroll", this.board_x, dx, this.board_y, dy);
+        // SWZ.debug("scroll", this.board_x, dx, this.board_y, dy);
         this.setMapZoom(zoom);
         this._scrollto(x * zoom, y * zoom, duration, delay);
     }
@@ -1988,7 +1987,7 @@ class ScrollmapWithZoom {
             this._scrolled = true;
         else
             this.startPosition = { x: -x / this.zoom, y: -y / this.zoom };
-        // debug("scrollto", this.board_x, this.board_y);
+        // SWZ.debug("scrollto", this.board_x, this.board_y);
         if (duration == null) {
             duration = 350; // Default duration
         }
@@ -2004,7 +2003,7 @@ class ScrollmapWithZoom {
         const height = parseFloat(s.height);
         const board_x = toint(x + width / 2);
         const board_y = toint(y + height / 2);
-        // debug("scrollto board_x, board_y=",board_x, board_y);
+        // SWZ.debug("scrollto board_x, board_y=",board_x, board_y);
         this.board_x = x;
         this.board_y = y;
         if ((duration == 0) && (delay == 0)) {
@@ -2086,7 +2085,7 @@ class ScrollmapWithZoom {
         const center = this.getMapCenter(custom_css_query);
         center.x += (x_extra_r - x_extra_l) / 2;
         center.y += (y_extra_d - y_extra_u) / 2;
-        debug("scrollToCenter", center.x, center.y, x_extra_l, x_extra_r, y_extra_u, y_extra_d);
+        SWZ.debug("scrollToCenter", center.x, center.y, x_extra_l, x_extra_r, y_extra_u, y_extra_d);
         this.scrollto(-center.x, -center.y, duration, delay);
         return {
             x: center.x,
@@ -2173,7 +2172,7 @@ class ScrollmapWithZoom {
                         break;
                     default:
                         excl_rect = null;
-                        error("_makeRectVisible: wrong 'pos' argument value");
+                        console.error("_makeRectVisible: wrong 'pos' argument value");
                         break;
                 }
                 obj_rect.x += delta.x;
@@ -2238,7 +2237,7 @@ class ScrollmapWithZoom {
         function calcMaxMin(node, top_div) {
             if (node.offsetParent == null) // element not displayed
                 return;
-            // debug(node);
+            // SWZ.debug(node);
             let s = window.getComputedStyle(node);
             if (s.left == "auto" /*  && s.position == "absolute" */ ) {
                 Array.from(node.children).forEach((node) => {
@@ -2262,7 +2261,7 @@ class ScrollmapWithZoom {
                     parent = parent.parentNode;
                 }
                 scales.set(directParent, scaleTotal);
-                // debug("scaleTotal",scaleTotal);
+                // SWZ.debug("scaleTotal",scaleTotal);
             }
             let left = (node.offsetLeft * scaleTotal) || 0;
             let width = (parseFloat(s.width) * scaleTotal) || (node.offsetWidth * scaleTotal);
@@ -2272,7 +2271,7 @@ class ScrollmapWithZoom {
             let height = (parseFloat(s.height) * scaleTotal) || (node.offsetHeight * scaleTotal);
             max_y = (max_y !== null) ? Math.max(max_y, top + height) : top + height;
             min_y = (min_y !== null) ? Math.min(min_y, top) : top;
-            debug(node.id, left, top, left + width, top + height);
+            SWZ.debug(node.id, left, top, left + width, top + height);
         }
         var css_query = ":scope > *";
         if (custom_css_query) {
@@ -2285,7 +2284,7 @@ class ScrollmapWithZoom {
             this.onsurface_div.querySelectorAll(css_query).forEach((node) => {
                 calcMaxMin(node, this.onsurface_div);
             });
-        debug("getMapLimits", min_x, max_x, min_y, max_y);
+        SWZ.debug("getMapLimits", min_x, max_x, min_y, max_y);
         return {
             min_x,
             max_x,
@@ -2303,7 +2302,7 @@ class ScrollmapWithZoom {
                 y: (min_y + max_y) / 2
             };
         else if (this.startPosition) {
-            debug("getMapCenter use startPosition");
+            SWZ.debug("getMapCenter use startPosition");
             center = this.startPosition;
         } else {
             center = {
@@ -2317,8 +2316,8 @@ class ScrollmapWithZoom {
         }
         center.x = center.x + centerOffset.x;
         center.y = center.y + centerOffset.y;
-        // debug("getMapCenter",  min_x,  max_x, min_y, max_y);
-        debug("getMapCenter", center);
+        // SWZ.debug("getMapCenter",  min_x,  max_x, min_y, max_y);
+        SWZ.debug("getMapCenter", center);
         return center;
     }
     zoomToFit(x_extra_l = null, x_extra_r = null, y_extra_u = null, y_extra_d = null, cover_arrows = null) {
@@ -2346,7 +2345,7 @@ class ScrollmapWithZoom {
         if (cover_arrows === false)
             container_height -= 2 * this._btnMoveTop.clientHeight;
         const newZoom = Math.min(container_width / (max_x - min_x + x_extra_l + x_extra_r), container_height / (max_y - min_y + y_extra_u + y_extra_d));
-        debug("zoomToFit", newZoom, min_x, max_x, min_y, max_y, x_extra_l, x_extra_r, y_extra_u, y_extra_d, cover_arrows);
+        SWZ.debug("zoomToFit", newZoom, min_x, max_x, min_y, max_y, x_extra_l, x_extra_r, y_extra_u, y_extra_d, cover_arrows);
         this.setMapZoom(newZoom);
         if (!this._setupDone)
             this._zoomFitCalledDuringSetup = true;
@@ -2395,7 +2394,7 @@ class ScrollmapWithZoom {
         if (this.zoomChangeHandler)
             this.zoomChangeHandler(this.zoom);
         const zoomDelta = this.zoom / this._prevZoom;
-        //debug(x+' '+ y+' '+ zoomDelta+' '+ this.zoom);
+        //SWZ.debug(x+' '+ y+' '+ zoomDelta+' '+ this.zoom);
         this._scrollto((this.board_x * zoomDelta) + x * (1 - zoomDelta), (this.board_y * zoomDelta) + y * (1 - zoomDelta), 0, 0);
         this._prevZoom = this.zoom;
     }
@@ -2414,16 +2413,16 @@ class ScrollmapWithZoom {
                 $querydiv = document.getElementById(this.container_div.id + idSuffix);
             if ($querydiv != null)
                 $btn = $querydiv.querySelector('.' + this._classNameSuffix + btnName);
-            //debug($btn);
-            //debug('#' + this.container_div.id+idSuffix + ' .'+this._classNameSuffix+btnName);
+            //SWZ.debug($btn);
+            //SWZ.debug('#' + this.container_div.id+idSuffix + ' .'+this._classNameSuffix+btnName);
             if ($btn === null)
                 $btn = $(btnName);
             if ($btn) {
-                debug(btnName + " found");
+                SWZ.debug(btnName + " found");
                 return $btn;
             }
         }
-        debug(btnNamesL.join(',') + " not found");
+        SWZ.debug(btnNamesL.join(',') + " not found");
         return null;
     }
     _toggleButtonsVisiblity() {
@@ -2447,25 +2446,25 @@ class ScrollmapWithZoom {
     }
     _hideButton($btn, idSuffix = "") {
         if ($btn !== null && !$btn.classList.contains("scrollmap_btn_nodisplay")) {
-            debug("_hideButton", $btn);
+            SWZ.debug("_hideButton", $btn);
             $btn.classList.add("scrollmap_btn_nodisplay");
         }
     }
     _showButton($btn, idSuffix = "", display = 'block') {
         if ($btn !== null && $btn.classList.contains("scrollmap_btn_nodisplay")) {
-            debug("_showButton", $btn);
+            SWZ.debug("_showButton", $btn);
             $btn.classList.remove("scrollmap_btn_nodisplay");
         }
     }
     _enableButton($btn, idSuffix = "") {
         if ($btn !== null && $btn.classList.contains("scrollmap_btn_disabled")) {
-            debug("_enableButton", $btn);
+            SWZ.debug("_enableButton", $btn);
             $btn.classList.remove("scrollmap_btn_disabled");
         }
     }
     _disableButton($btn, idSuffix = "", display = 'block') {
         if ($btn !== null && !$btn.classList.contains("scrollmap_btn_disabled")) {
-            debug("_disableButton", $btn);
+            SWZ.debug("_disableButton", $btn);
             $btn.classList.add("scrollmap_btn_disabled");
         }
     }
@@ -2527,7 +2526,7 @@ class ScrollmapWithZoom {
     //////////////////////////////////////////////////
     //// Long press handling on buttons
     _onButtonLongPress(onLongPressedAnim, evt) {
-        // debug("onButtonLongPress");
+        // SWZ.debug("onButtonLongPress");
         var _longPressAnim = (time, anim = onLongPressedAnim) => {
             anim();
             if (this._longPress)
@@ -2539,7 +2538,7 @@ class ScrollmapWithZoom {
     }
     _onButtonLongPressEnd(evt) {
         //this.onMoveTop();
-        //debug("onButtonLongPressEnd");
+        //SWZ.debug("onButtonLongPressEnd");
         this._longPress = false;
     }
     //////////////////////////////////////////////////
@@ -2701,7 +2700,7 @@ class ScrollmapWithZoom {
     //// Scroll with buttons
     // Optional: setup on screen arrows to scroll the board
     setupOnScreenArrows(scrollDelta, bScrollDeltaAlignWithZoom = true) {
-        debug("setupOnScreenArrows");
+        SWZ.debug("setupOnScreenArrows");
         this.scrollDelta = scrollDelta;
         this.bScrollDeltaAlignWithZoom = bScrollDeltaAlignWithZoom;
         var _btnsMoveHelp = dojo.string.substitute(_("Scroll display (you can also use ${keys} + arrow keys)"), { keys: _("ctrl") });
@@ -2747,25 +2746,25 @@ class ScrollmapWithZoom {
         this._hideButton(this._btnMoveRight);
     }
     _onMoveTop(evt = null) {
-        //debug("onMoveTop");
+        //SWZ.debug("onMoveTop");
         if (evt)
             evt.preventDefault();
         this.scroll(0, this._scrollDeltaAlignWithZoom);
     }
     _onMoveLeft(evt = null) {
-        // debug("onMoveLeft");
+        // SWZ.debug("onMoveLeft");
         if (evt)
             evt.preventDefault();
         this.scroll(this._scrollDeltaAlignWithZoom, 0);
     }
     _onMoveRight(evt = null) {
-        // debug("onMoveRight");
+        // SWZ.debug("onMoveRight");
         if (evt)
             evt.preventDefault();
         this.scroll(-this._scrollDeltaAlignWithZoom, 0);
     }
     _onMoveDown(evt = null) {
-        // debug("onMoveDown");
+        // SWZ.debug("onMoveDown");
         if (evt)
             evt.preventDefault();
         this.scroll(0, -this._scrollDeltaAlignWithZoom);
@@ -2788,7 +2787,7 @@ class ScrollmapWithZoom {
     //////////////////////////////////////////////////
     //// Zoom with buttons
     setupOnScreenZoomButtons(zoomDelta = 0.2) {
-        debug("setupOnScreenZoomButtons");
+        SWZ.debug("setupOnScreenZoomButtons");
         this.zoomDelta = zoomDelta;
         if (!this._btnZoomPlus) {
             this._btnZoomPlus = this._initButton(this._btnZoomPlusNames, this.btnZoomPlusHtml, _("Zoom in"), this._onZoomIn, () => {
@@ -2824,7 +2823,7 @@ class ScrollmapWithZoom {
     //// Reset with buttons
     setupOnScreenResetButtons(resetMode = ScrollmapWithZoom.ResetMode.Scroll) {
         this._resetMode = resetMode;
-        debug("setupOnScreenResetButtons");
+        SWZ.debug("setupOnScreenResetButtons");
         if (!this._btnReset) {
             this._btnReset = this._initButton(this._btnResetNames, this.btnResetHtml, _("Center"), this.onReset);
         }
@@ -2875,7 +2874,7 @@ class ScrollmapWithZoom {
         return false;
     }
     setupEnlargeReduceButtons(incrHeightDelta, bIncrHeightKeepInPos = true, minHeight = null, bShort = true, bGroupedWithOthers = true) {
-        debug("setupEnlargeReduceButtons");
+        SWZ.debug("setupEnlargeReduceButtons");
         var buttonsDiv;
         if (!bGroupedWithOthers && this.btns2PositionClasses != null) {
             buttonsDiv = this._buttons_div2;
@@ -2999,7 +2998,7 @@ class ScrollmapWithZoom {
             $btn.id = this.container_div.id + "_info";
             this._btnInfo = $btn;
         }
-        debug("setupInfoButton");
+        SWZ.debug("setupInfoButton");
         // this._btnInfo.style.cursor = 'pointer';
         // this._btnInfo.style.display = 'block';
         this._bConfigurableInUserPreference = bConfigurableInUserPreference;
@@ -3110,6 +3109,7 @@ class ScrollmapWithZoom {
         return keystr;
     }
 }
+ScrollmapWithZoom.debugEn = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debugSWZ') > -1;
 ScrollmapWithZoom.count = 0;
 ScrollmapWithZoom.instances = new Map();
 ScrollmapWithZoom._core_patched = false;
@@ -3141,6 +3141,7 @@ ScrollmapWithZoom._bEnableKeys = true;
         btnsDivPositionE["Center"] = "scrollmap_btns_center";
     })(btnsDivPositionE = ScrollmapWithZoom.btnsDivPositionE || (ScrollmapWithZoom.btnsDivPositionE = {}));
 })(ScrollmapWithZoom || (ScrollmapWithZoom = {}));
+var SWZ = ScrollmapWithZoom;
 dojo.require("dojo.has");
 dojo.has.add('config-tlmSiblingOfDojo', 0, 0, 1);
 define([
