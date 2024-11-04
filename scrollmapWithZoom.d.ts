@@ -258,7 +258,7 @@ declare class ScrollmapWithZoom {
     protected _passiveEventListener: {};
     protected _notPassiveEventListener: {};
     protected _loadedSettings: boolean;
-    private static _localStorageGameKey;
+    private static localStorageGameKey;
     protected _localStorageKey: string;
     protected _localStorageOldKey: string;
     protected _scrolled: boolean;
