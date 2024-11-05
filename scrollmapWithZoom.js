@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.36.1 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.36.2 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -25,9 +25,47 @@ https://github.com/yansnow78/bga_scrollmap.git
 - ...
  * Coded by yannsnow
  * */
+class AppStorage {
+    constructor(type = 'localStorage') {
+        this.type = 'localStorage';
+        this.type = type;
+    }
+    getItem(key) {
+        try {
+            return window[this.type].getItem(key);
+        } catch (e) {
+            return null;
+        }
+    }
+    removeItem(key) {
+        try {
+            window[this.type].removeItem(key);
+        } catch (e) {}
+        return;
+    }
+    setItem(key, value) {
+        try {
+            window[this.type].setItem(key, value);
+        } catch (e) {}
+        return;
+    }
+    storageAvailable(type) {
+        let storage;
+        try {
+            storage = window[type];
+            const x = '__storage_test__';
+            storage.setItem(x, x);
+            storage.removeItem(x);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+}
+let appLocalStorage = new AppStorage();
 class ScrollmapWithZoom {
     static get debug() {
-        return (ScrollmapWithZoom.debugEn == true || (localStorage.getItem(ScrollmapWithZoom.localStorageGameKey + ".debugEn") === "true")) ? console.debug.bind(window.console) : () => {};
+        return (ScrollmapWithZoom.debugEn == true || (appLocalStorage && appLocalStorage.getItem(ScrollmapWithZoom.localStorageGameKey + ".debugEn") === "true")) ? console.debug.bind(window.console) : () => {};
     };
     get bEnableZooming() {
         return this._bEnableZooming;
@@ -173,7 +211,7 @@ class ScrollmapWithZoom {
         //     RIGHT_TOP : 10,
         //     RIGHT_BOTTOM: 11,
         //   };
-        this.version = '1.36.1';
+        this.version = '1.36.2';
         /**
          * board properties
          */
@@ -1438,13 +1476,13 @@ class ScrollmapWithZoom {
         });
     }
     _clearOldSettings() {
-        let keys = Object.keys(localStorage);
+        let keys = Object.keys(appLocalStorage);
         let oldKeysCnt = 0;
         let oldest = null;
         let oldestKey = '';
         for (let key of keys) {
             if (key.startsWith('scrollmap')) {
-                let oldSetting = JSON.parse(localStorage.getItem(key));
+                let oldSetting = JSON.parse(appLocalStorage.getItem(key));
                 if ((oldest == null) || oldSetting.time < oldest) {
                     oldestKey = key;
                     oldest = oldSetting.time;
@@ -1452,18 +1490,18 @@ class ScrollmapWithZoom {
                 oldKeysCnt++;
             }
             if (oldKeysCnt > 500) {
-                localStorage.removeItem(oldestKey);
+                appLocalStorage.removeItem(oldestKey);
             }
         }
     }
     _loadSettings() {
         let scrolled = false;
-        let settingsStr = localStorage.getItem(this._localStorageKey);
+        let settingsStr = appLocalStorage.getItem(this._localStorageKey);
         if (settingsStr == null) {
-            settingsStr = localStorage.getItem(this._localStorageOldKey);
+            settingsStr = appLocalStorage.getItem(this._localStorageOldKey);
             if (settingsStr != null) {
-                localStorage.setItem(this._localStorageKey, settingsStr);
-                localStorage.removeItem(this._localStorageOldKey);
+                appLocalStorage.setItem(this._localStorageKey, settingsStr);
+                appLocalStorage.removeItem(this._localStorageOldKey);
             }
         }
         if (settingsStr != null) {
@@ -1491,7 +1529,7 @@ class ScrollmapWithZoom {
             } else
                 this._disableButton(this._btnResetHeight);
         }
-        settingsStr = localStorage.getItem(ScrollmapWithZoom.localStorageGameKey);
+        settingsStr = appLocalStorage.getItem(ScrollmapWithZoom.localStorageGameKey);
         if (settingsStr != null) {
             let settings = JSON.parse(settingsStr);
             if (settings.optionsChanged != undefined) {
@@ -1543,7 +1581,7 @@ class ScrollmapWithZoom {
             height_changed: this._bHeightChanged,
             btns_visible: this._bBtnsVisible,
         };
-        localStorage.setItem(this._localStorageKey, JSON.stringify(settings));
+        appLocalStorage.setItem(this._localStorageKey, JSON.stringify(settings));
     }
     static _saveGameSettings() {
         SWZ.debug("_saveGameSettings");
@@ -1551,7 +1589,7 @@ class ScrollmapWithZoom {
             time: Date.now(),
             optionsChanged: this._optionsChanged
         };
-        localStorage.setItem(ScrollmapWithZoom.localStorageGameKey, JSON.stringify(gameSettings));
+        appLocalStorage.setItem(ScrollmapWithZoom.localStorageGameKey, JSON.stringify(gameSettings));
     }
     _onvisibility_changehandler(e) {
         if (document.visibilityState === "hidden") {

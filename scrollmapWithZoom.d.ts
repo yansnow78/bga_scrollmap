@@ -26,6 +26,15 @@ interface Position {
     x: number;
     y: number;
 }
+declare class AppStorage {
+    type: string;
+    constructor(type?: string);
+    getItem(key: string): string;
+    removeItem(key: string): void;
+    setItem(key: string, value: string): void;
+    storageAvailable(type: string): boolean;
+}
+declare let appLocalStorage: AppStorage;
 declare class ScrollmapWithZoom {
     static debugEn: boolean;
     static get debug(): Function;

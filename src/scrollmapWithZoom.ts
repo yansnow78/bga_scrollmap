@@ -57,10 +57,51 @@ https://github.com/yansnow78/bga_scrollmap.git
 - ...
  * Coded by yannsnow
  * */
+class AppStorage {
+    type: string = 'localStorage';
+    constructor(type: string = 'localStorage') {
+        this.type = type
+    }
+    getItem(key: string) {
+        try {
+            return (window[ < any > this.type] as unknown as Storage).getItem(key);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    removeItem(key: string) {
+        try {
+            (window[ < any > this.type] as unknown as Storage).removeItem(key);
+        } catch (e) {}
+        return;
+    }
+
+    setItem(key: string, value: string) {
+        try {
+            (window[ < any > this.type] as unknown as Storage).setItem(key, value);
+        } catch (e) {}
+        return;
+    }
+
+    storageAvailable(type: string) {
+        let storage: Storage;
+        try {
+            storage = window[ < any > type] as unknown as Storage;
+            const x = '__storage_test__';
+            storage.setItem(x, x);
+            storage.removeItem(x);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+}
+let appLocalStorage = new AppStorage();
 class ScrollmapWithZoom {
     public static debugEn: boolean = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debugSWZ') > -1;
     public static get debug(): Function {
-        return (ScrollmapWithZoom.debugEn == true || (localStorage.getItem(ScrollmapWithZoom.localStorageGameKey + ".debugEn") === "true")) ? console.debug.bind(window.console) : () => {};
+        return (ScrollmapWithZoom.debugEn == true || (appLocalStorage && appLocalStorage.getItem(ScrollmapWithZoom.localStorageGameKey + ".debugEn") === "true")) ? console.debug.bind(window.console) : () => {};
     };
     version: String = 'version-x.x.x';
     private static count: number = 0;
@@ -1548,13 +1589,13 @@ class ScrollmapWithZoom {
     }
 
     protected _clearOldSettings() {
-        let keys = Object.keys(localStorage);
+        let keys = Object.keys(appLocalStorage);
         let oldKeysCnt = 0;
         let oldest = null;
         let oldestKey = '';
         for (let key of keys) {
             if (key.startsWith('scrollmap')) {
-                let oldSetting = JSON.parse(localStorage.getItem(key));
+                let oldSetting = JSON.parse(appLocalStorage.getItem(key));
                 if ((oldest == null) || oldSetting.time < oldest) {
                     oldestKey = key;
                     oldest = oldSetting.time;
@@ -1562,18 +1603,18 @@ class ScrollmapWithZoom {
                 oldKeysCnt++;
             }
             if (oldKeysCnt > 500) {
-                localStorage.removeItem(oldestKey);
+                appLocalStorage.removeItem(oldestKey);
             }
         }
     }
     protected _loadSettings() {
         let scrolled = false;
-        let settingsStr = localStorage.getItem(this._localStorageKey);
+        let settingsStr = appLocalStorage.getItem(this._localStorageKey);
         if (settingsStr == null) {
-            settingsStr = localStorage.getItem(this._localStorageOldKey);
+            settingsStr = appLocalStorage.getItem(this._localStorageOldKey);
             if (settingsStr != null) {
-                localStorage.setItem(this._localStorageKey, settingsStr);
-                localStorage.removeItem(this._localStorageOldKey);
+                appLocalStorage.setItem(this._localStorageKey, settingsStr);
+                appLocalStorage.removeItem(this._localStorageOldKey);
             }
         }
         if (settingsStr != null) {
@@ -1601,7 +1642,7 @@ class ScrollmapWithZoom {
             } else
                 this._disableButton(this._btnResetHeight);
         }
-        settingsStr = localStorage.getItem(ScrollmapWithZoom.localStorageGameKey);
+        settingsStr = appLocalStorage.getItem(ScrollmapWithZoom.localStorageGameKey);
         if (settingsStr != null) {
             let settings = JSON.parse(settingsStr);
             if (settings.optionsChanged != undefined) {
@@ -1653,7 +1694,7 @@ class ScrollmapWithZoom {
             height_changed: this._bHeightChanged,
             btns_visible: this._bBtnsVisible,
         };
-        localStorage.setItem(this._localStorageKey, JSON.stringify(settings));
+        appLocalStorage.setItem(this._localStorageKey, JSON.stringify(settings));
     }
     protected static _saveGameSettings() {
         SWZ.debug("_saveGameSettings");
@@ -1661,7 +1702,7 @@ class ScrollmapWithZoom {
             time: Date.now(),
             optionsChanged: this._optionsChanged
         };
-        localStorage.setItem(ScrollmapWithZoom.localStorageGameKey, JSON.stringify(gameSettings));
+        appLocalStorage.setItem(ScrollmapWithZoom.localStorageGameKey, JSON.stringify(gameSettings));
     }
     protected _onvisibility_changehandler(e: Event) {
         if (document.visibilityState === "hidden") {
