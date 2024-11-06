@@ -99,9 +99,23 @@ class AppStorage {
 }
 let appLocalStorage = new AppStorage();
 class ScrollmapWithZoom {
-    public static debugEn: boolean = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debugSWZ') > -1;
+    private static _debugEnViaHash: boolean = (window.location.hash.substring(1).split(',').includes('debugSWZ'));
+    private static _debugEn: boolean = ScrollmapWithZoom._debugEnViaHash;
+    public static set debugEn(en: boolean) {
+        ScrollmapWithZoom._debugEn = en;
+        if (!ScrollmapWithZoom._debugEnViaHash)
+            appLocalStorage.setItem(ScrollmapWithZoom.localStorageGameKey + ".debugEn", en.toString());
+    };
+    public static get debugEn(): boolean {
+        if (!ScrollmapWithZoom._debugEnViaHash) {
+            var en = appLocalStorage.getItem(ScrollmapWithZoom.localStorageGameKey + ".debugEn")
+            if (en !== null)
+                ScrollmapWithZoom._debugEn = (en === "true");
+        }
+        return ScrollmapWithZoom._debugEn;
+    };
     public static get debug(): Function {
-        return (ScrollmapWithZoom.debugEn == true || (appLocalStorage && appLocalStorage.getItem(ScrollmapWithZoom.localStorageGameKey + ".debugEn") === "true")) ? console.debug.bind(window.console) : () => {};
+        return ScrollmapWithZoom.debugEn ? console.debug.bind(window.console) : () => {};
     };
     version: String = 'version-x.x.x';
     private static count: number = 0;
@@ -2865,7 +2879,7 @@ class ScrollmapWithZoom {
 
         }
         if (typeof this._keysPressed.get(e.key).timer === "undefined") {
-            console.log("onKeyDown", e.key);
+            SWZ.debug("onKeyDown", e.key);
             this._keysPressed.get(e.key).timer = setTimeout(() => {
                 this._onKeyLongPress(e.key);
             }, 500);
@@ -2873,7 +2887,7 @@ class ScrollmapWithZoom {
     }
 
     protected _onKeyLongPress(key: string) {
-        console.log("onKeyLongPress");
+        SWZ.debug("onKeyLongPress");
         if (!this._keysPressed.get(key))
             return false;
         this._keysPressed.get(key).timer = null;
@@ -2925,7 +2939,7 @@ class ScrollmapWithZoom {
         setTimeout(() => { this.container_div.classList.remove("scrollmap_warning_arrowkeys"); }, 3000);
         if (!this._keysPressed.get(e.key))
             return;
-        console.log("onKeyUp", e.key);
+        SWZ.debug("onKeyUp", e.key);
         var timer = this._keysPressed.get(e.key).timer;
         this._keysPressed.delete(e.key);
         if (!timer) {
@@ -3451,6 +3465,9 @@ namespace ScrollmapWithZoom {
         Top = 'scrollmap_btns_top', Bottom = 'scrollmap_btns_bottom', Left = 'scrollmap_btns_left', Right = 'scrollmap_btns_right', Center = 'scrollmap_btns_center'
     }
 }
+
+// if (window.location.hash.substring(1).split(',').includes('debugSWZ'))
+//     ScrollmapWithZoom.debugEn = true;
 var SWZ = ScrollmapWithZoom;
 
 dojo.require("dojo.has");

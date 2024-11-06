@@ -36,7 +36,10 @@ declare class AppStorage {
 }
 declare let appLocalStorage: AppStorage;
 declare class ScrollmapWithZoom {
-    static debugEn: boolean;
+    private static _debugEnViaHash;
+    private static _debugEn;
+    static set debugEn(en: boolean);
+    static get debugEn(): boolean;
     static get debug(): Function;
     version: String;
     private static count;
