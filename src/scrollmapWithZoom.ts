@@ -254,6 +254,7 @@ namespace ScrollmapWithZoomNS {
         /** 
          * resizing properties
          */
+        public defaultHeight: number = 0;
         public set minHeight(value: number) {
             this._orig_minHeight = value;
             this._minHeight = value;
@@ -263,7 +264,6 @@ namespace ScrollmapWithZoomNS {
         public get minHeight(): number {
             return this._orig_minHeight;
         }
-
         incrHeightGlobalKey: string = null;
         incrHeightDelta: number = 100;
         bIncrHeightKeepInPos: boolean = true;
@@ -504,7 +504,6 @@ namespace ScrollmapWithZoomNS {
         // get LABEL_REDUCE_DISPLAY: string = _("Reduce"): string {
         //     return _("Reduce")`;
         // }
-        protected _defaultHeight: number = 0;
         protected _xPrev: number = null;
         protected _yPrev: number = null;
         protected _xPrevMid: number = null;
@@ -1198,7 +1197,12 @@ namespace ScrollmapWithZoomNS {
             this.setBShowMoveCursor();
 
             this.bIncrHeightGlobally = this._bIncrHeightGlobally;
-            this._defaultHeight = parseFloat(window.getComputedStyle(this.container_div).height);
+            if (!this.defaultHeight) {
+                this.defaultHeight = parseFloat(window.getComputedStyle(this.container_div).height);
+                if (!this.defaultHeight)
+                    this.defaultHeight = this.minHeight;
+            }
+            this.setDisplayHeight(this.defaultHeight);
             this.bEnableZooming = this._bEnableZooming;
             if (this.defaultZoom === null)
                 this.defaultZoom = this.zoom;
@@ -3292,7 +3296,7 @@ namespace ScrollmapWithZoomNS {
             if (this.bAdaptHeightAuto)
                 this._adaptHeight();
             else
-                this.setDisplayHeight(this._defaultHeight);
+                this.setDisplayHeight(this.defaultHeight);
             this._disableButton(this._btnResetHeight);
             this._enableButton(this._btnMaximizeHeight);
         }

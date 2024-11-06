@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.36.5 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.36.6 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -151,9 +151,6 @@ var ScrollmapWithZoomNS;
             }
             this._bRevertArrowsScroll = value;
         }
-        /**
-         * resizing properties
-         */
         set minHeight(value) {
             this._orig_minHeight = value;
             this._minHeight = value;
@@ -253,7 +250,7 @@ var ScrollmapWithZoomNS;
             this._longPressScroll = value;
         }
         constructor() {
-            this.version = '1.36.5';
+            this.version = '1.36.6';
             /**
              * board properties
              */
@@ -302,6 +299,10 @@ var ScrollmapWithZoomNS;
             };
             this.centerCssQuery = null;
             this.centerCalcUseAlsoOnsurface = true;
+            /**
+             * resizing properties
+             */
+            this.defaultHeight = 0;
             this.incrHeightGlobalKey = null;
             this.incrHeightDelta = 100;
             this.bIncrHeightKeepInPos = true;
@@ -442,7 +443,6 @@ var ScrollmapWithZoomNS;
             // get LABEL_REDUCE_DISPLAY: string = _("Reduce"): string {
             //     return _("Reduce")`;
             // }
-            this._defaultHeight = 0;
             this._xPrev = null;
             this._yPrev = null;
             this._xPrevMid = null;
@@ -1111,7 +1111,12 @@ var ScrollmapWithZoomNS;
             this._RepositionButtonsDiv();
             this.setBShowMoveCursor();
             this.bIncrHeightGlobally = this._bIncrHeightGlobally;
-            this._defaultHeight = parseFloat(window.getComputedStyle(this.container_div).height);
+            if (!this.defaultHeight) {
+                this.defaultHeight = parseFloat(window.getComputedStyle(this.container_div).height);
+                if (!this.defaultHeight)
+                    this.defaultHeight = this.minHeight;
+            }
+            this.setDisplayHeight(this.defaultHeight);
             this.bEnableZooming = this._bEnableZooming;
             if (this.defaultZoom === null)
                 this.defaultZoom = this.zoom;
@@ -3021,7 +3026,7 @@ var ScrollmapWithZoomNS;
             if (this.bAdaptHeightAuto)
                 this._adaptHeight();
             else
-                this.setDisplayHeight(this._defaultHeight);
+                this.setDisplayHeight(this.defaultHeight);
             this._disableButton(this._btnResetHeight);
             this._enableButton(this._btnMaximizeHeight);
         }
