@@ -152,7 +152,7 @@ namespace ScrollmapWithZoomNS {
             debugSWZ.en = en;
         };
         public static get debug(): Function {
-            if (!debugSWZ.localStorageKey)
+            if (!debugSWZ.localStorageKey && gameui)
                 debugSWZ.localStorageKey = 'scrollmap_settings_' + gameui.game_id + '.debugEn';
             /*if (!debugSWZ.localStorageKey)
                 return () => {};*/

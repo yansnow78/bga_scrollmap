@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.36.4 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.36.5 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -117,7 +117,7 @@ var ScrollmapWithZoomNS;
             debugSWZ.en = en;
         };
         static get debug() {
-            if (!debugSWZ.localStorageKey)
+            if (!debugSWZ.localStorageKey && gameui)
                 debugSWZ.localStorageKey = 'scrollmap_settings_' + gameui.game_id + '.debugEn';
             /*if (!debugSWZ.localStorageKey)
                 return () => {};*/
@@ -253,7 +253,7 @@ var ScrollmapWithZoomNS;
             this._longPressScroll = value;
         }
         constructor() {
-            this.version = '1.36.4';
+            this.version = '1.36.5';
             /**
              * board properties
              */
