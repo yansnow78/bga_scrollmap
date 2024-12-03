@@ -19,7 +19,9 @@ Improved version of scrollmap used in multiple bga game
 - allow tooltips on any scrollmap layer
 - ...
 
-# usage
+# usage in bga
+you need to copy to moudles/js or modules all the js files (currently core_patch_slideto.js, scrollmapWithZoom.js et long-press-event.js) from the main directory
+
 in tpl file:
 ```html
 <div id="map_container" class="scrollmap_container">
@@ -44,6 +46,16 @@ in your js file
 ```
 
 ```javascript
+define([
+    "dojo","dojo/_base/declare",
+    "ebg/core/gamegui",
+    "ebg/counter",
+        "./modules/scrollmapWithZoom",
+],
+function (dojo, declare) {
+    return declare("bgagame.rallymangt", ebg.core.gamegui, {
+```
+```javascript
 setup: function (gamedatas) {
   ...
   this.scrollmap = new ebg.scrollmapWithZoom(); // Scrollable area
@@ -61,7 +73,17 @@ setup: function (gamedatas) {
   dojo.place(dojo.eval("jstpl_map_scrollable"), this.scrollmap.scrollable_div);
 }
 ```
- alternative
+alternative
+```javascript
+setup: function (gamedatas) {
+  ...
+  this.scrollmap = new ebg.scrollmapWithZoom(); // Scrollable area
+  this.scrollmap.zoom = 0.8;
+
+  this.scrollmap.create( $('map_container'),$('map_scrollable'),$('map_surface'),$('map_scrollable_oversurface') );
+
+}
+```
 ```javascript
 setup: function (gamedatas) {
   ...
