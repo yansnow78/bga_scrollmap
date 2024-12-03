@@ -23,10 +23,26 @@ Improved version of scrollmap used in multiple bga game
 you need to copy to moudles/js or modules all the js files (currently core_patch_slideto.js, scrollmapWithZoom.js et long-press-event.js) from the main directory
 
 in tpl file:
+alternative (if you want use createCompletely merhod of ScrollmapWithZoom)
 ```html
 <div id="map_container" class="scrollmap_container">
 </div>
 ```
+alternative (if you want use create merhod of ScrollmapWithZoom)
+```html
+<div id="map_container">
+	<div id="map_scrollable">
+		...
+	</div>
+    <div id="map_surface">
+      ...
+    </div>
+    <div id="map_scrollable_oversurface">
+      ...
+    </div>
+</div>';
+```
+if you have existing button from the original scrollmap remove all of them preferably and remove code handling it
 
 in your css file
 ```css
@@ -36,6 +52,7 @@ in your css file
   height: 600px;
 }
 ```
+if you have existing button from the original scrollmap remove all of them preferablyfrom css
 
 in your js file
 ```
@@ -45,12 +62,25 @@ in your js file
 	minHeight, incrHeightDelta, incrHeightKeepInPos, bAdaptHeightAuto, adaptHeightCorr
 ```
 
+loading of the module
 ```javascript
 define([
     ...
         "./modules/scrollmapWithZoom",
 ],
 ```
+creation of the module via create
+```javascript
+setup: function (gamedatas) {
+  ...
+  this.scrollmap = new ebg.scrollmapWithZoom(); // Scrollable area
+  this.scrollmap.zoom = 0.8;
+
+  this.scrollmap.create( $('map_container'),$('map_scrollable'),$('map_surface'),$('map_scrollable_oversurface') );
+
+}
+```
+alternatively (use if you just defined an empty div in your tpl to welcome the scrollmap )
 ```javascript
 setup: function (gamedatas) {
   ...
@@ -69,17 +99,7 @@ setup: function (gamedatas) {
   dojo.place(dojo.eval("jstpl_map_scrollable"), this.scrollmap.scrollable_div);
 }
 ```
-alternative
-```javascript
-setup: function (gamedatas) {
-  ...
-  this.scrollmap = new ebg.scrollmapWithZoom(); // Scrollable area
-  this.scrollmap.zoom = 0.8;
-
-  this.scrollmap.create( $('map_container'),$('map_scrollable'),$('map_surface'),$('map_scrollable_oversurface') );
-
-}
-```
+alternative (use if you just defined an empty div in your tpl to welcome the scrollmap )
 ```javascript
 setup: function (gamedatas) {
   ...
