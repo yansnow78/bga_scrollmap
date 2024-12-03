@@ -47,13 +47,9 @@ in your js file
 
 ```javascript
 define([
-    "dojo","dojo/_base/declare",
-    "ebg/core/gamegui",
-    "ebg/counter",
+    ...
         "./modules/scrollmapWithZoom",
 ],
-function (dojo, declare) {
-    return declare("bgagame.rallymangt", ebg.core.gamegui, {
 ```
 ```javascript
 setup: function (gamedatas) {
