@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.36.6 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.36.7 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -250,7 +250,7 @@ var ScrollmapWithZoomNS;
             this._longPressScroll = value;
         }
         constructor() {
-            this.version = '1.36.6';
+            this.version = '1.36.7';
             /**
              * board properties
              */

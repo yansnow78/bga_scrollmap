@@ -415,13 +415,15 @@ define([
                 */
 
                 var anim = this.slideToObject(obj, to, duration, delay);
-                var destroyOnEnd = function (node) {
-                    debug("destroying");
-                    debug(node);
-                    dojo.destroy(node);
-                };
-                dojo.connect(anim, 'onEnd', destroyOnEnd);
-                anim.play();
+                anim.promise = new Promise((resolve) => {
+                    dojo.connect(anim, 'onEnd', () => {
+                        debug("destroying");
+                        debug(node);
+                        dojo.destroy(obj);
+                        resolve();
+                    });
+                    anim.play();
+                });
                 return anim;
             },
 
