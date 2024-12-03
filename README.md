@@ -22,7 +22,7 @@ Improved version of scrollmap used in multiple bga game
 # usage in bga
 you need to copy to moudles/js or modules all the js files (currently core_patch_slideto.js, scrollmapWithZoom.js et long-press-event.js) from the main directory
 
-in tpl file:
+## in tpl file:
 alternative (if you want use createCompletely merhod of ScrollmapWithZoom)
 ```html
 <div id="map_container" class="scrollmap_container">
@@ -44,7 +44,7 @@ alternative (if you want use create merhod of ScrollmapWithZoom)
 ```
 if you have existing button from the original scrollmap remove all of them preferably and remove code handling it
 
-in your css file
+## in your css file
 ```css
 #map_container {
   position: relative;
@@ -54,7 +54,7 @@ in your css file
 ```
 if you have existing button from the original scrollmap remove all of them preferablyfrom css
 
-in your js file
+## in your js file
 ```
   settings you can change :
 	zoom, maxZoom, minZoom, defaultZoom, zoomPinchDelta, zoomWheelDelta, zoomDelta, bEnableZooming, zoomingOptions, zoomChangeHandler
