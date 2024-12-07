@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.36.7 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.37.0 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -250,7 +250,7 @@ var ScrollmapWithZoomNS;
             this._longPressScroll = value;
         }
         constructor() {
-            this.version = '1.36.7';
+            this.version = '1.37.0';
             /**
              * board properties
              */
@@ -404,7 +404,7 @@ var ScrollmapWithZoomNS;
                 this._onResize();
             }) : null;
             this._resizeHeadersObserver = (typeof ResizeObserver !== 'undefined') ? new ResizeObserver(entries => {
-                this._adaptHeight();
+                this.adaptHeight();
             }) : null;
             this._onpointermove_handler = this._onPointerMove.bind(this);
             this._onpointerup_handler = this._onPointerUp.bind(this);
@@ -1139,9 +1139,9 @@ var ScrollmapWithZoomNS;
             });
             document.addEventListener('visibilitychange', this._onvisibility_changehandler.bind(this));
             window.addEventListener('load', (e) => {
-                SWZ.debug("document loaded"); /*this._adaptHeight();*/
+                SWZ.debug("document loaded"); /*this.adaptHeight();*/
             });
-            dojo.connect(gameui, "onScreenWidthChange", this, dojo.hitch(this, '_adaptHeight'));
+            dojo.connect(gameui, "onScreenWidthChange", this, dojo.hitch(this, 'adaptHeight'));
             dojo.require("dojo.aspect");
             dojo.aspect.after(ScrollmapWithZoom, "updateHeight", (new_height, incrHeightGlobalKey) => {
                 if (this.incrHeightGlobalKey == incrHeightGlobalKey)
@@ -1427,7 +1427,7 @@ var ScrollmapWithZoomNS;
                 addHeightNeeded = true;
             }
             if (addHeightNeeded)
-                this._adaptHeight();
+                this.adaptHeight();
             if (this == ScrollmapWithZoom.instances.values().next().value)
                 ScrollmapWithZoom._saveGameSettings();
             // ScrollmapWithZoom._formDialog.close();
@@ -1439,11 +1439,11 @@ var ScrollmapWithZoomNS;
             ScrollmapWithZoom._formDialog.hide();
             return false;
         }
-        _adaptHeight() {
+        adaptHeight() {
             window.requestAnimationFrame(() => {
                 this._onResize();
                 // your code
-                SWZ.debug("_adaptHeight");
+                SWZ.debug("adaptHeight");
                 this._titleHeight = gameui.getBoundingClientRectIgnoreZoom($('page-title')).height;
                 if (!this.bAdaptHeightAuto)
                     return;
@@ -1527,7 +1527,7 @@ var ScrollmapWithZoomNS;
                 if (pageZoom == 1) {
                     var interfaceFactor = this._getInterfaceFactor();
                     if (interfaceFactor < 1) {
-                        SWZ.debug("_adaptHeight use interfaceFactor ", interfaceFactor);
+                        SWZ.debug("adaptHeight use interfaceFactor ", interfaceFactor);
                         pageZoom = interfaceFactor;
                     }
                 }
@@ -1625,7 +1625,7 @@ var ScrollmapWithZoomNS;
                         adaptHeightNeeded = true;
                     }
                     if (adaptHeightNeeded)
-                        this._adaptHeight();
+                        this.adaptHeight();
                 }
             }
             return scrolled;
@@ -3024,7 +3024,7 @@ var ScrollmapWithZoomNS;
             this._bMaxHeight = false;
             this._bHeightChanged = false;
             if (this.bAdaptHeightAuto)
-                this._adaptHeight();
+                this.adaptHeight();
             else
                 this.setDisplayHeight(this.defaultHeight);
             this._disableButton(this._btnResetHeight);

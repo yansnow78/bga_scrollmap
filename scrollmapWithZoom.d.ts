@@ -288,7 +288,7 @@ declare namespace ScrollmapWithZoomNS {
         protected _showForm(): void;
         protected _submitForm(): boolean;
         protected _closeForm(): boolean;
-        protected _adaptHeight(): void;
+        protected adaptHeight(): void;
         protected _onResize(): void;
         protected _clearOldSettings(): void;
         protected _loadSettings(): boolean;
