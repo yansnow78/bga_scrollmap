@@ -319,7 +319,7 @@ declare namespace ScrollmapWithZoomNS {
         scrolltoAndZoom(x: number, y: number, zoom: number, duration?: number, delay?: number): void;
         scrolltoObjectAndZoom(obj: HTMLElement | string, zoom: number, duration?: number, delay?: number): void;
         scrolltoObject(obj: HTMLElement | string, duration?: number, delay?: number): void;
-        protected _scrollto(x: number, y: number, duration?: number, delay?: number): void;
+        protected _scrollto(x: number, y: number, duration?: number, delay?: number, setStartPositionIfNeeded?: boolean): void;
         zoomToFitAndScrollToCenter(custom_css_query?: string, duration?: number, delay?: number, x_extra_l?: number, x_extra_r?: number, y_extra_u?: number, y_extra_d?: number, cover_arrows?: boolean): {
             x: number;
             y: number;

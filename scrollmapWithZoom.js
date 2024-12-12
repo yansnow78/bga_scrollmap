@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.37.1 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.37.2 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -250,7 +250,7 @@ var ScrollmapWithZoomNS;
             this._longPressScroll = value;
         }
         constructor() {
-            this.version = '1.37.1';
+            this.version = '1.37.2';
             /**
              * board properties
              */
@@ -1511,7 +1511,7 @@ var ScrollmapWithZoomNS;
                         if (this.startPosition)
                             this.scrollto(-this.startPosition.x, -this.startPosition.y, 0, 0);
                         else
-                            this.scrollto(0, 0, 0, 0);
+                            this.scrollToCenter(null, 0, 0);
                     }
                     if (!this._setupDone)
                         setTimeout(() => {
@@ -2054,12 +2054,12 @@ var ScrollmapWithZoomNS;
         // Scroll the board to make it centered on given position
         scrollto(x, y, duration, delay) {
             // SWZ.debug("scroll", this.board_x, dx, this.board_y, dy);
-            this._scrollto(x * this.zoom, y * this.zoom, duration, delay);
+            this._scrollto(x * this.zoom, y * this.zoom, duration, delay, true);
         }
         scrolltoAndZoom(x, y, zoom, duration, delay) {
             // SWZ.debug("scroll", this.board_x, dx, this.board_y, dy);
             this.setMapZoom(zoom);
-            this._scrollto(x * zoom, y * zoom, duration, delay);
+            this._scrollto(x * zoom, y * zoom, duration, delay, true);
         }
         scrolltoObjectAndZoom(obj, zoom, duration, delay) {
             this.setMapZoom(zoom);
@@ -2077,13 +2077,13 @@ var ScrollmapWithZoomNS;
                 x: objPos.left + (objPos.width / 2) - mapPos.left,
                 y: objPos.top + (objPos.height / 2) - mapPos.top
             };
-            this._scrollto(-objLocation.x, -objLocation.y, duration, delay);
+            this._scrollto(-objLocation.x, -objLocation.y, duration, delay, true);
         }
         // Scroll the board to make it centered on given position
-        _scrollto(x, y, duration, delay) {
+        _scrollto(x, y, duration, delay, setStartPositionIfNeeded) {
             if (this._setupDone)
                 this._scrolled = true;
-            else
+            else if (setStartPositionIfNeeded)
                 this.startPosition = { x: -x / this.zoom, y: -y / this.zoom };
             // SWZ.debug("scrollto", this.board_x, this.board_y);
             if (duration == null) {

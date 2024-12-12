@@ -1621,7 +1621,7 @@ namespace ScrollmapWithZoomNS {
                         if (this.startPosition)
                             this.scrollto(-this.startPosition.x, -this.startPosition.y, 0, 0);
                         else
-                            this.scrollto(0, 0, 0, 0);
+                            this.scrollToCenter(null, 0, 0);
                     }
                     if (!this._setupDone)
                         setTimeout(() => {
@@ -2205,13 +2205,13 @@ namespace ScrollmapWithZoomNS {
         // Scroll the board to make it centered on given position
         scrollto(x: number, y: number, duration ? : number, delay ? : number) {
             // SWZ.debug("scroll", this.board_x, dx, this.board_y, dy);
-            this._scrollto(x * this.zoom, y * this.zoom, duration, delay);
+            this._scrollto(x * this.zoom, y * this.zoom, duration, delay, true);
         }
 
         scrolltoAndZoom(x: number, y: number, zoom: number, duration ? : number, delay ? : number) {
             // SWZ.debug("scroll", this.board_x, dx, this.board_y, dy);
             this.setMapZoom(zoom);
-            this._scrollto(x * zoom, y * zoom, duration, delay);
+            this._scrollto(x * zoom, y * zoom, duration, delay, true);
         }
 
         scrolltoObjectAndZoom(obj: HTMLElement | string, zoom: number, duration ? : number, delay ? : number) {
@@ -2233,14 +2233,14 @@ namespace ScrollmapWithZoomNS {
                 y: objPos.top + (objPos.height / 2) - mapPos.top
             };
 
-            this._scrollto(-objLocation.x, -objLocation.y, duration, delay);
+            this._scrollto(-objLocation.x, -objLocation.y, duration, delay, true);
         }
 
         // Scroll the board to make it centered on given position
-        protected _scrollto(x: number, y: number, duration ? : number, delay ? : number) {
+        protected _scrollto(x: number, y: number, duration ? : number, delay ? : number, setStartPositionIfNeeded ? : boolean) {
             if (this._setupDone)
                 this._scrolled = true;
-            else
+            else if (setStartPositionIfNeeded)
                 this.startPosition = { x: -x / this.zoom, y: -y / this.zoom };
             // SWZ.debug("scrollto", this.board_x, this.board_y);
             if (duration == null) {
