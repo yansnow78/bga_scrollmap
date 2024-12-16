@@ -123,11 +123,9 @@ define([
                 return matrix;
             },
 
-            _calcNewLocation: function (mobile_obj, tgt, target_matrix, target_x, target_y, bRelPos, bFromCenter, bToCenter) {
+            _calcNewLocation: function (mobile_obj, tgt, targetZoomCorr, target_matrix, target_x, target_y, bRelPos, bFromCenter, bToCenter) {
                 if (typeof mobile_obj == 'string')
                     mobile_obj = $(mobile_obj);
-                if( typeof target_obj == 'string' )
-                    target_obj = $( target_obj ); 
                 var src = this.getBoundingClientRectIncludeZoom(mobile_obj);
                 var cstyle = window.getComputedStyle(mobile_obj)
                 var zoomCorr = this.calcCurrentCSSZoom(mobile_obj, cstyle);
@@ -157,7 +155,6 @@ define([
                     if (matrix !== null)
                         delta_x = matrix.transformPoint(new DOMPoint(0, -mobile_obj.offsetHeight)).x;
 
-                    var targetZoomCorr = this.calcCurrentCSSZoom(target_obj);
                     vector_abs.x += (target_v.x - delta_x) * targetZoomCorr;
                     vector_abs.y += target_v.y * targetZoomCorr;
                     if (bFromCenter) {
@@ -194,9 +191,11 @@ define([
                 if( typeof target_obj == 'string' )
                     target_obj = $( target_obj ); 
                 var tgt = (target_obj !== null) ? this.getBoundingClientRectIncludeZoom(target_obj) : new DOMPoint(0, 0);
-                if (target_x != null && bRelPos)
+                if (target_x != null && bRelPos){
                     var target_matrix = this._calcTransform(target_obj);
-                return this._calcNewLocation(mobile_obj, tgt, target_matrix, target_x, target_y, bRelPos, bFromCenter, bToCenter);
+                    var targetZoomCorr = this.calcCurrentCSSZoom(target_obj);
+                }
+                return this._calcNewLocation(mobile_obj, tgt, targetZoomCorr, target_matrix, target_x, target_y, bRelPos, bFromCenter, bToCenter);
             },
 
             _placeOnObject: function (mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter, bToCenter) {
@@ -419,7 +418,7 @@ define([
                 var box = dojo.marginBox(mobile);
                 var cbox = dojo.contentBox(mobile);
 
-                var [left, top] = this._calcNewLocation(mobile, tgt, null, null, null, false, false, false);
+                var [left, top] = this._calcNewLocation(mobile, tgt, 1, null, null, null, false, false, false);
                 mobile.style.position = "absolute";
                 mobile.style.left = left + "px";
                 mobile.style.top = top + "px";
