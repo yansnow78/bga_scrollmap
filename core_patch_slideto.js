@@ -59,11 +59,13 @@ define([
                 return rect;
             },
 
-            calcCurrentCSSZoom: function(node){
+            calcCurrentCSSZoom: function(node, cstyle){
                 if (typeof node.currentCSSZoom !== "undefined")
                     return node.currentCSSZoom;
                 let zoom = 1.0;
-                var zoomStr = window.getComputedStyle(node).getPropertyValue("zoom");
+                if (!cstyle)
+                    cstyle = window.getComputedStyle(node);
+                var zoomStr = cstyle.getPropertyValue("zoom");
 
                 if (zoomStr != "") {
                     zoom = parseFloat(zoomStr);
@@ -74,8 +76,10 @@ define([
                     return zoom;
             },
 
-            calcScale: function (element) {
-                var transform = window.getComputedStyle(element).transform;
+            calcScale: function (element, cstyle) {
+                if (!cstyle)
+                    cstyle = window.getComputedStyle(element);
+                var transform = cstyle.transform;
                 var scale = 1;
                 if (transform !== "none") {
                     var matrix = new DOMMatrix(transform);
@@ -95,15 +99,17 @@ define([
             //     return matrix ? Math.hypot(matrix.m11, matrix.m12) : 1;
             // },
 
-            _calcTransform: function (element, clearTranslation = true) {
-                var transform = window.getComputedStyle(element).transform;
+            _calcTransform: function (element, cstyle = null, clearTranslation = true) {
+                if (!cstyle)
+                    cstyle = window.getComputedStyle(element);
+                var transform = cstyle.transform;
                 var matrix = null;
                 if (transform !== "none") {
                     matrix = new DOMMatrix(transform);
                 }
                 var parent = element.parentElement;
                 if (parent !== null) {
-                    var matrixParent = this._calcTransform(parent, false);
+                    var matrixParent = this._calcTransform(parent, null, false);
                     if (matrix === null)
                         matrix = matrixParent;
                     else if (matrixParent !== null)
@@ -117,32 +123,32 @@ define([
                 return matrix;
             },
 
-            calcNewLocation: function (mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter, bToCenter) {
+            _calcNewLocation: function (mobile_obj, tgt, target_matrix, target_x, target_y, bRelPos, bFromCenter, bToCenter) {
                 if (typeof mobile_obj == 'string')
                     mobile_obj = $(mobile_obj);
                 if( typeof target_obj == 'string' )
                     target_obj = $( target_obj ); 
                 var src = this.getBoundingClientRectIncludeZoom(mobile_obj);
-                var zoomCorr = this.calcCurrentCSSZoom(mobile_obj);
-
+                var cstyle = window.getComputedStyle(mobile_obj)
+                var zoomCorr = this.calcCurrentCSSZoom(mobile_obj, cstyle);
+                var matrix = this._calcTransform(mobile_obj.parentNode, cstyle);
                 // Current mobile object relative coordinates
-                var left = dojo.style(mobile_obj, 'left');
-                var top = dojo.style(mobile_obj, 'top');
-
-                var tgt = (target_obj !== null) ? this.getBoundingClientRectIncludeZoom(target_obj) : new DOMPoint(0, 0);
+                var left = 0;
+                var top = 0;
+                if (cstyle.position != "static"){
+                    left = toint(cstyle.left);
+                    top = toint(cstyle.top);
+                }
                 var vector_abs = new DOMPoint(
                     tgt.x - src.x,
                     tgt.y - src.y
                 );
-
-                var matrix = this._calcTransform(mobile_obj.parentNode);
 
                 if (target_x == null) {
                     vector_abs.x += (tgt.width - src.width) / 2;
                     vector_abs.y += (tgt.height - src.height) / 2;
                 } else if (bRelPos) {
                     debug("relative positioning");
-                    var target_matrix = this._calcTransform(target_obj);
                     var target_v = new DOMPoint(toint(target_x), toint(target_y));
                     if (target_matrix !== null) {
                         target_v = target_matrix.transformPoint(target_v);
@@ -180,8 +186,17 @@ define([
                 top += vector.y;
 
                 return [left, top, vector.x, vector.y];
+            },
 
-
+            calcNewLocation: function (mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter, bToCenter) {
+                if (typeof mobile_obj == 'string')
+                    mobile_obj = $(mobile_obj);
+                if( typeof target_obj == 'string' )
+                    target_obj = $( target_obj ); 
+                var tgt = (target_obj !== null) ? this.getBoundingClientRectIncludeZoom(target_obj) : new DOMPoint(0, 0);
+                if (target_x != null && bRelPos)
+                    var target_matrix = this._calcTransform(target_obj);
+                return this._calcNewLocation(mobile_obj, tgt, target_matrix, target_x, target_y, bRelPos, bFromCenter, bToCenter);
             },
 
             _placeOnObject: function (mobile_obj, target_obj, target_x, target_y, bRelPos, bFromCenter, bToCenter) {
@@ -388,6 +403,30 @@ define([
                 this.enable3dIfNeeded(disabled3d);
 
                 return my_new_mobile;
+            },
+
+            attachToNewParentNoDestroy: function (mobile_in, new_parent_in, relation, place_position) {
+                const mobile = $(mobile_in);
+                const new_parent = $(new_parent_in);
+    
+                var tgt = this.getBoundingClientRectIncludeZoom(mobile);
+                //if (place_position)
+                 //   mobile.style.position = place_position;
+                mobile.style.position = "absolute";
+                dojo.place(mobile, new_parent, relation);
+                mobile.offsetTop;//force re-flow
+
+                var box = dojo.marginBox(mobile);
+                var cbox = dojo.contentBox(mobile);
+
+                var [left, top] = this._calcNewLocation(mobile, tgt, null, null, null, false, false, false);
+                mobile.style.position = "absolute";
+                mobile.style.left = left + "px";
+                mobile.style.top = top + "px";
+                box.l += box.w - cbox.w;
+                box.t += box.h - cbox.h;
+                mobile.offsetTop;//force re-flow
+                return box;
             },
 
             // Create a temporary object and slide it from a point to another one, then destroy it
