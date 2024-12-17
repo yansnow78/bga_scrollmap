@@ -129,7 +129,7 @@ define([
                 var src = this.getBoundingClientRectIncludeZoom(mobile_obj);
                 var cstyle = window.getComputedStyle(mobile_obj)
                 var zoomCorr = this.calcCurrentCSSZoom(mobile_obj, cstyle);
-                var matrix = this._calcTransform(mobile_obj.parentNode, cstyle);
+                var matrix = this._calcTransform(mobile_obj.parentNode);
                 // Current mobile object relative coordinates
                 var left = 0;
                 var top = 0;
