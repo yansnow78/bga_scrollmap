@@ -123,7 +123,11 @@ define([
                 return matrix;
             },
 
-            _calcNewLocation: function (mobile_obj, tgt, targetZoomCorr, target_matrix, target_x, target_y, bRelPos, bMobileObjectCenter, bToTargetCenter) {
+<<<<<<< Updated upstream
+            _calcNewLocation: function (mobile_obj, tgt, targetZoomCorr, target_matrix, target_x, target_y, bRelPos, bFromCenter, bToCenter) {
+=======
+            _calcNewLocation: function (mobile_obj, tgt, target_matrix, target_x, target_y, bRelPos, bMobileObjectCenter, bToTargetCenter) {
+>>>>>>> Stashed changes
                 if (typeof mobile_obj == 'string')
                     mobile_obj = $(mobile_obj);
                 var src = this.getBoundingClientRectIncludeZoom(mobile_obj);
@@ -137,9 +141,14 @@ define([
                     left = toint(cstyle.left);
                     top = toint(cstyle.top);
                 }
+                var vector_abs = new DOMPoint(
+                    tgt.x - src.x,
+                    tgt.y - src.y
+                );
 
                 if (target_x == null) {
-                    ;
+                    vector_abs.x += (tgt.width - src.width) / 2;
+                    vector_abs.y += (tgt.height - src.height) / 2;
                 } else if (bRelPos) {
                     debug("relative positioning");
                     var target_v = new DOMPoint(toint(target_x), toint(target_y));
@@ -150,25 +159,23 @@ define([
                     if (matrix !== null)
                         delta_x = matrix.transformPoint(new DOMPoint(0, -mobile_obj.offsetHeight)).x;
 
-                    tgt.x += (target_v.x - delta_x) * targetZoomCorr;
-                    tgt.y += target_v.y * targetZoomCorr;
-
+                    vector_abs.x += (target_v.x - delta_x) * targetZoomCorr;
+                    vector_abs.y += target_v.y * targetZoomCorr;
+                    if (bMobileObjectCenter) {
+                        vector_abs.x -= src.width / 2;
+                        vector_abs.y -= src.height / 2;
+                    }
+                    if (bToTargetCenter) {
+                        vector_abs.x += tgt.width / 2;
+                        vector_abs.y += tgt.height / 2;
+                    }
                 } else {
-                    tgt.x += toint(target_x);
-                    tgt.y += toint(target_y);
-                }
-
-                var vector_abs = new DOMPoint(
-                    tgt.x - src.x,
-                    tgt.y - src.y
-                );
-                if (bMobileObjectCenter) {
-                    vector_abs.x -= src.width / 2;
-                    vector_abs.y -= src.height / 2;
-                }
-                if (bToTargetCenter) {
-                    vector_abs.x += tgt.width / 2;
-                    vector_abs.y += tgt.height / 2;
+                    vector_abs.x += toint(target_x);
+                    vector_abs.y += toint(target_y);
+                    if (bMobileObjectCenter) {
+                        vector_abs.x -= src.width / 2;
+                        vector_abs.y -= src.height / 2;
+                    }
                 }
 
                 var vector = vector_abs;
@@ -190,9 +197,13 @@ define([
                 var tgt = (target_obj !== null) ? this.getBoundingClientRectIncludeZoom(target_obj) : new DOMPoint(0, 0);
                 if (target_x != null && bRelPos){
                     var target_matrix = this._calcTransform(target_obj);
+<<<<<<< Updated upstream
                     var targetZoomCorr = this.calcCurrentCSSZoom(target_obj);
                 }
-                return this._calcNewLocation(mobile_obj, tgt, targetZoomCorr, target_matrix, target_x, target_y, bRelPos, bMobileObjectCenter, bToTargetCenter);
+                return this._calcNewLocation(mobile_obj, tgt, targetZoomCorr, target_matrix, target_x, target_y, bRelPos, bFromCenter, bToCenter);
+=======
+                return this._calcNewLocation(mobile_obj, tgt, target_matrix, target_x, target_y, bRelPos, bMobileObjectCenter, bToTargetCenter);
+>>>>>>> Stashed changes
             },
 
             _placeOnObject: function (mobile_obj, target_obj, target_x, target_y, bRelPos, bMobileObjectCenter, bToTargetCenter) {
@@ -221,18 +232,18 @@ define([
             // Note: if it does not work check that:
             //  1°) mobile_obj has a position:absolute or position:relative
             //  2°) a fixed mobile_obj parent has a position absolute or relative
-            placeOnObject: function (mobile_obj, target_obj, bAlignCenters = true) {
-                this._placeOnObject(mobile_obj, target_obj, null, null, false, bAlignCenters, bAlignCenters);
+            placeOnObject: function (mobile_obj, target_obj, bMobileObjectCenter = true, bToTargetCenter = true) {
+                this._placeOnObject(mobile_obj, target_obj, null, null, false, bMobileObjectCenter, bToTargetCenter);
             },
 
             // Place an object on another one with a delta
             // Note: if it does not work check that:
             //  1°) mobile_obj has a position:absolute or position:relative
             //  2°) a fixed mobile_obj parent has a position absolute or relative
-            placeOnObjectPos: function (mobile_obj, target_obj, target_x, target_y, bRelPos, bAlignCenters = true) {
+            placeOnObjectPos: function (mobile_obj, target_obj, target_x, target_y, bRelPos, bMobileObjectCenter = true, bToTargetCenter = true) {
                 if (typeof bRelPos == 'undefined')
                     bRelPos = this.bUseRelPosForObjPos;
-                this._placeOnObject(mobile_obj, target_obj, target_x, target_y, bRelPos, bAlignCenters, bAlignCenters);
+                this._placeOnObject(mobile_obj, target_obj, target_x, target_y, bRelPos, bMobileObjectCenter, bToTargetCenter);
             },
 
             _slideToPos: function (mobile_obj, top, left, duration, disabled3d) {
@@ -303,13 +314,13 @@ define([
             },
 
             // Return an animation that is moving (slide) a DOM object over another one
-            slideToObject: function (mobile_obj, target_obj, duration, delay, bAlignCenters) {
-                return this._slideToObject(mobile_obj, target_obj, null, null, false, duration, delay, bAlignCenters, bAlignCenters);
+            slideToObject: function (mobile_obj, target_obj, duration, delay, bMobileObjectCenter, bToTargetCenter) {
+                return this._slideToObject(mobile_obj, target_obj, null, null, false, duration, delay, bMobileObjectCenter, bToTargetCenter);
             },
 
             // Return an animation that is moving (slide) a DOM object over another one at the given coordinates
-            slideToObjectPos: function (mobile_obj, target_obj, target_x, target_y, duration, delay, bAlignCenters) {
-                return this._slideToObject(mobile_obj, target_obj, target_x, target_y, this.bUseRelPosForObjPos, duration, delay, bAlignCenters, bAlignCenters);
+            slideToObjectPos: function (mobile_obj, target_obj, target_x, target_y, duration, delay, bMobileObjectCenter, bToTargetCenter) {
+                return this._slideToObject(mobile_obj, target_obj, target_x, target_y, this.bUseRelPosForObjPos, duration, delay, bMobileObjectCenter, bToTargetCenter);
 
             },
 
