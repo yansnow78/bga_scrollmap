@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.38.0 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.39.0 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -250,7 +250,7 @@ var ScrollmapWithZoomNS;
             this._longPressScroll = value;
         }
         constructor() {
-            this.version = '1.38.0';
+            this.version = '1.39.0';
             /**
              * board properties
              */
@@ -1457,7 +1457,7 @@ var ScrollmapWithZoomNS;
                 var screen_height = document.documentElement.clientHeight ||
                     document.body.clientHeight || window.innerHeight;
                 var container_pos = gameui.getBoundingClientRectIncludeZoom(this.container_div);
-                var other_elements_height = this.adaptHeightCorr + container_pos.y + window.scrollY;
+                var other_elements_height = this.adaptHeightCorr * gameui.calcCurrentCSSZoom($('page-content')) + container_pos.y + window.scrollY;
                 if (!this.bAdaptHeightAutoCompensatePanelsHeight && dojo.hasClass('ebd-body', 'mobile_version')) {
                     var page_title = $("page-title");
                     var pageTitleCoord = gameui.getBoundingClientRectIncludeZoom(page_title);

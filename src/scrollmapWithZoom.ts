@@ -1562,7 +1562,7 @@ namespace ScrollmapWithZoomNS {
                 var screen_height = document.documentElement.clientHeight ||
                     document.body.clientHeight || window.innerHeight;
                 var container_pos = gameui.getBoundingClientRectIncludeZoom(this.container_div);
-                var other_elements_height = this.adaptHeightCorr + container_pos.y + window.scrollY;
+                var other_elements_height = this.adaptHeightCorr * gameui.calcCurrentCSSZoom($('page-content')) + container_pos.y + window.scrollY;
 
 
                 if (!this.bAdaptHeightAutoCompensatePanelsHeight && dojo.hasClass('ebd-body', 'mobile_version')) {
