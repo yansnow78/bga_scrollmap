@@ -1573,12 +1573,9 @@ namespace ScrollmapWithZoomNS {
                     other_elements_height += pageTitleCoord.height;
                 }
                 for (let i = 0; i < this.adaptHeightCorrDivs.length; i++) {
-                    let float = window.getComputedStyle(this.adaptHeightCorrDivs[i]).float;
-                    if (float != "left" && float != "right") {
-                        let brect = gameui.getBoundingClientRectIncludeZoom(this.adaptHeightCorrDivs[i]);
-                        if (brect.top + 5 >= container_pos.y + container_pos.height)
-                            other_elements_height += brect.height;
-                    }
+                    let brect = gameui.getBoundingClientRectIncludeZoom(this.adaptHeightCorrDivs[i]);
+                    if (brect.top + 5 >= container_pos.y + container_pos.height)
+                        other_elements_height += brect.height;
                 }
                 // var $log_history_status = $('log_history_status'); 
                 // if ($log_history_status)
