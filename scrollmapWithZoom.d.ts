@@ -21,6 +21,7 @@ type _optionsChangedT = {
     bShowMoveCursor?: boolean;
     bAutoCompensatePanelsHeight?: boolean;
     bAutoCompensateChatIcon?: boolean;
+    bUseOldTouchAndMouseEvent?: boolean;
 };
 interface Position {
     x: number;
@@ -77,6 +78,7 @@ declare namespace ScrollmapWithZoomNS {
         scrollingOptions: {
             bOneFingerScrolling: boolean;
             bShowMoveCursor: boolean;
+            bUseOldTouchAndMouseEvent: boolean;
         };
         bScrollDeltaAlignWithZoom: boolean;
         bRestoreScrollPosition: boolean;
@@ -218,6 +220,7 @@ declare namespace ScrollmapWithZoomNS {
         protected _enableTooltipsAndClick_handler: (this: HTMLElement, ev: MouseEvent) => any;
         protected _resizeObserver: ResizeObserver;
         protected _resizeHeadersObserver: ResizeObserver;
+        protected _onpointerdown_handler: (this: HTMLElement, ev: MouseEvent) => any;
         protected _onpointermove_handler: (this: HTMLElement, ev: MouseEvent) => any;
         protected _onpointerup_handler: (this: HTMLElement, ev: MouseEvent) => any;
         protected _onpointerup_handled: boolean;
@@ -310,6 +313,7 @@ declare namespace ScrollmapWithZoomNS {
         protected _getTouchesMiddle(e: TouchEvent): DOMPoint;
         protected _handleTouch(e: TouchEvent): void;
         protected _onPointerEnter(ev: PointerEvent): void;
+        protected _pointersInit(): void;
         protected _onPointerDown(ev: PointerEvent): void;
         protected _onPointerMove(ev: PointerEvent | TouchEvent | MouseEvent): void;
         protected _onPointerUp(ev: PointerEvent | TouchEvent | MouseEvent): void;

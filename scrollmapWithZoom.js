@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.40.0 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.41.0 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -250,7 +250,7 @@ var ScrollmapWithZoomNS;
             this._longPressScroll = value;
         }
         constructor() {
-            this.version = '1.40.0';
+            this.version = '1.41.0';
             /**
              * board properties
              */
@@ -286,7 +286,8 @@ var ScrollmapWithZoomNS;
             this.bEnableScrolling = true;
             this.scrollingOptions = {
                 bOneFingerScrolling: false,
-                bShowMoveCursor: true
+                bShowMoveCursor: true,
+                bUseOldTouchAndMouseEvent: false
             };
             this.bScrollDeltaAlignWithZoom = true;
             this.bRestoreScrollPosition = true;
@@ -406,6 +407,7 @@ var ScrollmapWithZoomNS;
             this._resizeHeadersObserver = (typeof ResizeObserver !== 'undefined') ? new ResizeObserver(entries => {
                 this.adaptHeight();
             }) : null;
+            this._onpointerdown_handler = this._onPointerDown.bind(this);
             this._onpointermove_handler = this._onPointerMove.bind(this);
             this._onpointerup_handler = this._onPointerUp.bind(this);
             this._onpointerup_handled = false;
@@ -452,6 +454,7 @@ var ScrollmapWithZoomNS;
             this._startScrollAnimDuration = 5;
             this._passiveEventListener = {};
             this._notPassiveEventListener = {};
+            this._loadedSettings = false;
             this._scrolled = false;
             this._prevDist = -1;
             this._gestureStart = false;
@@ -1075,15 +1078,7 @@ var ScrollmapWithZoomNS;
             }
             if (create_extra !== null)
                 create_extra(this);
-            var onPointerDown = this._onPointerDown.bind(this);
-            //var onPointerEnter =this._onPointerEnter.bind(this);
-            if (window.PointerEvent) {
-                //this.surface_div.addEventListener('pointerenter', onPointerDown, this._passiveEventListener);
-                this.surface_div.addEventListener('pointerdown', onPointerDown, this._passiveEventListener);
-            } else {
-                this.surface_div.addEventListener('mousedown', onPointerDown, this._passiveEventListener);
-                this.surface_div.addEventListener('touchstart', onPointerDown, this._passiveEventListener);
-            }
+            this._pointersInit();
             this.container_div.addEventListener('wheel', this._onWheel.bind(this), this._notPassiveEventListener);
             var _handleTouch = this._handleTouch.bind(this);
             this.container_div.addEventListener("touchstart", _handleTouch, this._passiveEventListener);
@@ -1273,6 +1268,10 @@ var ScrollmapWithZoomNS;
                                 <label for="bAutoCompensateChatIcon">${_("Take into account chat icon")}</label>
                             </div>
                             <div>
+                                <input type="checkbox" id="bUseOldTouchAndMouseEvent" value="true">
+                                <label for="bUseOldTouchAndMouseEvent">${_("Use old touch and mouse events")}</label>
+                            </div>
+                            <div>
                                 <button name="close2">${_("Cancel")}</button>
                                 <button type="submit" name="confirm">${_("Confirm")}</button>
                             </div>
@@ -1368,6 +1367,7 @@ var ScrollmapWithZoomNS;
                 inputs.namedItem("bTakeIntoAccountPanelsHeight").parentElement.style.display = "none";
                 inputs.namedItem("bAutoCompensateChatIcon").parentElement.style.display = "none";
             }
+            inputs.namedItem("bUseOldTouchAndMouseEvent").checked = this.scrollingOptions.bUseOldTouchAndMouseEvent;
         }
         _submitForm() {
             var inputs = ScrollmapWithZoom._form.elements;
@@ -1425,6 +1425,12 @@ var ScrollmapWithZoomNS;
                 this.bAdaptHeightAutoCompensateChatIcon = bAutoCompensateChatIcon;
                 ScrollmapWithZoom._optionsChanged.bAutoCompensateChatIcon = bAutoCompensateChatIcon;
                 addHeightNeeded = true;
+            }
+            var bUseOldTouchAndMouseEvent = inputs.namedItem("bUseOldTouchAndMouseEvent").checked;
+            if (this.scrollingOptions.bUseOldTouchAndMouseEvent != bUseOldTouchAndMouseEvent) {
+                this.scrollingOptions.bUseOldTouchAndMouseEvent = bUseOldTouchAndMouseEvent;
+                this._pointersInit();
+                ScrollmapWithZoom._optionsChanged.bUseOldTouchAndMouseEvent = bUseOldTouchAndMouseEvent;
             }
             if (addHeightNeeded)
                 this.adaptHeight();
@@ -1501,7 +1507,8 @@ var ScrollmapWithZoomNS;
                 if (!this._setupDone || (this.bAdaptHeightAuto && !this._adaptHeightDone)) {
                     SWZ.debug(this._setupDone ? "onResize after adaptHeight" : "1st onResize after setup");
                     this._clearOldSettings();
-                    this._loadedSettings = this._loadSettings();
+                    if (!this._setupDone)
+                        this._loadedSettings = this._loadSettings();
                     if (!this._loadedSettings) {
                         if (this._resetMode != ScrollmapWithZoom.ResetMode.ScrollAndZoomFit && this._zoomFitCalledDuringSetup)
                             this.zoomToFit();
@@ -1620,6 +1627,10 @@ var ScrollmapWithZoomNS;
                     if (optionsChanged.bAutoCompensateChatIcon != null) {
                         this.bAdaptHeightAutoCompensateChatIcon = optionsChanged.bAutoCompensateChatIcon;
                         adaptHeightNeeded = true;
+                    }
+                    if (optionsChanged.bUseOldTouchAndMouseEvent != null) {
+                        this.scrollingOptions.bUseOldTouchAndMouseEvent = optionsChanged.bUseOldTouchAndMouseEvent;
+                        this._pointersInit();
                     }
                     if (adaptHeightNeeded)
                         this.adaptHeight();
@@ -1873,6 +1884,19 @@ var ScrollmapWithZoomNS;
             // var new_evt = new PointerEvent("pointerenter", ev);
             // var canceled = !this.onsurface_div.dispatchEvent(new_evt);
         }
+        _pointersInit() {
+            this.surface_div.removeEventListener("pointerdown", this._onpointerdown_handler, this._passiveEventListener);
+            this.surface_div.removeEventListener("mousedown", this._onpointerdown_handler, this._passiveEventListener);
+            this.surface_div.removeEventListener("touchstart", this._onpointerdown_handler, this._passiveEventListener);
+            this._pointers.clear();
+            if (window.PointerEvent && !this.scrollingOptions.bUseOldTouchAndMouseEvent) {
+                //this.surface_div.addEventListener('pointerenter', onPointerDown, this._passiveEventListener);
+                this.surface_div.addEventListener('pointerdown', this._onpointerdown_handler, this._passiveEventListener);
+            } else {
+                this.surface_div.addEventListener('mousedown', this._onpointerdown_handler, this._passiveEventListener);
+                this.surface_div.addEventListener('touchstart', this._onpointerdown_handler, this._passiveEventListener);
+            }
+        }
         _onPointerDown(ev) {
             // ev.preventDefault();
             if (!this.bEnableScrolling && !(this._bEnableZooming && this.zoomingOptions.pinchZooming))
@@ -1881,13 +1905,13 @@ var ScrollmapWithZoomNS;
                 return;
             if (this._onpointerup_handled == false) {
                 this._onpointerup_handled = true;
-                if (window.PointerEvent) {
+                if (window.PointerEvent && !this.scrollingOptions.bUseOldTouchAndMouseEvent) {
                     document.addEventListener("pointermove", this._onpointermove_handler /* , this._passiveEventListener */ );
                     document.addEventListener("pointerup", this._onpointerup_handler, this._passiveEventListener);
                     document.addEventListener("pointercancel", this._onpointerup_handler, this._passiveEventListener);
                 } else {
-                    document.addEventListener("mousemove", this._onpointermove_handler, this._passiveEventListener);
-                    document.addEventListener("touchmove", this._onpointermove_handler, this._passiveEventListener);
+                    document.addEventListener("mousemove", this._onpointermove_handler /*,  this._passiveEventListener */ );
+                    document.addEventListener("touchmove", this._onpointermove_handler /*, this._passiveEventListener */ );
                     document.addEventListener("mouseup", this._onpointerup_handler, this._passiveEventListener);
                     document.addEventListener("touchend", this._onpointerup_handler, this._passiveEventListener);
                     document.addEventListener("touchcancel", this._onpointerup_handler, this._passiveEventListener);
@@ -1972,17 +1996,17 @@ var ScrollmapWithZoomNS;
             // If no pointer left, stop drag or zoom the map
             if (this._pointers.size === 0) {
                 this._onpointerup_handled = false;
-                if (window.PointerEvent) {
-                    document.removeEventListener("pointermove", this._onpointermove_handler /* , this._passiveEventListener */ );
-                    document.removeEventListener("pointerup", this._onpointerup_handler, this._passiveEventListener);
-                    document.removeEventListener("pointercancel", this._onpointerup_handler, this._passiveEventListener);
-                } else {
-                    document.removeEventListener("mousemove", this._onpointermove_handler, this._passiveEventListener);
-                    document.removeEventListener("touchmove", this._onpointermove_handler, this._passiveEventListener);
-                    document.removeEventListener("mouseup", this._onpointerup_handler, this._passiveEventListener);
-                    document.removeEventListener("touchend", this._onpointerup_handler, this._passiveEventListener);
-                    document.removeEventListener("touchcancel", this._onpointerup_handler, this._passiveEventListener);
-                }
+                //if (window.PointerEvent && !this.scrollingOptions.bUseOldTouchAndMouseEvent) {
+                document.removeEventListener("pointermove", this._onpointermove_handler /* , this._passiveEventListener */ );
+                document.removeEventListener("pointerup", this._onpointerup_handler, this._passiveEventListener);
+                document.removeEventListener("pointercancel", this._onpointerup_handler, this._passiveEventListener);
+                //} else {
+                document.removeEventListener("mousemove", this._onpointermove_handler /* , this._passiveEventListener */ );
+                document.removeEventListener("touchmove", this._onpointermove_handler /* , this._passiveEventListener */ );
+                document.removeEventListener("mouseup", this._onpointerup_handler, this._passiveEventListener);
+                document.removeEventListener("touchend", this._onpointerup_handler, this._passiveEventListener);
+                document.removeEventListener("touchcancel", this._onpointerup_handler, this._passiveEventListener);
+                //}
                 this._enableTooltipsAndClick();
                 this._scrolling = false;
             }
