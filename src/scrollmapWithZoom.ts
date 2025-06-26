@@ -2773,7 +2773,7 @@ namespace ScrollmapWithZoomNS {
             if (!visible && !this.btnsDivOnMap)
                 return;
             this.container_div.querySelectorAll(".scrollmap_button_wrapper").forEach((node: HTMLElement) => {
-                if (visible)
+                if (visible && !node.classList.contains("scrollmap_icon_always_invisible"))
                     node.classList.remove("scrollmap_btn_nodisplay");
                 else if (!node.classList.contains("scrollmap_icon_always_visible"))
                     node.classList.add("scrollmap_btn_nodisplay");
@@ -2791,6 +2791,7 @@ namespace ScrollmapWithZoomNS {
             if ($btn !== null && !$btn.classList.contains("scrollmap_btn_nodisplay")) {
                 SWZ.debug("_hideButton", $btn);
                 $btn.classList.add("scrollmap_btn_nodisplay");
+                $btn.classList.add("scrollmap_icon_always_invisible");
             }
         }
 
@@ -2798,6 +2799,7 @@ namespace ScrollmapWithZoomNS {
             if ($btn !== null && $btn.classList.contains("scrollmap_btn_nodisplay")) {
                 SWZ.debug("_showButton", $btn);
                 $btn.classList.remove("scrollmap_btn_nodisplay");
+                $btn.classList.add("scrollmap_icon_always_invisible");
             }
         }
 

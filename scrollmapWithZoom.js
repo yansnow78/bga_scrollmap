@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.41.0 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.41.1 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -250,7 +250,7 @@ var ScrollmapWithZoomNS;
             this._longPressScroll = value;
         }
         constructor() {
-            this.version = '1.41.0';
+            this.version = '1.41.1';
             /**
              * board properties
              */
@@ -2552,7 +2552,7 @@ var ScrollmapWithZoomNS;
             if (!visible && !this.btnsDivOnMap)
                 return;
             this.container_div.querySelectorAll(".scrollmap_button_wrapper").forEach((node) => {
-                if (visible)
+                if (visible && !node.classList.contains("scrollmap_icon_always_invisible"))
                     node.classList.remove("scrollmap_btn_nodisplay");
                 else if (!node.classList.contains("scrollmap_icon_always_visible"))
                     node.classList.add("scrollmap_btn_nodisplay");
@@ -2567,12 +2567,14 @@ var ScrollmapWithZoomNS;
             if ($btn !== null && !$btn.classList.contains("scrollmap_btn_nodisplay")) {
                 SWZ.debug("_hideButton", $btn);
                 $btn.classList.add("scrollmap_btn_nodisplay");
+                $btn.classList.add("scrollmap_icon_always_invisible");
             }
         }
         _showButton($btn, idSuffix = "", display = 'block') {
             if ($btn !== null && $btn.classList.contains("scrollmap_btn_nodisplay")) {
                 SWZ.debug("_showButton", $btn);
                 $btn.classList.remove("scrollmap_btn_nodisplay");
+                $btn.classList.add("scrollmap_icon_always_invisible");
             }
         }
         _enableButton($btn, idSuffix = "") {
