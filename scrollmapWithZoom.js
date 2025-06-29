@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.41.1 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.42.0 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -250,7 +250,7 @@ var ScrollmapWithZoomNS;
             this._longPressScroll = value;
         }
         constructor() {
-            this.version = '1.41.1';
+            this.version = '1.42.0';
             /**
              * board properties
              */
@@ -307,6 +307,7 @@ var ScrollmapWithZoomNS;
             this.incrHeightGlobalKey = null;
             this.incrHeightDelta = 100;
             this.bIncrHeightKeepInPos = true;
+            this.bSaveHeight = true;
             this.bAdaptHeightAutoCompensateChatIcon = true;
             this.bAdaptHeightAutoCompensatePanelsHeight = false;
             this.adaptHeightCorr = 0;
@@ -1572,7 +1573,7 @@ var ScrollmapWithZoomNS;
                 let settings = JSON.parse(settingsStr);
                 SWZ.debug("_loadSettings", settings.board_x, settings.board_y);
                 var height = this.getDisplayHeight();
-                if (settings.height != null) {
+                if (settings.height != null && this.bSaveHeight) {
                     this.setDisplayHeight(settings.height);
                 }
                 if (settings.height_changed != null) {
@@ -2470,7 +2471,7 @@ var ScrollmapWithZoomNS;
                 this._zoomFitCalledDuringSetup = true;
         }
         changeMapZoom(diff, x = 0, y = 0) {
-            const newZoom = this.zoom + diff;
+            const newZoom = this.zoom * (1 + diff);
             this.setMapZoom(newZoom, x, y);
         }
         setMapZoom(zoom, x = 0, y = 0) {

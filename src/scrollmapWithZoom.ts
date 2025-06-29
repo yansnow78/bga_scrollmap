@@ -270,6 +270,7 @@ namespace ScrollmapWithZoomNS {
         incrHeightGlobalKey: string = null;
         incrHeightDelta: number = 100;
         bIncrHeightKeepInPos: boolean = true;
+        bSaveHeight: boolean = true;
         bAdaptHeightAutoCompensateChatIcon: boolean = true;
         bAdaptHeightAutoCompensatePanelsHeight: boolean = false;
         public get bAdaptHeightAuto(): boolean {
@@ -1684,7 +1685,7 @@ namespace ScrollmapWithZoomNS {
                 let settings = JSON.parse(settingsStr);
                 SWZ.debug("_loadSettings", settings.board_x, settings.board_y);
                 var height = this.getDisplayHeight();
-                if (settings.height != null) {
+                if (settings.height != null && this.bSaveHeight) {
                     this.setDisplayHeight(settings.height);
                 }
                 if (settings.height_changed != null) {
@@ -2683,7 +2684,7 @@ namespace ScrollmapWithZoomNS {
         }
 
         changeMapZoom(diff: number, x = 0, y = 0) {
-            const newZoom = this.zoom + diff;
+            const newZoom = this.zoom * (1 + diff);
             this.setMapZoom(newZoom, x, y);
         }
 

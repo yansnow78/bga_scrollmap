@@ -99,6 +99,7 @@ declare namespace ScrollmapWithZoomNS {
         incrHeightGlobalKey: string;
         incrHeightDelta: number;
         bIncrHeightKeepInPos: boolean;
+        bSaveHeight: boolean;
         bAdaptHeightAutoCompensateChatIcon: boolean;
         bAdaptHeightAutoCompensatePanelsHeight: boolean;
         get bAdaptHeightAuto(): boolean;
