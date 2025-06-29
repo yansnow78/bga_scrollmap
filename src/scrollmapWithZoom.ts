@@ -1556,7 +1556,7 @@ namespace ScrollmapWithZoomNS {
                 this._onResize();
                 // your code
                 SWZ.debug("adaptHeight");
-                this._titleHeight = gameui.getBoundingClientRectIgnoreZoom($('page-title')).height;
+                this._titleHeight = gameui.getBoundingClientRectIncludeZoom($('page-title')).height;
                 if (!this.bAdaptHeightAuto)
                     return;
                 if (this._setupDone)

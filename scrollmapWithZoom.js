@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.42.0 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.42.1 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -250,7 +250,7 @@ var ScrollmapWithZoomNS;
             this._longPressScroll = value;
         }
         constructor() {
-            this.version = '1.42.0';
+            this.version = '1.42.1';
             /**
              * board properties
              */
@@ -1451,7 +1451,7 @@ var ScrollmapWithZoomNS;
                 this._onResize();
                 // your code
                 SWZ.debug("adaptHeight");
-                this._titleHeight = gameui.getBoundingClientRectIgnoreZoom($('page-title')).height;
+                this._titleHeight = gameui.getBoundingClientRectIncludeZoom($('page-title')).height;
                 if (!this.bAdaptHeightAuto)
                     return;
                 if (this._setupDone)
