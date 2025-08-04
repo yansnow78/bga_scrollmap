@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.42.2 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.43.0 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -250,7 +250,7 @@ var ScrollmapWithZoomNS;
             this._longPressScroll = value;
         }
         constructor() {
-            this.version = '1.42.2';
+            this.version = '1.43.0';
             /**
              * board properties
              */
@@ -310,6 +310,7 @@ var ScrollmapWithZoomNS;
             this.bSaveHeight = true;
             this.bAdaptHeightAutoCompensateChatIcon = true;
             this.bAdaptHeightAutoCompensatePanelsHeight = false;
+            this.bAdaptHeightAutoCompensateDivsAbove = true;
             this.adaptHeightCorr = 0;
             this.bEnableKeysArrows = true;
             this.bEnableKeysPlusMinus = true;
@@ -412,6 +413,7 @@ var ScrollmapWithZoomNS;
             this._onpointermove_handler = this._onPointerMove.bind(this);
             this._onpointerup_handler = this._onPointerUp.bind(this);
             this._onpointerup_handled = false;
+            this._onpointemove_handled = false;
             this._suppressCLickEvent_handler = this._suppressCLickEvent.bind(this);
             this._touchInteracting = false;
             this._setupDone = false;
@@ -1143,6 +1145,10 @@ var ScrollmapWithZoomNS;
                 if (this.incrHeightGlobalKey == incrHeightGlobalKey)
                     this.setDisplayHeight(new_height, false);
             }, true);
+            dojo.aspect.after(ScrollmapWithZoom, "resetHeight", (new_height, incrHeightGlobalKey) => {
+                if (this.incrHeightGlobalKey == incrHeightGlobalKey && this.bAdaptHeightAuto)
+                    this._onResetHeight(null, false);
+            }, true);
             if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysArrows) {
                 let warning_arrowkeys = _('press the arrow keys with ctrl key to scroll the board');
                 this.container_div.setAttribute("warning_arrowkeys", warning_arrowkeys);
@@ -1465,10 +1471,17 @@ var ScrollmapWithZoomNS;
                     document.body.clientHeight || window.innerHeight;
                 var container_pos = gameui.getBoundingClientRectIncludeZoom(this.container_div);
                 var other_elements_height = this.adaptHeightCorr * gameui.calcCurrentCSSZoom($('page-content')) + container_pos.y + window.scrollY;
+                var pageContentCoord;
+                if (!this.bAdaptHeightAutoCompensateDivsAbove) {
+                    if (!pageContentCoord)
+                        pageContentCoord = gameui.getBoundingClientRectIncludeZoom($("page-content"));
+                    other_elements_height -= container_pos.y - pageContentCoord.y;
+                }
                 if (!this.bAdaptHeightAutoCompensatePanelsHeight && dojo.hasClass('ebd-body', 'mobile_version')) {
                     var page_title = $("page-title");
                     var pageTitleCoord = gameui.getBoundingClientRectIncludeZoom(page_title);
-                    var pageContentCoord = gameui.getBoundingClientRectIncludeZoom($("page-content"));
+                    if (!pageContentCoord)
+                        pageContentCoord = gameui.getBoundingClientRectIncludeZoom($("page-content"));
                     other_elements_height -= pageContentCoord.y + window.scrollY;
                     other_elements_height += pageTitleCoord.height;
                 }
@@ -1853,7 +1866,14 @@ var ScrollmapWithZoomNS;
                 } else {
                     if (this._gestureStart) {
                         this._gestureStart = false;
-                        this._touchInteracting = true;
+                        if (!this._touchInteracting) {
+                            this._touchInteracting = true;
+                            const touches = Array.from(e.touches);
+                            touches.forEach(touch => {
+                                if (!this.container_div.contains(touch.target))
+                                    this._touchInteracting = false;
+                            });
+                        }
                         e.preventDefault();
                         //this._firstTouchMove = false;
                         // var touchesMiddle = this._getTouchesMiddle(e);
@@ -1902,23 +1922,29 @@ var ScrollmapWithZoomNS;
             // ev.preventDefault();
             if (!this.bEnableScrolling && !(this._bEnableZooming && this.zoomingOptions.pinchZooming))
                 return;
-            if ((ev.pointerType == "mouse") && (ev.button != 0)) //for mouse only accept left button
+            if ((ev instanceof MouseEvent) && (ev.button != 0)) //for mouse only accept left button
                 return;
+            this._updatePointers(ev);
             if (this._onpointerup_handled == false) {
                 this._onpointerup_handled = true;
                 if (window.PointerEvent && !this.scrollingOptions.bUseOldTouchAndMouseEvent) {
-                    document.addEventListener("pointermove", this._onpointermove_handler /* , this._passiveEventListener */ );
                     document.addEventListener("pointerup", this._onpointerup_handler, this._passiveEventListener);
                     document.addEventListener("pointercancel", this._onpointerup_handler, this._passiveEventListener);
                 } else {
-                    document.addEventListener("mousemove", this._onpointermove_handler /*,  this._passiveEventListener */ );
-                    document.addEventListener("touchmove", this._onpointermove_handler /*, this._passiveEventListener */ );
                     document.addEventListener("mouseup", this._onpointerup_handler, this._passiveEventListener);
                     document.addEventListener("touchend", this._onpointerup_handler, this._passiveEventListener);
                     document.addEventListener("touchcancel", this._onpointerup_handler, this._passiveEventListener);
                 }
             }
-            this._updatePointers(ev);
+            if (!this._onpointemove_handled) {
+                this._onpointemove_handled = true;
+                if (window.PointerEvent && !this.scrollingOptions.bUseOldTouchAndMouseEvent) {
+                    document.addEventListener("pointermove", this._onpointermove_handler /* , this._passiveEventListener */ );
+                } else {
+                    document.addEventListener("mousemove", this._onpointermove_handler /*,  this._passiveEventListener */ );
+                    document.addEventListener("touchmove", this._onpointermove_handler /*, this._passiveEventListener */ );
+                }
+            }
         }
         _onPointerMove(ev) {
             // SWZ.debug("pointer move");
@@ -1950,7 +1976,7 @@ var ScrollmapWithZoomNS;
                 // }
             }
             // If two _pointers are move, check for pinch gestures
-            else if (this._pointers.size === 2) {
+            else if (this._pointers.size === 2 && this._touchInteracting) {
                 // Calculate the distance between the two _pointers
                 const it = this._pointers.values();
                 const ev1 = it.next().value;
@@ -1997,6 +2023,7 @@ var ScrollmapWithZoomNS;
             // If no pointer left, stop drag or zoom the map
             if (this._pointers.size === 0) {
                 this._onpointerup_handled = false;
+                this._onpointemove_handled = false;
                 //if (window.PointerEvent && !this.scrollingOptions.bUseOldTouchAndMouseEvent) {
                 document.removeEventListener("pointermove", this._onpointermove_handler /* , this._passiveEventListener */ );
                 document.removeEventListener("pointerup", this._onpointerup_handler, this._passiveEventListener);
@@ -2188,6 +2215,10 @@ var ScrollmapWithZoomNS;
         // By default, take all elements in movable_scrollmap
         //  you can also specify (optional) a custom CSS query to get all concerned DOM elements
         scrollToCenter(custom_css_query, duration, delay, x_extra_l = null, x_extra_r = null, y_extra_u = null, y_extra_d = null) {
+            if (this.defaultPosition) {
+                this.scrollto(-this.defaultPosition.x, -this.defaultPosition.y, duration);
+                return;
+            }
             if (this._x_extra_l != null && x_extra_l == null) {
                 x_extra_l = this._x_extra_l;
                 x_extra_r = this._x_extra_r;
@@ -2217,10 +2248,7 @@ var ScrollmapWithZoomNS;
                 this.setMapZoom(this.defaultZoom);
             if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoomFit)
                 this.zoomToFit();
-            if (this.defaultPosition)
-                this.scrollto(-this.defaultPosition.x, -this.defaultPosition.y, duration);
-            else
-                this.scrollToCenter(null, duration);
+            this.scrollToCenter(null, duration);
         }
         _isRectInside(outerRect, innerRect) {
             return !(innerRect.left < outerRect.left ||
@@ -3044,7 +3072,7 @@ var ScrollmapWithZoomNS;
             this._hideButton(this._btnResetHeight);
             this._hideButton(this._btnMaximizeHeight);
         }
-        _onResetHeight(evt) {
+        _onResetHeight(evt, dispatch = true) {
             this._bMaxHeight = false;
             this._bHeightChanged = false;
             if (this.bAdaptHeightAuto)
@@ -3053,6 +3081,11 @@ var ScrollmapWithZoomNS;
                 this.setDisplayHeight(this.defaultHeight);
             this._disableButton(this._btnResetHeight);
             this._enableButton(this._btnMaximizeHeight);
+            if (this.bIncrHeightGlobally) {
+                if (dispatch) {
+                    ScrollmapWithZoom.resetHeight(this.incrHeightGlobalKey);
+                }
+            }
         }
         _onMaximizeHeight(evt) {
             this._bMaxHeight = this.changeDisplayHeight(5000);
@@ -3108,6 +3141,7 @@ var ScrollmapWithZoomNS;
             return (new_height == maxHeight);
         }
         static updateHeight(new_height, incrHeightGlobalKey) {}
+        static resetHeight(incrHeightGlobalKey) {}
         getDisplayHeight() {
             return parseFloat(window.getComputedStyle(this.container_div).height);
         }

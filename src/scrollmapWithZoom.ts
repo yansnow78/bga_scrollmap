@@ -273,6 +273,7 @@ namespace ScrollmapWithZoomNS {
         bSaveHeight: boolean = true;
         bAdaptHeightAutoCompensateChatIcon: boolean = true;
         bAdaptHeightAutoCompensatePanelsHeight: boolean = false;
+        bAdaptHeightAutoCompensateDivsAbove: boolean = true;
         public get bAdaptHeightAuto(): boolean {
             return this._bAdaptHeightAuto;
         }
@@ -474,6 +475,7 @@ namespace ScrollmapWithZoomNS {
         protected _onpointermove_handler: (this: HTMLElement, ev: MouseEvent) => any = this._onPointerMove.bind(this);
         protected _onpointerup_handler: (this: HTMLElement, ev: MouseEvent) => any = this._onPointerUp.bind(this);
         protected _onpointerup_handled: boolean = false;
+        protected _onpointemove_handled: boolean = false;
         protected _suppressCLickEvent_handler: (this: HTMLElement, ev: MouseEvent) => any = this._suppressCLickEvent.bind(this);
         protected _touchInteracting: boolean = false;
         protected _setupDone: boolean = false;
@@ -1232,7 +1234,10 @@ namespace ScrollmapWithZoomNS {
                 if (this.incrHeightGlobalKey == incrHeightGlobalKey)
                     this.setDisplayHeight(new_height, false);
             }, true);
-
+            dojo.aspect.after(ScrollmapWithZoom, "resetHeight", (new_height: number, incrHeightGlobalKey: string) => {
+                if (this.incrHeightGlobalKey == incrHeightGlobalKey && this.bAdaptHeightAuto)
+                    this._onResetHeight(null, false);
+            }, true);
             if (ScrollmapWithZoom.bEnableKeys && this.bEnableKeysArrows) {
                 let warning_arrowkeys = _('press the arrow keys with ctrl key to scroll the board');
                 this.container_div.setAttribute("warning_arrowkeys", warning_arrowkeys);
@@ -1572,11 +1577,18 @@ namespace ScrollmapWithZoomNS {
                 var container_pos = gameui.getBoundingClientRectIncludeZoom(this.container_div);
                 var other_elements_height = this.adaptHeightCorr * gameui.calcCurrentCSSZoom($('page-content')) + container_pos.y + window.scrollY;
 
+                var pageContentCoord;
+                if (!this.bAdaptHeightAutoCompensateDivsAbove) {
+                    if (!pageContentCoord)
+                        pageContentCoord = gameui.getBoundingClientRectIncludeZoom($("page-content"));
+                    other_elements_height -= container_pos.y - pageContentCoord.y;
+                }
 
                 if (!this.bAdaptHeightAutoCompensatePanelsHeight && dojo.hasClass('ebd-body', 'mobile_version')) {
                     var page_title = $("page-title");
                     var pageTitleCoord = gameui.getBoundingClientRectIncludeZoom(page_title);
-                    var pageContentCoord = gameui.getBoundingClientRectIncludeZoom($("page-content"));
+                    if (!pageContentCoord)
+                        pageContentCoord = gameui.getBoundingClientRectIncludeZoom($("page-content"));
                     other_elements_height -= pageContentCoord.y + window.scrollY;
                     other_elements_height += pageTitleCoord.height;
                 }
@@ -1985,7 +1997,14 @@ namespace ScrollmapWithZoomNS {
                 } else {
                     if (this._gestureStart) {
                         this._gestureStart = false;
-                        this._touchInteracting = true;
+                        if (!this._touchInteracting) {
+                            this._touchInteracting = true;
+                            const touches: Touch[] = Array.from(e.touches);
+                            touches.forEach(touch => {
+                                if (!this.container_div.contains(touch.target as Node))
+                                    this._touchInteracting = false;
+                            });
+                        }
                         e.preventDefault();
                         //this._firstTouchMove = false;
                         // var touchesMiddle = this._getTouchesMiddle(e);
@@ -2032,28 +2051,34 @@ namespace ScrollmapWithZoomNS {
             }
         }
 
-        protected _onPointerDown(ev: PointerEvent) {
+        protected _onPointerDown(ev: PointerEvent | TouchEvent | MouseEvent) {
             // ev.preventDefault();
             if (!this.bEnableScrolling && !(this._bEnableZooming && this.zoomingOptions.pinchZooming))
                 return;
-            if ((ev.pointerType == "mouse") && (ev.button != 0)) //for mouse only accept left button
+            if ((ev instanceof MouseEvent) && (ev.button != 0)) //for mouse only accept left button
                 return;
 
+            this._updatePointers(ev);
             if (this._onpointerup_handled == false) {
                 this._onpointerup_handled = true;
                 if (window.PointerEvent && !this.scrollingOptions.bUseOldTouchAndMouseEvent) {
-                    document.addEventListener("pointermove", this._onpointermove_handler /* , this._passiveEventListener */ );
                     document.addEventListener("pointerup", this._onpointerup_handler, this._passiveEventListener);
                     document.addEventListener("pointercancel", this._onpointerup_handler, this._passiveEventListener);
                 } else {
-                    document.addEventListener("mousemove", this._onpointermove_handler /*,  this._passiveEventListener */ );
-                    document.addEventListener("touchmove", this._onpointermove_handler /*, this._passiveEventListener */ );
                     document.addEventListener("mouseup", this._onpointerup_handler, this._passiveEventListener);
                     document.addEventListener("touchend", this._onpointerup_handler, this._passiveEventListener);
                     document.addEventListener("touchcancel", this._onpointerup_handler, this._passiveEventListener);
                 }
             }
-            this._updatePointers(ev);
+            if (!this._onpointemove_handled) {
+                this._onpointemove_handled = true;
+                if (window.PointerEvent && !this.scrollingOptions.bUseOldTouchAndMouseEvent) {
+                    document.addEventListener("pointermove", this._onpointermove_handler /* , this._passiveEventListener */ );
+                } else {
+                    document.addEventListener("mousemove", this._onpointermove_handler /*,  this._passiveEventListener */ );
+                    document.addEventListener("touchmove", this._onpointermove_handler /*, this._passiveEventListener */ );
+                }
+            }
         }
 
         protected _onPointerMove(ev: PointerEvent | TouchEvent | MouseEvent) {
@@ -2088,7 +2113,7 @@ namespace ScrollmapWithZoomNS {
                 // }
             }
             // If two _pointers are move, check for pinch gestures
-            else if (this._pointers.size === 2) {
+            else if (this._pointers.size === 2 && this._touchInteracting) {
 
                 // Calculate the distance between the two _pointers
                 const it = this._pointers.values();
@@ -2137,6 +2162,7 @@ namespace ScrollmapWithZoomNS {
             // If no pointer left, stop drag or zoom the map
             if (this._pointers.size === 0) {
                 this._onpointerup_handled = false;
+                this._onpointemove_handled = false;
                 //if (window.PointerEvent && !this.scrollingOptions.bUseOldTouchAndMouseEvent) {
                 document.removeEventListener("pointermove", this._onpointermove_handler /* , this._passiveEventListener */ );
                 document.removeEventListener("pointerup", this._onpointerup_handler, this._passiveEventListener);
@@ -2360,6 +2386,10 @@ namespace ScrollmapWithZoomNS {
             x_extra_l: number = null, x_extra_r: number = null, y_extra_u: number = null, y_extra_d: number = null): {
             x: number;y: number;
         } {
+            if (this.defaultPosition) {
+                this.scrollto(-this.defaultPosition.x, -this.defaultPosition.y, duration);
+                return;
+            }
             if (this._x_extra_l != null && x_extra_l == null) {
                 x_extra_l = this._x_extra_l;
                 x_extra_r = this._x_extra_r;
@@ -2390,10 +2420,7 @@ namespace ScrollmapWithZoomNS {
                 this.setMapZoom(this.defaultZoom);
             if (this._resetMode == ScrollmapWithZoom.ResetMode.ScrollAndZoomFit)
                 this.zoomToFit();
-            if (this.defaultPosition)
-                this.scrollto(-this.defaultPosition.x, -this.defaultPosition.y, duration);
-            else
-                this.scrollToCenter(null, duration);
+            this.scrollToCenter(null, duration);
         }
 
         protected _isRectInside(outerRect: DOMRectReadOnly, innerRect: DOMRectReadOnly): boolean {
@@ -3316,7 +3343,7 @@ namespace ScrollmapWithZoomNS {
             this._hideButton(this._btnMaximizeHeight);
         }
 
-        protected _onResetHeight(evt: Event) {
+        protected _onResetHeight(evt: Event, dispatch: boolean = true) {
             this._bMaxHeight = false;
             this._bHeightChanged = false;
             if (this.bAdaptHeightAuto)
@@ -3325,6 +3352,11 @@ namespace ScrollmapWithZoomNS {
                 this.setDisplayHeight(this.defaultHeight);
             this._disableButton(this._btnResetHeight);
             this._enableButton(this._btnMaximizeHeight);
+            if (this.bIncrHeightGlobally) {
+                if (dispatch) {
+                    ScrollmapWithZoom.resetHeight(this.incrHeightGlobalKey);
+                }
+            }
         }
 
         protected _onMaximizeHeight(evt: Event) {
@@ -3385,6 +3417,7 @@ namespace ScrollmapWithZoomNS {
             return (new_height == maxHeight);
         }
         static updateHeight(new_height: number, incrHeightGlobalKey: string) {}
+        static resetHeight(incrHeightGlobalKey: string) {}
         getDisplayHeight() {
             return parseFloat(window.getComputedStyle(this.container_div).height);
         }

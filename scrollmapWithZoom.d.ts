@@ -102,6 +102,7 @@ declare namespace ScrollmapWithZoomNS {
         bSaveHeight: boolean;
         bAdaptHeightAutoCompensateChatIcon: boolean;
         bAdaptHeightAutoCompensatePanelsHeight: boolean;
+        bAdaptHeightAutoCompensateDivsAbove: boolean;
         get bAdaptHeightAuto(): boolean;
         set bAdaptHeightAuto(value: boolean);
         set adaptHeightCorrDivs(value: HTMLDivElement[]);
@@ -225,6 +226,7 @@ declare namespace ScrollmapWithZoomNS {
         protected _onpointermove_handler: (this: HTMLElement, ev: MouseEvent) => any;
         protected _onpointerup_handler: (this: HTMLElement, ev: MouseEvent) => any;
         protected _onpointerup_handled: boolean;
+        protected _onpointemove_handled: boolean;
         protected _suppressCLickEvent_handler: (this: HTMLElement, ev: MouseEvent) => any;
         protected _touchInteracting: boolean;
         protected _setupDone: boolean;
@@ -315,7 +317,7 @@ declare namespace ScrollmapWithZoomNS {
         protected _handleTouch(e: TouchEvent): void;
         protected _onPointerEnter(ev: PointerEvent): void;
         protected _pointersInit(): void;
-        protected _onPointerDown(ev: PointerEvent): void;
+        protected _onPointerDown(ev: PointerEvent | TouchEvent | MouseEvent): void;
         protected _onPointerMove(ev: PointerEvent | TouchEvent | MouseEvent): void;
         protected _onPointerUp(ev: PointerEvent | TouchEvent | MouseEvent): void;
         protected _onWheel(evt: WheelEvent): void;
@@ -402,13 +404,14 @@ declare namespace ScrollmapWithZoomNS {
         setupEnlargeReduceButtons(incrHeightDelta: number, bIncrHeightKeepInPos?: boolean, minHeight?: number, bShort?: boolean, bGroupedWithOthers?: boolean): void;
         showEnlargeReduceButtons(): void;
         hideEnlargeReduceButtons(): void;
-        protected _onResetHeight(evt: Event): void;
+        protected _onResetHeight(evt: Event, dispatch?: boolean): void;
         protected _onMaximizeHeight(evt: Event): void;
         protected _onIncreaseDisplayHeight(evt: Event): void;
         protected _onDecreaseDisplayHeight(evt: Event): void;
         changeDisplayHeight(delta: number): boolean;
         setDisplayHeight(new_height: number, dispatch?: boolean): boolean;
         static updateHeight(new_height: number, incrHeightGlobalKey: string): void;
+        static resetHeight(incrHeightGlobalKey: string): void;
         getDisplayHeight(): number;
         setupInfoButton(bConfigurableInUserPreference?: boolean): void;
         showInfoButton(): void;
