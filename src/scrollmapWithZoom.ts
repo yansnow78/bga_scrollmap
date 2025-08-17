@@ -21,8 +21,10 @@ type _optionsChangedT = {
     bRevertArrowsScroll ? : boolean;
     bOneFingerScrolling ? : boolean;
     bShowMoveCursor ? : boolean;
-    bAutoCompensatePanelsHeight ? : boolean,
-    bAutoCompensateChatIcon ? : boolean
+    bAutoCompensatePanelsHeight ? : boolean;
+    bAutoCompensateChatIcon ? : boolean;
+    bRestoreScrollPosition ? : boolean;
+    bRestoreZoom ? : boolean;
     bUseOldTouchAndMouseEvent ? : boolean
 };
 
@@ -219,6 +221,7 @@ namespace ScrollmapWithZoomNS {
             var keysStr = this.getWheelZoomingOptionTranslated();
             this.container_div.setAttribute("warning_scroll", dojo.string.substitute(_("Use ${keys} + Mouse Wheel to zoom the board"), { keys: keysStr }));
         }
+        bRestoreZoom: boolean = true;
 
         /** 
          * scrolling properties
@@ -1375,6 +1378,14 @@ namespace ScrollmapWithZoomNS {
                                 <label for="bAutoCompensateChatIcon">${_("Take into account chat icon")}</label>
                             </div>
                             <div>
+                                <input type="checkbox" id="bRestoreScrollPosition" value="true">
+                                <label for="bRestoreScrollPosition">${_("Restore scroll position")}</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="bRestoreZoom" value="true">
+                                <label for="bRestoreZoom">${_("Restore zoom level")}</label>
+                            </div>
+                            <div>
                                 <input type="checkbox" id="bUseOldTouchAndMouseEvent" value="true">
                                 <label for="bUseOldTouchAndMouseEvent">${_("Use old touch and mouse events")}</label>
                             </div>
@@ -1476,6 +1487,8 @@ namespace ScrollmapWithZoomNS {
                 inputs.namedItem("bTakeIntoAccountPanelsHeight").parentElement.style.display = "none";
                 inputs.namedItem("bAutoCompensateChatIcon").parentElement.style.display = "none";
             }
+            inputs.namedItem("bRestoreScrollPosition").checked = this.bRestoreScrollPosition;
+            inputs.namedItem("bRestoreZoom").checked = this.bRestoreZoom;
             inputs.namedItem("bUseOldTouchAndMouseEvent").checked = this.scrollingOptions.bUseOldTouchAndMouseEvent;
         }
 
@@ -1535,6 +1548,16 @@ namespace ScrollmapWithZoomNS {
                 this.bAdaptHeightAutoCompensateChatIcon = bAutoCompensateChatIcon;
                 ScrollmapWithZoom._optionsChanged.bAutoCompensateChatIcon = bAutoCompensateChatIcon;
                 addHeightNeeded = true;
+            }
+            var bRestoreScrollPosition = inputs.namedItem("bRestoreScrollPosition").checked;
+            if (this.bRestoreScrollPosition != bRestoreScrollPosition) {
+                this.bRestoreScrollPosition = bRestoreScrollPosition;
+                ScrollmapWithZoom._optionsChanged.bRestoreScrollPosition = bRestoreScrollPosition;
+            }
+            var bRestoreZoom = inputs.namedItem("bRestoreZoom").checked;
+            if (this.bRestoreZoom != bRestoreZoom) {
+                this.bRestoreZoom = bRestoreZoom;
+                ScrollmapWithZoom._optionsChanged.bRestoreZoom = bRestoreZoom;
             }
             var bUseOldTouchAndMouseEvent = inputs.namedItem("bUseOldTouchAndMouseEvent").checked;
             if (this.scrollingOptions.bUseOldTouchAndMouseEvent != bUseOldTouchAndMouseEvent) {
@@ -1689,41 +1712,7 @@ namespace ScrollmapWithZoomNS {
         }
         protected _loadSettings() {
             let scrolled = false;
-            let settingsStr = appLocalStorage.getItem(this._localStorageKey);
-            if (settingsStr == null) {
-                settingsStr = appLocalStorage.getItem(this._localStorageOldKey);
-                if (settingsStr != null) {
-                    appLocalStorage.setItem(this._localStorageKey, settingsStr);
-                    appLocalStorage.removeItem(this._localStorageOldKey);
-                }
-            }
-            if (settingsStr != null) {
-                let settings = JSON.parse(settingsStr);
-                SWZ.debug("_loadSettings", settings.board_x, settings.board_y);
-                this._loaded_x = settings.board_x;
-                this._loaded_y = settings.board_y;
-                var height = this.getDisplayHeight();
-                if (settings.height != null && this.bSaveHeight) {
-                    this.setDisplayHeight(settings.height);
-                }
-                if (settings.height_changed != null) {
-                    this._bHeightChanged = settings.height_changed;
-                }
-                if (settings.zoom != null) {
-                    this.setMapZoom(settings.zoom);
-                }
-                if (this.bRestoreScrollPosition && settings.board_x != null && settings.board_y != null) {
-                    this._scrollto(settings.board_x, settings.board_y, 0, 0);
-                    scrolled = true;
-                }
-                if ((this.bAdaptHeightAuto && !this._bHeightChanged) || !this.bIncrHeightBtnVisible)
-                    this.setDisplayHeight(height);
-                if (this._bHeightChanged) {
-                    this._enableButton(this._btnResetHeight);
-                } else
-                    this._disableButton(this._btnResetHeight);
-            }
-            settingsStr = appLocalStorage.getItem(ScrollmapWithZoom.localStorageGameKey);
+            let settingsStr = appLocalStorage.getItem(ScrollmapWithZoom.localStorageGameKey);
             if (settingsStr != null) {
                 let settings = JSON.parse(settingsStr);
                 if (settings.optionsChanged != undefined) {
@@ -1762,9 +1751,49 @@ namespace ScrollmapWithZoomNS {
                         this.scrollingOptions.bUseOldTouchAndMouseEvent = optionsChanged.bUseOldTouchAndMouseEvent;
                         this._pointersInit();
                     }
+                    if (optionsChanged.bRestoreScrollPosition != null) {
+                        this.bRestoreScrollPosition = optionsChanged.bRestoreScrollPosition;
+                    }
+                    if (optionsChanged.bRestoreZoom != null) {
+                        this.bRestoreZoom = optionsChanged.bRestoreZoom;
+                    }
                     if (adaptHeightNeeded)
                         this.adaptHeight();
                 }
+            }
+            settingsStr = appLocalStorage.getItem(this._localStorageKey);
+            if (settingsStr == null) {
+                settingsStr = appLocalStorage.getItem(this._localStorageOldKey);
+                if (settingsStr != null) {
+                    appLocalStorage.setItem(this._localStorageKey, settingsStr);
+                    appLocalStorage.removeItem(this._localStorageOldKey);
+                }
+            }
+            if (settingsStr != null) {
+                let settings = JSON.parse(settingsStr);
+                SWZ.debug("_loadSettings", settings.board_x, settings.board_y);
+                this._loaded_x = settings.board_x;
+                this._loaded_y = settings.board_y;
+                var height = this.getDisplayHeight();
+                if (settings.height != null && this.bSaveHeight) {
+                    this.setDisplayHeight(settings.height);
+                }
+                if (settings.height_changed != null) {
+                    this._bHeightChanged = settings.height_changed;
+                }
+                if (this.bRestoreZoom && settings.zoom != null) {
+                    this.setMapZoom(settings.zoom);
+                }
+                if (this.bRestoreScrollPosition && settings.board_x != null && settings.board_y != null) {
+                    this._scrollto(settings.board_x, settings.board_y, 0, 0);
+                    scrolled = true;
+                }
+                if ((this.bAdaptHeightAuto && !this._bHeightChanged) || !this.bIncrHeightBtnVisible)
+                    this.setDisplayHeight(height);
+                if (this._bHeightChanged) {
+                    this._enableButton(this._btnResetHeight);
+                } else
+                    this._disableButton(this._btnResetHeight);
             }
             return scrolled;
         }

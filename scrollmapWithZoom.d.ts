@@ -21,6 +21,8 @@ type _optionsChangedT = {
     bShowMoveCursor?: boolean;
     bAutoCompensatePanelsHeight?: boolean;
     bAutoCompensateChatIcon?: boolean;
+    bRestoreScrollPosition?: boolean;
+    bRestoreZoom?: boolean;
     bUseOldTouchAndMouseEvent?: boolean;
 };
 interface Position {
@@ -71,6 +73,7 @@ declare namespace ScrollmapWithZoomNS {
         zoomDelta: number;
         get bEnableZooming(): boolean;
         set bEnableZooming(value: boolean);
+        bRestoreZoom: boolean;
         /**
          * scrolling properties
          */
