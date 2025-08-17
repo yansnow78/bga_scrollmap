@@ -511,6 +511,8 @@ namespace ScrollmapWithZoomNS {
         // get LABEL_REDUCE_DISPLAY: string = _("Reduce"): string {
         //     return _("Reduce")`;
         // }
+        protected _loaded_x: number = null;
+        protected _loaded_y: number = null;
         protected _xPrev: number = null;
         protected _yPrev: number = null;
         protected _xPrevMid: number = null;
@@ -1660,7 +1662,9 @@ namespace ScrollmapWithZoomNS {
                     }
                 }
                 document.body.style.setProperty("--page_zoom", pageZoom.toString());
-                this._setupDone = true;
+                setTimeout(() => {
+                    this._setupDone = true;
+                }, 100);
             });
         }
 
@@ -1696,6 +1700,8 @@ namespace ScrollmapWithZoomNS {
             if (settingsStr != null) {
                 let settings = JSON.parse(settingsStr);
                 SWZ.debug("_loadSettings", settings.board_x, settings.board_y);
+                this._loaded_x = settings.board_x;
+                this._loaded_y = settings.board_y;
                 var height = this.getDisplayHeight();
                 if (settings.height != null && this.bSaveHeight) {
                     this.setDisplayHeight(settings.height);
@@ -1707,7 +1713,6 @@ namespace ScrollmapWithZoomNS {
                     this.setMapZoom(settings.zoom);
                 }
                 if (this.bRestoreScrollPosition && settings.board_x != null && settings.board_y != null) {
-                    this._scrolled = true;
                     this._scrollto(settings.board_x, settings.board_y, 0, 0);
                     scrolled = true;
                 }
@@ -1764,16 +1769,16 @@ namespace ScrollmapWithZoomNS {
             return scrolled;
         }
         protected saveSettings() {
-            SWZ.debug("saveSettings");
             let settings = {
                 time: Date.now(),
                 zoom: this.zoom,
-                board_x: this._scrolled ? this.board_x : null,
-                board_y: this._scrolled ? this.board_y : null,
+                board_x: this._scrolled ? this.board_x : this._loaded_x,
+                board_y: this._scrolled ? this.board_y : this._loaded_y,
                 height: this.getDisplayHeight(),
                 height_changed: this._bHeightChanged,
                 btns_visible: this._bBtnsVisible,
             };
+            SWZ.debug("saveSettings", settings.board_x, settings.board_y);
             appLocalStorage.setItem(this._localStorageKey, JSON.stringify(settings));
         }
         protected static _saveGameSettings() {
@@ -3388,7 +3393,7 @@ namespace ScrollmapWithZoomNS {
             var current_height = this.getDisplayHeight();
             var maxHeight = screen_height - this._titleHeight;
             new_height = Math.min(Math.max(new_height, this._minHeight), maxHeight);
-            if (this.bIncrHeightKeepInPos && this._setupDone)
+            if (this.bIncrHeightKeepInPos && gameui.isLoadingComplete)
                 this.board_y += (current_height - new_height) / 2;
             this.container_div.style.setProperty("--scrollmap_height", new_height + 'px');
             this.container_div.style.height = 'var(--scrollmap_height)';

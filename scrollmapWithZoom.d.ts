@@ -258,6 +258,8 @@ declare namespace ScrollmapWithZoomNS {
         protected _buttons_div: HTMLElement;
         protected _buttons_div2: HTMLElement;
         protected _buttons_divs_wrapper: HTMLElement;
+        protected _loaded_x: number;
+        protected _loaded_y: number;
         protected _xPrev: number;
         protected _yPrev: number;
         protected _xPrevMid: number;

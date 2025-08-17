@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.43.0 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.43.1 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -250,7 +250,7 @@ var ScrollmapWithZoomNS;
             this._longPressScroll = value;
         }
         constructor() {
-            this.version = '1.43.0';
+            this.version = '1.43.1';
             /**
              * board properties
              */
@@ -448,6 +448,8 @@ var ScrollmapWithZoomNS;
             // get LABEL_REDUCE_DISPLAY: string = _("Reduce"): string {
             //     return _("Reduce")`;
             // }
+            this._loaded_x = null;
+            this._loaded_y = null;
             this._xPrev = null;
             this._yPrev = null;
             this._xPrevMid = null;
@@ -1550,7 +1552,9 @@ var ScrollmapWithZoomNS;
                     }
                 }
                 document.body.style.setProperty("--page_zoom", pageZoom.toString());
-                this._setupDone = true;
+                setTimeout(() => {
+                    this._setupDone = true;
+                }, 100);
             });
         }
         _clearOldSettings() {
@@ -1585,6 +1589,8 @@ var ScrollmapWithZoomNS;
             if (settingsStr != null) {
                 let settings = JSON.parse(settingsStr);
                 SWZ.debug("_loadSettings", settings.board_x, settings.board_y);
+                this._loaded_x = settings.board_x;
+                this._loaded_y = settings.board_y;
                 var height = this.getDisplayHeight();
                 if (settings.height != null && this.bSaveHeight) {
                     this.setDisplayHeight(settings.height);
@@ -1596,7 +1602,6 @@ var ScrollmapWithZoomNS;
                     this.setMapZoom(settings.zoom);
                 }
                 if (this.bRestoreScrollPosition && settings.board_x != null && settings.board_y != null) {
-                    this._scrolled = true;
                     this._scrollto(settings.board_x, settings.board_y, 0, 0);
                     scrolled = true;
                 }
@@ -1653,16 +1658,16 @@ var ScrollmapWithZoomNS;
             return scrolled;
         }
         saveSettings() {
-            SWZ.debug("saveSettings");
             let settings = {
                 time: Date.now(),
                 zoom: this.zoom,
-                board_x: this._scrolled ? this.board_x : null,
-                board_y: this._scrolled ? this.board_y : null,
+                board_x: this._scrolled ? this.board_x : this._loaded_x,
+                board_y: this._scrolled ? this.board_y : this._loaded_y,
                 height: this.getDisplayHeight(),
                 height_changed: this._bHeightChanged,
                 btns_visible: this._bBtnsVisible,
             };
+            SWZ.debug("saveSettings", settings.board_x, settings.board_y);
             appLocalStorage.setItem(this._localStorageKey, JSON.stringify(settings));
         }
         static _saveGameSettings() {
@@ -3113,7 +3118,7 @@ var ScrollmapWithZoomNS;
             var current_height = this.getDisplayHeight();
             var maxHeight = screen_height - this._titleHeight;
             new_height = Math.min(Math.max(new_height, this._minHeight), maxHeight);
-            if (this.bIncrHeightKeepInPos && this._setupDone)
+            if (this.bIncrHeightKeepInPos && gameui.isLoadingComplete)
                 this.board_y += (current_height - new_height) / 2;
             this.container_div.style.setProperty("--scrollmap_height", new_height + 'px');
             this.container_div.style.height = 'var(--scrollmap_height)';
