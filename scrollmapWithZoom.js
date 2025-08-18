@@ -1,5 +1,5 @@
 /*
-ScrollmapWithZoom 1.44.0 : Improved version of scrollmap used in multiple bga game
+ScrollmapWithZoom 1.45.0 : Improved version of scrollmap used in multiple bga game
 https://github.com/yansnow78/bga_scrollmap.git
 
 # improvements
@@ -200,6 +200,8 @@ var ScrollmapWithZoomNS;
                 return;
             if (!this._bIncrHeightBtnVisible) {
                 this.hideEnlargeReduceButtons();
+            } else {
+                this.showEnlargeReduceButtons();
             }
         }
         get bIncrHeightBtnIsShort() {
@@ -250,7 +252,7 @@ var ScrollmapWithZoomNS;
             this._longPressScroll = value;
         }
         constructor() {
-            this.version = '1.44.0';
+            this.version = '1.45.0';
             /**
              * board properties
              */
@@ -1286,6 +1288,10 @@ var ScrollmapWithZoomNS;
                                 <label for="bRestoreZoom">${_("Restore zoom level")}</label>
                             </div>
                             <div>
+                                <input type="checkbox" id="bShowHeightControls" value="true">
+                                <label for="bShowHeightControls">${_("Show height controls")}</label>
+                            </div>
+                            <div>
                                 <input type="checkbox" id="bUseOldTouchAndMouseEvent" value="true">
                                 <label for="bUseOldTouchAndMouseEvent">${_("Use old touch and mouse events")}</label>
                             </div>
@@ -1387,6 +1393,7 @@ var ScrollmapWithZoomNS;
             }
             inputs.namedItem("bRestoreScrollPosition").checked = this.bRestoreScrollPosition;
             inputs.namedItem("bRestoreZoom").checked = this.bRestoreZoom;
+            inputs.namedItem("bShowHeightControls").checked = this.bIncrHeightBtnVisible;
             inputs.namedItem("bUseOldTouchAndMouseEvent").checked = this.scrollingOptions.bUseOldTouchAndMouseEvent;
         }
         _submitForm() {
@@ -1455,6 +1462,11 @@ var ScrollmapWithZoomNS;
             if (this.bRestoreZoom != bRestoreZoom) {
                 this.bRestoreZoom = bRestoreZoom;
                 ScrollmapWithZoom._optionsChanged.bRestoreZoom = bRestoreZoom;
+            }
+            var bShowHeightControls = inputs.namedItem("bShowHeightControls").checked;
+            if (this.bIncrHeightBtnVisible != bShowHeightControls) {
+                this.bIncrHeightBtnVisible = bShowHeightControls;
+                ScrollmapWithZoom._optionsChanged.bShowHeightControls = bShowHeightControls;
             }
             var bUseOldTouchAndMouseEvent = inputs.namedItem("bUseOldTouchAndMouseEvent").checked;
             if (this.scrollingOptions.bUseOldTouchAndMouseEvent != bUseOldTouchAndMouseEvent) {
@@ -1643,6 +1655,9 @@ var ScrollmapWithZoomNS;
                     }
                     if (optionsChanged.bRestoreZoom != null) {
                         this.bRestoreZoom = optionsChanged.bRestoreZoom;
+                    }
+                    if (optionsChanged.bShowHeightControls != null) {
+                        this.bIncrHeightBtnVisible = optionsChanged.bShowHeightControls;
                     }
                     if (adaptHeightNeeded)
                         this.adaptHeight();
@@ -3083,6 +3098,7 @@ var ScrollmapWithZoomNS;
                 this.minHeight = minHeight;
         }
         showEnlargeReduceButtons() {
+            this._bIncrHeightBtnVisible = true;
             var btnsProps = this._getEnlargeReduceButtonsProps(this._bEnlargeReduceButtonsInsideMap);
             this._showButton(this._btnIncreaseHeight, btnsProps.idSuffix, btnsProps.display);
             this._showButton(this._btnDecreaseHeight, btnsProps.idSuffix, btnsProps.display);
@@ -3098,6 +3114,7 @@ var ScrollmapWithZoomNS;
             this._showButton(this._bMaxHeight ? this._btnResetHeight : this._btnMaximizeHeight);
         }
         hideEnlargeReduceButtons() {
+            this._bIncrHeightBtnVisible = false;
             var btnsProps = this._getEnlargeReduceButtonsProps(this._bEnlargeReduceButtonsInsideMap);
             this._hideButton(this._btnIncreaseHeight, btnsProps.idSuffix);
             this._hideButton(this._btnDecreaseHeight, btnsProps.idSuffix);

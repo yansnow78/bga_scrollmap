@@ -59,9 +59,9 @@ define([
                 return rect;
             },
 
-            setLoader(value, max) {
+            setLoader(image_progress, logs_progress) {
                 this.inherited(arguments);
-                if (!this.isLoadingComplete && value >= 100) {
+                if (!this.isLoadingComplete && image_progress >= 100) {
                     this.isLoadingComplete = true;
                     if (this.onLoadingComplete)
                         this.onLoadingComplete();

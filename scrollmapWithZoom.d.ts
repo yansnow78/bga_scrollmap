@@ -23,6 +23,7 @@ type _optionsChangedT = {
     bAutoCompensateChatIcon?: boolean;
     bRestoreScrollPosition?: boolean;
     bRestoreZoom?: boolean;
+    bShowHeightControls?: boolean;
     bUseOldTouchAndMouseEvent?: boolean;
 };
 interface Position {

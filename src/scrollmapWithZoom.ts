@@ -25,6 +25,7 @@ type _optionsChangedT = {
     bAutoCompensateChatIcon ? : boolean;
     bRestoreScrollPosition ? : boolean;
     bRestoreZoom ? : boolean;
+    bShowHeightControls ? : boolean;
     bUseOldTouchAndMouseEvent ? : boolean
 };
 
@@ -317,6 +318,8 @@ namespace ScrollmapWithZoomNS {
                 return;
             if (!this._bIncrHeightBtnVisible) {
                 this.hideEnlargeReduceButtons();
+            } else {
+                this.showEnlargeReduceButtons();
             }
         }
         public get bIncrHeightBtnIsShort(): boolean {
@@ -1386,6 +1389,10 @@ namespace ScrollmapWithZoomNS {
                                 <label for="bRestoreZoom">${_("Restore zoom level")}</label>
                             </div>
                             <div>
+                                <input type="checkbox" id="bShowHeightControls" value="true">
+                                <label for="bShowHeightControls">${_("Show height controls")}</label>
+                            </div>
+                            <div>
                                 <input type="checkbox" id="bUseOldTouchAndMouseEvent" value="true">
                                 <label for="bUseOldTouchAndMouseEvent">${_("Use old touch and mouse events")}</label>
                             </div>
@@ -1489,6 +1496,7 @@ namespace ScrollmapWithZoomNS {
             }
             inputs.namedItem("bRestoreScrollPosition").checked = this.bRestoreScrollPosition;
             inputs.namedItem("bRestoreZoom").checked = this.bRestoreZoom;
+            inputs.namedItem("bShowHeightControls").checked = this.bIncrHeightBtnVisible;
             inputs.namedItem("bUseOldTouchAndMouseEvent").checked = this.scrollingOptions.bUseOldTouchAndMouseEvent;
         }
 
@@ -1558,6 +1566,11 @@ namespace ScrollmapWithZoomNS {
             if (this.bRestoreZoom != bRestoreZoom) {
                 this.bRestoreZoom = bRestoreZoom;
                 ScrollmapWithZoom._optionsChanged.bRestoreZoom = bRestoreZoom;
+            }
+            var bShowHeightControls = inputs.namedItem("bShowHeightControls").checked;
+            if (this.bIncrHeightBtnVisible != bShowHeightControls) {
+                this.bIncrHeightBtnVisible = bShowHeightControls;
+                ScrollmapWithZoom._optionsChanged.bShowHeightControls = bShowHeightControls;
             }
             var bUseOldTouchAndMouseEvent = inputs.namedItem("bUseOldTouchAndMouseEvent").checked;
             if (this.scrollingOptions.bUseOldTouchAndMouseEvent != bUseOldTouchAndMouseEvent) {
@@ -1756,6 +1769,9 @@ namespace ScrollmapWithZoomNS {
                     }
                     if (optionsChanged.bRestoreZoom != null) {
                         this.bRestoreZoom = optionsChanged.bRestoreZoom;
+                    }
+                    if (optionsChanged.bShowHeightControls != null) {
+                        this.bIncrHeightBtnVisible = optionsChanged.bShowHeightControls;
                     }
                     if (adaptHeightNeeded)
                         this.adaptHeight();
@@ -3354,6 +3370,7 @@ namespace ScrollmapWithZoomNS {
         }
 
         showEnlargeReduceButtons() {
+            this._bIncrHeightBtnVisible = true;
             var btnsProps = this._getEnlargeReduceButtonsProps(this._bEnlargeReduceButtonsInsideMap);
             this._showButton(this._btnIncreaseHeight, btnsProps.idSuffix, btnsProps.display);
             this._showButton(this._btnDecreaseHeight, btnsProps.idSuffix, btnsProps.display);
@@ -3370,6 +3387,7 @@ namespace ScrollmapWithZoomNS {
         }
 
         hideEnlargeReduceButtons() {
+            this._bIncrHeightBtnVisible = false;
             var btnsProps = this._getEnlargeReduceButtonsProps(this._bEnlargeReduceButtonsInsideMap);
             this._hideButton(this._btnIncreaseHeight, btnsProps.idSuffix);
             this._hideButton(this._btnDecreaseHeight, btnsProps.idSuffix);
